@@ -1,0 +1,31 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/api/v1/data/latest",
+      "destination": "/api/v1/data/latest"
+    },
+    {
+      "source": "/api/v1/history/all",
+      "destination": "/api/v1/history/all"
+    },
+    {
+        "source": "/api/stats/summary",
+        "destination": "/api/stats/summary"
+    },
+    {
+      "source": "/api/(.*)",
+      "destination": "https://aqmrg.pythonanywhere.com/api/$1"
+    },
+    {
+      "source": "/health",
+      "destination": "https://aqmrg.pythonanywhere.com/health"
+    }
+  ],
+  "env": {
+    "VITE_API_URL": "/api"
+  }
+}
