@@ -6,6 +6,162 @@ body {
   color: #f8fafc;
 }
 
+[data-theme="light"] body {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+/* Light Theme Overrides for index.css specific components */
+[data-theme="light"] .story-window {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: #e2e8f0;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .story-step-header h1 {
+  background: none;
+  color: #0f172a;
+  -webkit-text-fill-color: initial;
+}
+
+[data-theme="light"] .story-narration p {
+  color: #334155;
+}
+
+[data-theme="light"] .factor-visual-card {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: #cbd5e1;
+}
+
+[data-theme="light"] .factor-pill {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: #cbd5e1;
+}
+
+[data-theme="light"] .factor-pill .name {
+  color: #0f172a;
+}
+
+[data-theme="light"] .column-token {
+  background: rgba(255, 255, 255, 0.8);
+  color: #475569;
+  border-color: #cbd5e1;
+}
+
+[data-theme="light"] .scientific-note-card {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+[data-theme="light"] .scientific-note-card h3 {
+  color: #16a34a;
+}
+
+[data-theme="light"] .scientific-note-card p,
+[data-theme="light"] .note-list li {
+  color: #334155;
+}
+
+[data-theme="light"] .note-list strong {
+  color: #0f172a;
+}
+
+[data-theme="light"] .story-quote-box {
+  background: rgba(255, 255, 255, 0.5);
+  border-left-color: #3b82f6;
+}
+
+[data-theme="light"] .story-quote-box p {
+  color: #1e293b;
+}
+
+[data-theme="light"] .notebook-stats-table {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+[data-theme="light"] .notebook-stats-table td {
+  border-bottom-color: #f1f5f9;
+}
+
+[data-theme="light"] .notebook-stats-table td:first-child {
+  color: #475569;
+}
+
+[data-theme="light"] .notebook-stats-table td:last-child {
+  color: #0f172a;
+}
+
+[data-theme="light"] .story-visual-container {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .visual-title {
+  color: #334155;
+}
+
+[data-theme="light"] .visual-stat-card {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: #e2e8f0;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+[data-theme="light"] .visual-stat-card.highlight {
+  background: #fff1f2;
+  border-color: #fecdd3;
+}
+
+[data-theme="light"] .stat-value {
+  color: #0f172a;
+}
+
+[data-theme="light"] .plain-english-box {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+[data-theme="light"] .box-content p {
+  color: #334155;
+}
+
+[data-theme="light"] .btn-story-prev {
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+[data-theme="light"] .btn-story-prev:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+[data-theme="light"] .scatter-card {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+[data-theme="light"] .scatter-card-title {
+  color: #1e293b;
+}
+
+[data-theme="light"] .missing-data-results {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: #e2e8f0;
+}
+
+[data-theme="light"] .missing-bar-bg {
+  background: #f1f5f9;
+}
+
+[data-theme="light"] .player-tag {
+  background: #ffffff;
+  color: #3b82f6;
+  border-color: #bfdbfe;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.1);
+}
+
 .story-stepper-container {
   max-width: 900px;
   margin: 2rem auto;

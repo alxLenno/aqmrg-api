@@ -13,7 +13,7 @@ import { fetchSampledHistory } from '../api/dashboard';
  * YourDataTab — Notebook-Led Discovery (V4)
  * Translates technical notebook steps into visual story steps.
  */
-export default function YourDataTab() {
+export default function YourDataTab({ selectedDevice }) {
     const [loading, setLoading] = useState(true);
     const [history, setHistory] = useState([]);
     const [currentStep, setCurrentStep] = useState(0);
@@ -22,8 +22,9 @@ export default function YourDataTab() {
     useEffect(() => {
         let mounted = true;
         async function load() {
+            setLoading(true);
             try {
-                const data = await fetchSampledHistory(1000);
+                const data = await fetchSampledHistory(1000, selectedDevice);
                 if (mounted) {
                     setHistory(data);
                     if (data.length > 0) {
@@ -44,7 +45,7 @@ export default function YourDataTab() {
         }
         load();
         return () => { mounted = false; };
-    }, []);
+    }, [selectedDevice]);
 
     const processedData = useMemo(() => {
         if (!history.length) return null;

@@ -30,12 +30,12 @@ const PairPlot = ({ data, columns }) => {
             // Simple histogram/density for diagonal
             return (
                 <g key={`${i}-${j}`} transform={`translate(${xPos + padding}, ${yPos + padding})`}>
-                    <rect width={size - 2 * padding} height={size - 2 * padding} fill="rgba(59, 130, 246, 0.05)" stroke="rgba(59, 130, 246, 0.2)" rx="8" />
+                    <rect width={size - 2 * padding} height={size - 2 * padding} className="plot-bg plot-diag" rx="8" />
                     <text
                         x={(size - 2 * padding) / 2}
                         y={(size - 2 * padding) / 2}
                         textAnchor="middle"
-                        fill="#60a5fa"
+                        className="plot-text"
                         style={{ fontSize: '12px', fontWeight: '800', letterSpacing: '0.05em' }}
                     >
                         {xCol === 'pm25' ? 'PM2.5' : xCol.toUpperCase()}
@@ -59,7 +59,7 @@ const PairPlot = ({ data, columns }) => {
 
         return (
             <g key={`${i}-${j}`} transform={`translate(${xPos + padding}, ${yPos + padding})`}>
-                <rect width={size - 2 * padding} height={size - 2 * padding} fill="rgba(0,0,0,0.3)" stroke="rgba(255,255,255,0.1)" rx="8" />
+                <rect width={size - 2 * padding} height={size - 2 * padding} className="plot-bg" rx="8" />
                 {points}
             </g>
         );
@@ -74,11 +74,22 @@ const PairPlot = ({ data, columns }) => {
             </svg>
             <style jsx>{`
                 .pair-plot-container {
-                    background: rgba(0, 0, 0, 0.2);
+                    background: var(--bg-card);
                     border-radius: 12px;
-                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border: 1px solid var(--border);
                     display: flex;
                     justify-content: center;
+                }
+                .plot-bg {
+                    fill: var(--bg-secondary);
+                    stroke: var(--border);
+                }
+                .plot-diag {
+                    fill: var(--accent-glow);
+                    stroke: rgba(59, 130, 246, 0.3);
+                }
+                .plot-text {
+                    fill: var(--accent);
                 }
             `}</style>
         </div>

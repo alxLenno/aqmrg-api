@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AQMRG | Local Sensor Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #111827;
+            --bg-card: rgba(17, 24, 39, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --accent-cyan: #06b6d4;
+            --accent-cyan-glow: rgba(6, 182, 212, 0.3);
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(6, 182, 212, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(59, 130, 246, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .brand-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        .brand-text h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-text p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin: 2px 0 0 0;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 100px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--success);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Metrics Grid */
+        .metrics-section {
+            margin-bottom: 40px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+        }
+
+        .last-updated {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .metric-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(6, 182, 212, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .metric-card:hover::before {
+            opacity: 1;
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .metric-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .metric-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(6, 182, 212, 0.1);
+            color: var(--accent-cyan);
+        }
+
+        .metric-value-wrapper {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1;
+        }
+
+        .metric-unit {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .metric-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .metric-trend {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border-radius: 100px;
+            font-weight: 500;
+        }
+
+        /* Data Table Section */
+        .table-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .table-title-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .table-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 100px;
+            font-size: 0.625rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--danger);
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--danger);
+            border-radius: 50%;
+            animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-family: inherit;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(6, 182, 212, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Table */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        thead {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        th {
+            text-align: left;
+            padding: 14px 16px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .cell-device {
+            font-family: 'SF Mono', monospace;
+            font-size: 0.8125rem;
+            color: var(--accent-cyan);
+        }
+
+        .cell-value {
+            font-weight: 600;
+        }
+
+        .cell-unit {
+            color: var(--text-muted);
+            font-weight: 400;
+            margin-left: 2px;
+        }
+
+        .status-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .metric-value {
+                font-size: 2rem;
+            }
+
+            .table-header {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+        }
+
+        /* Loading animation */
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="brand">
+                <div class="brand-icon">AQ</div>
+                <div class="brand-text">
+                    <h1>Air Quality Monitor</h1>
+                    <p>Real-time sensor data dashboard</p>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <select id="device-selector" style="background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 8px; font-family: inherit; font-size: 0.875rem; outline: none; cursor: pointer; backdrop-filter: blur(10px);">
+                    <option value="">All Sensors</option>
+                </select>
+                <div class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span>System Online</span>
+                </div>
+            </div>
+        </header>
+
+        <section class="metrics-section">
+            <div class="section-header">
+                <span class="section-title">Current Readings</span>
+                <span class="last-updated" id="last-updated">Last updated: --</span>
+            </div>
+            <div class="metrics-grid" id="latest-metrics">
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span class="metric-label">PM2.5 Concentration</span>
+                        <div class="metric-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"/>
+                                <path d="M12 1v6m0 6v6m4.22-10.22l4.24-4.24M6.34 6.34L2.1 2.1m17.8 17.8l-4.24-4.24M6.34 17.66l-4.24 4.24M23 12h-6m-6 0H1m20.24 4.24l-4.24-4.24M6.34 17.66l-4.24 4.24"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="metric-value-wrapper">
+                        <span class="metric-value" id="pm25-value">--</span>
+                        <span class="metric-unit">µg/m³</span>
+                    </div>
+                    <div class="metric-meta">
+                        <span class="metric-trend">Good</span>
+                        <span>Device: AQ-001</span>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span class="metric-label">CO₂ Levels</span>
+                        <div class="metric-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2v20M2 12h20"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="metric-value-wrapper">
+                        <span class="metric-value" id="co2-value">--</span>
+                        <span class="metric-unit">ppm</span>
+                    </div>
+                    <div class="metric-meta">
+                        <span class="metric-trend">Optimal</span>
+                        <span>Indoor Air Quality</span>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span class="metric-label">Device Location</span>
+                        <div class="metric-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                <circle cx="12" cy="10" r="3"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="metric-value-wrapper">
+                        <span class="metric-value" id="location-value" style="font-size: 1.5rem;">--</span>
+                    </div>
+                    <div class="metric-meta">
+                        <span>GSM LBS Positioning</span>
+                        <span>Dynamic Update</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="table-section">
+            <div class="table-header">
+                <div class="table-title-wrapper">
+                    <h2 class="table-title">Recent Readings</h2>
+                    <span class="live-badge">
+                        <span class="live-dot"></span>
+                        Live
+                    </span>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <a href="/api/v1/health/export/csv" id="export-health-btn" class="btn btn-secondary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        Export Health Logs
+                    </a>
+                    <a href="/api/v1/data/export/csv" id="export-data-btn" class="btn btn-primary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        Export Sensor Data
+                    </a>
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Device ID</th>
+                            <th>PM2.5</th>
+                            <th>CO₂</th>
+                            <th>Temperature</th>
+                            <th>Humidity</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="readings-body">
+                        <tr>
+                            <td colspan="7">
+                                <div class="empty-state">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/>
+                                    </svg>
+                                    <p>Waiting for sensor data...</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        let currentDevice = ''; // Empty string implies fetching data from all devices
+
+        async function loadDevices() {
+            try {
+                const res = await fetch('/api/v1/devices');
+                const data = await res.json();
+                const selector = document.getElementById('device-selector');
+
+                if (data.devices && data.devices.length > 0) {
+                    data.devices.forEach(dev => {
+                        const opt = document.createElement('option');
+                        opt.value = dev;
+                        opt.textContent = `Device: ${dev}`;
+                        selector.appendChild(opt);
+                    });
+                }
+
+                selector.addEventListener('change', (e) => {
+                    currentDevice = e.target.value;
+                    updateExportLinks();
+                    fetchLatestData();
+                });
+            } catch (err) {
+                console.error('Error loading devices:', err);
+            }
+        }
+
+        function updateExportLinks() {
+            const dataBtn = document.getElementById('export-data-btn');
+            const healthBtn = document.getElementById('export-health-btn');
+            const suffix = currentDevice ? `?device_id=${currentDevice}` : '';
+            if (dataBtn) dataBtn.href = '/api/v1/data/export/csv' + suffix;
+            if (healthBtn) healthBtn.href = '/api/v1/health/export/csv' + suffix;
+        }
+
+        async function fetchLatestData() {
+            try {
+                const url = currentDevice ? `/api/v1/data/latest?device_id=${currentDevice}` : '/api/v1/data/latest';
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.length > 0) {
+                    updateDashboard(data);
+                } else {
+                    document.getElementById('readings-body').innerHTML = `<tr><td colspan="7"><div class="empty-state"><p>No data recorded for this sensor yet.</p></div></td></tr>`;
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        function updateDashboard(readings) {
+            const tableBody = document.getElementById('readings-body');
+            const latest = readings[0];
+
+            // Update timestamp
+            document.getElementById('last-updated').textContent =
+                'Last updated: ' + new Date().toLocaleTimeString();
+
+            // Update metric cards
+            if (latest.metrics) {
+                document.getElementById('pm25-value').textContent =
+                    latest.metrics.pm25 ?? '--';
+                document.getElementById('co2-value').textContent =
+                    latest.metrics.co2 ?? '--';
+            }
+
+            if (latest.location) {
+                const lat = latest.location.latitude || '0.000';
+                const lng = latest.location.longitude || '0.000';
+                document.getElementById('location-value').textContent =
+                    `${lat}, ${lng}`;
+            }
+
+            // Update table - show only first 5 records
+            const displayData = readings.slice(0, 5);
+
+            tableBody.innerHTML = displayData.map(r => {
+                const time = r.timestamp ? r.timestamp.split(' ')[1] || r.timestamp : '--';
+                return `
+                    <tr>
+                        <td>${time}</td>
+                        <td class="cell-device">${r.device_id || '--'}</td>
+                        <td class="cell-value">${r.metrics?.pm25 ?? '--'}<span class="cell-unit">µg/m³</span></td>
+                        <td class="cell-value">${r.metrics?.co2 ?? '--'}<span class="cell-unit">ppm</span></td>
+                        <td>${r.metrics?.temperature ?? '--'}<span class="cell-unit">°C</span></td>
+                        <td>${r.metrics?.humidity ?? '--'}<span class="cell-unit">%</span></td>
+                        <td>
+                            <span class="status-tag status-success">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                                Forwarded
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Initial fetch setup
+        loadDevices();
+        fetchLatestData();
+        // Poll every 5 seconds
+        setInterval(fetchLatestData, 5000);
+    </script>
+</body>
+
+</html>

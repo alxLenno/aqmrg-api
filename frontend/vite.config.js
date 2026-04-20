@@ -14,12 +14,12 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
-        target: process.env.VITE_PROXY_TARGET || 'https://aqmrg.pythonanywhere.com',
+        target: 'http://aqmrg.pythonanywhere.com',
         changeOrigin: true,
         rewrite: (path) => path,
       },
       '/health': {
-        target: process.env.VITE_PROXY_TARGET || 'https://aqmrg.pythonanywhere.com',
+        target: 'http://aqmrg.pythonanywhere.com',
         changeOrigin: true,
         rewrite: (path) => path,
       },

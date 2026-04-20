@@ -1,26 +1,25 @@
-import { useState, useEffect, useMemo } from 'react';
-import {
-    ComposedChart,
-    Line,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    Legend,
-    ResponsiveContainer,
-    Area
-} from 'recharts';
-import { fetchSampledHistory } from '../api/dashboard';
+import { METRIC_CONFIG, formatMetricLabel, getMetricUnit, discoverMetrics } from '../utils/metrics';
 
 /**
  * RawAnalysisTab — Deep-dive time-series exploration.
  * Supports Hourly, Daily, Weekly, Monthly, Yearly granularities.
  */
-export default function RawAnalysisTab() {
+export default function RawAnalysisTab({ selectedDevice }) {
     const [loading, setLoading] = useState(true);
     const [history, setHistory] = useState([]);
     const [activeBuckets, setActiveBuckets] = useState('daily'); // hourly, daily, weekly, monthly, yearly
+
+    // Discovered keys for the charts
+    const activeMetricKeys = useMemo(() => discoverMetrics(history), [history]);
+
+    const parameters = useMemo(() => {
+        return activeMetricKeys.map(key => ({
+            key,
+            label: formatMetricLabel(key),
+            unit: getMetricUnit(key),
+            color: METRIC_CONFIG[key]?.color || `hsl(${Math.random() * 360}, 70%, 50%)`
+        }));
+    }, [activeMetricKeys]);
     
     // Selectors state
     const [selectedDate, setSelectedDate] = useState(() => {
@@ -54,7 +53,7 @@ export default function RawAnalysisTab() {
         async function load() {
             setLoading(true);
             try {
-                const data = await fetchSampledHistory(3000);
+                const data = await fetchSampledHistory(3000, selectedDevice);
                 if (mounted && data.length > 0) {
                     setHistory(data);
                     // Proactively set the selected date to the most recent record's date
@@ -73,7 +72,7 @@ export default function RawAnalysisTab() {
         }
         load();
         return () => { mounted = false; };
-    }, []);
+    }, [selectedDevice]);
 
     const aggregatedData = useMemo(() => {
         if (!history.length) return [];
@@ -116,18 +115,13 @@ export default function RawAnalysisTab() {
             // Show data as is
             return filtered.map((d, i) => {
                 const m = d.metrics || d;
-                return {
-                    name: d._date.toLocaleTimeString([], {minute:'2-digit', second:'2-digit'}),
-                    pm1: m.pm1 ?? m.pm1_0 ?? m.pm10_0 ?? 0,
-                    pm25: m.pm25 ?? m.pm2_5 ?? 0,
-                    pm10: m.pm10 ?? 0,
-                    co2: m.co2 ?? 0,
-                    co: m.co ?? 0,
-                    temp: m.temperature ?? m.temp ?? 0,
-                    hum: m.humidity ?? m.hum ?? 0,
-                    voc: m.voc_index ?? m.voc ?? 0,
-                    nox: m.nox_index ?? m.nox ?? 0
+                const entry = {
+                  name: d._date.toLocaleTimeString([], {minute:'2-digit', second:'2-digit'})
                 };
+                activeMetricKeys.forEach(k => {
+                  entry[k] = m[k] ?? 0;
+                });
+                return entry;
             });
         }
 
@@ -149,69 +143,43 @@ export default function RawAnalysisTab() {
             }
 
             if (!groups[key]) {
-                groups[key] = { 
+                const group = { 
                     name: key, 
-                    pm1: [], pm25:[], pm10:[], 
-                    co2:[], co:[], temp:[], hum:[], 
-                    voc:[], nox:[],
                     sortKey: activeBuckets === 'monthly' ? dayOfMonth : 0 
                 };
+                activeMetricKeys.forEach(k => { group[k] = []; });
+                groups[key] = group;
             }
             const m = item.metrics || item;
             
-            const v_pm1 = m.pm1 ?? m.pm1_0 ?? m.pm10_0;
-            const v_pm25 = m.pm25 ?? m.pm2_5;
-            const v_pm10 = m.pm10;
-            const v_co2 = m.co2;
-            const v_co = m.co;
-            const v_temp = m.temperature ?? m.temp;
-            const v_hum = m.humidity ?? m.hum;
-            const v_voc = m.voc_index ?? m.voc;
-            const v_nox = m.nox_index ?? m.nox;
-
-            if (v_pm1 !== undefined && v_pm1 !== null) groups[key].pm1.push(Number(v_pm1));
-            if (v_pm25 !== undefined && v_pm25 !== null) groups[key].pm25.push(Number(v_pm25));
-            if (v_pm10 !== undefined && v_pm10 !== null) groups[key].pm10.push(Number(v_pm10));
-            if (v_co2 !== undefined && v_co2 !== null) groups[key].co2.push(Number(v_co2));
-            if (v_co !== undefined && v_co !== null) groups[key].co.push(Number(v_co));
-            if (v_temp !== undefined && v_temp !== null) groups[key].temp.push(Number(v_temp));
-            if (v_hum !== undefined && v_hum !== null) groups[key].hum.push(Number(v_hum));
-            if (v_voc !== undefined && v_voc !== null) groups[key].voc.push(Number(v_voc));
-            if (v_nox !== undefined && v_nox !== null) groups[key].nox.push(Number(v_nox));
+            activeMetricKeys.forEach(k => {
+              const val = m[k];
+              if (val !== undefined && val !== null) {
+                groups[key][k].push(Number(val));
+              }
+            });
         });
 
-        const result = Object.values(groups).map(g => ({
-            name: g.name,
-            sortKey: g.sortKey,
-            pm1: g.pm1.length ? (g.pm1.reduce((a,b)=>a+b,0)/g.pm1.length).toFixed(1) : 0,
-            pm25: g.pm25.length ? (g.pm25.reduce((a,b)=>a+b,0)/g.pm25.length).toFixed(1) : 0,
-            pm10: g.pm10.length ? (g.pm10.reduce((a,b)=>a+b,0)/g.pm10.length).toFixed(1) : 0,
-            co2: g.co2.length ? (g.co2.reduce((a,b)=>a+b,0)/g.co2.length).toFixed(0) : 0,
-            co: g.co.length ? (g.co.reduce((a,b)=>a+b,0)/g.co.length).toFixed(2) : 0,
-            temp: g.temp.length ? (g.temp.reduce((a,b)=>a+b,0)/g.temp.length).toFixed(1) : 0,
-            hum: g.hum.length ? (g.hum.reduce((a,b)=>a+b,0)/g.hum.length).toFixed(1) : 0,
-            voc: g.voc.length ? (g.voc.reduce((a,b)=>a+b,0)/g.voc.length).toFixed(0) : 0,
-            nox: g.nox.length ? (g.nox.reduce((a,b)=>a+b,0)/g.nox.length).toFixed(0) : 0,
-        }));
+        const result = Object.values(groups).map(g => {
+            const entry = {
+              name: g.name,
+              sortKey: g.sortKey
+            };
+            activeMetricKeys.forEach(k => {
+              const list = g[k];
+              const precision = (k === 'co' || k === 'o3') ? 2 : 1;
+              entry[k] = list.length ? (list.reduce((a,b)=>a+b,0)/list.length).toFixed(precision) : 0;
+            });
+            return entry;
+        });
 
         if (activeBuckets === 'monthly') {
             result.sort((a, b) => a.sortKey - b.sortKey);
         }
 
         return result;
-    }, [history, activeBuckets, selectedDate, selectedHour, selectedWeek, selectedMonth, selectedYear]);
+    }, [history, activeBuckets, selectedDate, selectedHour, selectedWeek, selectedMonth, selectedYear, activeMetricKeys]);
 
-    const parameters = [
-        { key: 'pm1', label: 'PM1.0 (Ultrafine)', unit: 'µg/m³', color: '#ec4899' },
-        { key: 'pm25', label: 'PM2.5 (Fine Particles)', unit: 'µg/m³', color: '#f43f5e' },
-        { key: 'pm10', label: 'PM10 (Coarse Particles)', unit: 'µg/m³', color: '#fbbf24' },
-        { key: 'co2', label: 'Carbon Dioxide (CO2)', unit: 'ppm', color: '#10b981' },
-        { key: 'co', label: 'Carbon Monoxide (CO)', unit: 'ppm', color: '#f59e0b' },
-        { key: 'temp', label: 'Temperature', unit: '°C', color: '#3b82f6' },
-        { key: 'hum', label: 'Humidity', unit: '%', color: '#a855f7' },
-        { key: 'voc', label: 'VOC Index', unit: 'index', color: '#8b5cf6' },
-        { key: 'nox', label: 'NOx Index', unit: 'index', color: '#06b6d4' }
-    ];
 
     if (loading) {
         return (
@@ -366,58 +334,54 @@ export default function RawAnalysisTab() {
                 }
                 .date-picker-wrapper label {
                     font-size: 0.7rem;
-                    color: #64748b;
+                    color: var(--text-secondary);
                     text-transform: uppercase;
                     letter-spacing: 0.05em;
                 }
                 .date-input {
-                    background: rgba(255,255,255,0.05);
-                    border: 1px solid rgba(255,255,255,0.1);
+                    background: var(--bg-card);
+                    border: 1px solid var(--border);
                     border-radius: 8px;
-                    color: #fff;
+                    color: var(--text-primary);
                     padding: 6px 12px;
                     font-size: 0.85rem;
                     outline: none;
                 }
-                .date-input::-webkit-calendar-picker-indicator {
-                    filter: invert(1);
-                    cursor: pointer;
-                }
                 .title-group h1 {
                     font-size: 1.8rem;
-                    background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+                    background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
                     -webkit-background-clip: text;
                     -webkit-text-fill-color: transparent;
                 }
                 .title-group p {
-                    color: #94a3b8;
+                    color: var(--text-secondary);
                     font-size: 0.9rem;
                 }
                 .bucket-nav {
                     display: flex;
-                    background: rgba(255,255,255,0.03);
+                    background: var(--bg-card);
                     padding: 4px;
                     border-radius: 12px;
-                    border: 1px solid rgba(255,255,255,0.05);
+                    border: 1px solid var(--border);
                 }
                 .bucket-btn {
                     padding: 8px 16px;
                     border-radius: 8px;
                     border: none;
                     background: transparent;
-                    color: #94a3b8;
+                    color: var(--text-secondary);
                     cursor: pointer;
                     font-size: 0.85rem;
                     transition: all 0.2s ease;
                 }
                 .bucket-btn:hover {
-                    color: #fff;
-                    background: rgba(255,255,255,0.05);
+                    color: var(--text-primary);
+                    background: var(--bg-card-hover);
                 }
                 .bucket-btn.active {
-                    background: #3b82f6;
+                    background: var(--accent);
                     color: #fff;
-                    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+                    box-shadow: 0 4px 12px var(--accent-glow);
                 }
                 .analysis-grid {
                     display: grid;
@@ -425,11 +389,10 @@ export default function RawAnalysisTab() {
                     gap: 24px;
                 }
                 .analysis-card {
-                    background: rgba(30, 41, 59, 0.5);
-                    border: 1px solid rgba(255,255,255,0.05);
+                    background: var(--bg-card);
+                    border: 1px solid var(--border);
                     border-radius: 20px;
                     padding: 24px;
-                    backdrop-filter: blur(10px);
                 }
                 .card-top {
                     display: flex;
@@ -440,14 +403,14 @@ export default function RawAnalysisTab() {
                 .card-top h3 {
                     font-size: 1.1rem;
                     font-weight: 500;
-                    color: #f8fafc;
+                    color: var(--text-primary);
                 }
                 .unit-tag {
                     font-size: 0.75rem;
-                    background: rgba(255,255,255,0.05);
+                    background: var(--bg-secondary);
                     padding: 4px 10px;
                     border-radius: 6px;
-                    color: #94a3b8;
+                    color: var(--text-secondary);
                 }
                 .chart-pair {
                     display: grid;
@@ -463,7 +426,7 @@ export default function RawAnalysisTab() {
                     font-size: 0.75rem;
                     text-transform: uppercase;
                     letter-spacing: 0.05em;
-                    color: #64748b;
+                    color: var(--text-secondary);
                 }
                 @media (max-width: 1024px) {
                     .chart-pair {

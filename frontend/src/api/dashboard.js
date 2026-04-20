@@ -7,8 +7,9 @@ const API_BASE = '/api';
  *
  * Returns: { timestamp, sensorsCount, sensors[] }
  */
-export async function fetchDashboardData() {
-    const response = await fetch(`${API_BASE}/v1/data/latest`);
+export async function fetchDashboardData(deviceId = '') {
+    const params = deviceId ? `?device_id=${deviceId}` : '';
+    const response = await fetch(`${API_BASE}/v1/data/latest${params}`);
     if (!response.ok) {
         throw new Error(`Dashboard API error: ${response.status}`);
     }
@@ -20,14 +21,15 @@ export async function fetchDashboardData() {
 
     // Transform the list of readings into the format expected by the dashboard
     const sensors = rawData.map(reading => {
+        const dId = reading.device_id || 'UNKNOWN';
         const metrics = reading.metrics || reading.readings || reading.last_readings || {};
         const lastSeen = reading.timestamp || reading.last_seen || reading.recorded_at || new Date().toISOString();
 
         return {
-            id: reading.id,
-            device_id: reading.device_id,
-            controller_id: `CTRL-${reading.device_id.slice(-4)}`,
-            name: reading.name || reading.sensor_name || `Node ${reading.device_id.slice(-4)}`,
+            id: reading.id || dId,
+            device_id: dId,
+            controller_id: `CTRL-${dId.slice(-4)}`,
+            name: reading.name || reading.sensor_name || `Station ${dId.slice(-4) || '??'}`,
             manufacturer: reading.manufacturer || 'Custom',
             is_online: reading.is_online !== undefined ? reading.is_online : true,
             last_seen: lastSeen,
@@ -39,17 +41,10 @@ export async function fetchDashboardData() {
                 sensors: ['PMS5003', 'MH-Z19C', 'SGP41', 'MQ-7', 'DHT11']
             },
             readings: {
-                pm1: metrics.pm1 ?? 0,
-                pm25: metrics.pm25 ?? 0,
-                pm10: metrics.pm10 ?? 0,
-                co: metrics.co ?? 0,
-                co2: metrics.co2 ?? 0,
-                temperature: metrics.temperature ?? 0,
-                humidity: metrics.humidity ?? 0,
-                voc_index: metrics.voc_index ?? 0,
-                nox_index: metrics.nox_index ?? 0,
+                ...metrics,
                 status: metrics.status || 'unknown'
             },
+
             last_readings: metrics
         };
     });
@@ -101,11 +96,27 @@ export async function fetchDashboardData() {
  * Returns: { location, forecast[], model }
  */
 export async function fetchForecast(location = 'Nairobi', hours = 4) {
-    const response = await fetch(
-        `${API_BASE}/v1/forecast/realtime`
-    );
+    try {
+        const response = await fetch(`${API_BASE}/v1/forecast/realtime`);
+        if (!response.ok) {
+            console.warn(`Forecast API warning: ${response.status}`);
+            return null;
+        }
+        return await response.json();
+    } catch (err) {
+        console.error('Forecast fetch failed:', err);
+        return null;
+    }
+}
+
+/**
+ * Fetch forecast comparison data from the PythonAnywhere backend.
+ * Endpoint: GET /api/v1/forecast/comparison
+ */
+export async function fetchForecastComparison() {
+    const response = await fetch(`${API_BASE}/v1/forecast/comparison`);
     if (!response.ok) {
-        throw new Error(`Forecast API error: ${response.status}`);
+        throw new Error(`Comparison API error: ${response.status}`);
     }
     return response.json();
 }
@@ -114,8 +125,9 @@ export async function fetchForecast(location = 'Nairobi', hours = 4) {
  * Fetch global historical data for EDA.
  * Endpoint: GET /api/v1/history/all
  */
-export async function fetchAllHistory(limit = 5000) {
-    const response = await fetch(`${API_BASE}/v1/history/all?limit=${limit}`);
+export async function fetchAllHistory(limit = 5000, deviceId = '') {
+    const params = deviceId ? `&device_id=${deviceId}` : '';
+    const response = await fetch(`${API_BASE}/v1/history/all?limit=${limit}${params}`);
     if (!response.ok) {
         throw new Error(`History API error: ${response.status}`);
     }
@@ -138,10 +150,10 @@ export async function fetchDataSummary() {
 /**
  * Fetch a sampled subset of historical data for efficient charting.
  */
-export async function fetchSampledHistory(limit = 200) {
+export async function fetchSampledHistory(limit = 200, deviceId = '') {
     // For now, we reuse fetchAllHistory with a smaller limit
     // In a production app, this would be a specialized aggregation endpoint
-    return fetchAllHistory(limit);
+    return fetchAllHistory(limit, deviceId);
 }
 
 /**
@@ -154,4 +166,48 @@ export async function checkHealth() {
         throw new Error(`Health check failed: ${response.status}`);
     }
     return response.json();
+}
+/**
+ * Fetch the list of all known device IDs.
+ * Endpoint: GET /api/v1/devices (proxied through PythonAnywhere)
+ */
+export async function fetchDevices() {
+    try {
+        const response = await fetch(`${API_BASE}/v1/devices`);
+        if (!response.ok) throw new Error(`Devices API: ${response.status}`);
+        const data = await response.json();
+        return Array.isArray(data.devices) ? data.devices : [];
+    } catch (err) {
+        console.error('Failed to fetch device list:', err);
+        return [];
+    }
+}
+
+/**
+ * Fetch device health diagnostics.
+ * Endpoint: GET /api/v1/health/latest
+ */
+export async function fetchHealthData(deviceId = '') {
+    const params = deviceId ? `?device_id=${deviceId}` : '';
+    const response = await fetch(`${API_BASE}/v1/health/latest${params}`);
+    if (!response.ok) {
+        throw new Error(`Health API error: ${response.status}`);
+    }
+    return response.json();
+}
+
+/**
+ * Build the CSV export URL for health data.
+ */
+export function getHealthExportUrl(deviceId = '') {
+    const params = deviceId ? `?device_id=${deviceId}` : '';
+    return `${API_BASE}/v1/health/export/csv${params}`;
+}
+
+/**
+ * Build the CSV export URL for sensor data.
+ */
+export function getDataExportUrl(deviceId = '') {
+    const params = deviceId ? `?device_id=${deviceId}` : '';
+    return `${API_BASE}/v1/data/export/csv${params}`;
 }

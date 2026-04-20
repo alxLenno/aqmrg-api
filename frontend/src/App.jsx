@@ -7,19 +7,67 @@ import SensorDetailTab from './components/SensorDetailTab';
 import YourDataTab from './components/YourDataTab';
 import RawAnalysisTab from './components/RawAnalysisTab';
 import ForecastPanel from './components/ForecastPanel';
-import { fetchDashboardData, fetchForecast, checkHealth } from './api/dashboard';
+import MapPanel from './components/MapPanel';
+import HealthTab from './components/HealthTab';
+import { fetchDashboardData, fetchForecast, fetchForecastComparison, fetchDevices, checkHealth } from './api/dashboard';
+import ThemeToggle from './components/ThemeToggle';
 import './App.css';
 
 /**
  * AQMRG Dashboard — Main Application
  */
+console.log("%c [AQMRG] Initializing Build v1.0.1", "color: #3b82f6; font-weight: bold;");
+
 export default function App() {
+  const [renderError, setRenderError] = useState(null);
+
+  // Global error handler for uncaught runtime errors during render
+  useEffect(() => {
+    const handleError = (e) => {
+      console.error("Caught global error:", e);
+      setRenderError(e.message || "Unknown Runtime Error");
+    };
+    window.addEventListener('error', handleError);
+    return () => window.removeEventListener('error', handleError);
+  }, []);
+
+  if (renderError) {
+    return (
+      <div style={{ padding: '40px', color: 'white', background: '#0f172a', height: '100vh' }}>
+        <h1>Application Crushed</h1>
+        <p>Error: {renderError}</p>
+        <button onClick={() => window.location.reload()}>Reload</button>
+      </div>
+    );
+  }
+
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
+  // Missing state variables for data fetching
+  const [sensors, setSensors] = useState([]);
+  const [sensorsCount, setSensorsCount] = useState(0);
+  const [timestamp, setTimestamp] = useState(null);
+  const [apiStatus, setApiStatus] = useState('connecting');
+  const [failCount, setFailCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [forecast, setForecast] = useState(null);
+  const [forecastLoading, setForecastLoading] = useState(true);
+  const [forecastError, setForecastError] = useState(null);
+  const [comparison, setComparison] = useState(null);
+  const [comparisonLoading, setComparisonLoading] = useState(true);
+  const [showSyncAlert, setShowSyncAlert] = useState(false);
+  const [devices, setDevices] = useState([]);
+  const [selectedDevice, setSelectedDevice] = useState('');
+
+  // Sidebar handlers
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+  const closeSidebar = () => setIsSidebarOpen(false);
   // Fetch real sensor data from the database
   const loadDashboardData = useCallback(async () => {
     try {
-      const data = await fetchDashboardData();
+      const data = await fetchDashboardData(selectedDevice);
       setTimestamp(prev => {
         if (data.timestamp && prev && data.timestamp !== prev) {
           setShowSyncAlert(true);
@@ -46,19 +94,28 @@ export default function App() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [selectedDevice]);
 
   const loadForecast = useCallback(async () => {
     try {
       setForecastLoading(true);
-      const data = await fetchForecast('Nairobi', 4);
-      setForecast(data);
+      setComparisonLoading(true);
+      
+      // Fetch both forecast and comparison in parallel
+      const [forecastData, comparisonData] = await Promise.all([
+        fetchForecast('Nairobi', 4),
+        fetchForecastComparison()
+      ]);
+      
+      setForecast(forecastData);
+      setComparison(comparisonData);
       setForecastError(null);
     } catch (err) {
-      console.error('Forecast Error:', err);
+      console.error('Forecast/Comparison Error:', err);
       setForecastError(err.message);
     } finally {
       setForecastLoading(false);
+      setComparisonLoading(false);
     }
   }, []);
 
@@ -81,18 +138,39 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    // Initial load
     checkApiHealth();
     loadDashboardData();
     loadForecast();
+    
+    // Function to update device list
+    const updateDevices = () => {
+      fetchDevices()
+        .then(devs => {
+          setDevices(devs);
+          // Auto-select if only one real device exists and none selected
+          if (devs.length === 1 && !selectedDevice) {
+            setSelectedDevice(devs[0].device_id);
+          }
+        })
+        .catch(err => console.error('Devices load error:', err));
+    };
+    
+    updateDevices();
+
+    // Setup intervals
     const dashboardInterval = setInterval(loadDashboardData, 5000);
     const forecastInterval = setInterval(loadForecast, 60000);
     const healthInterval = setInterval(checkApiHealth, 15000);
+    const deviceInterval = setInterval(updateDevices, 30000);
+
     return () => {
       clearInterval(dashboardInterval);
       clearInterval(forecastInterval);
       clearInterval(healthInterval);
+      clearInterval(deviceInterval);
     };
-  }, [loadDashboardData, loadForecast, checkApiHealth]);
+  }, [loadDashboardData, loadForecast, checkApiHealth, selectedDevice]);
   
   return (
     <div className={`app ${isSidebarOpen ? 'sidebar-open' : ''}`}>
@@ -112,7 +190,14 @@ export default function App() {
           </svg>
         </button>
 
-        <Header apiStatus={apiStatus} sensorsCount={sensorsCount} lastUpdate={timestamp} />
+        <Header
+          apiStatus={apiStatus}
+          sensorsCount={sensorsCount}
+          lastUpdate={timestamp}
+          devices={devices}
+          selectedDevice={selectedDevice}
+          onDeviceChange={setSelectedDevice}
+        />
 
         {apiStatus === 'disconnected' && (
           <div className="connection-banner">
@@ -150,15 +235,23 @@ export default function App() {
             <StatsGrid sensors={sensors} loading={loading} />
             <section className="bottom-row">
               <SensorList sensors={sensors} loading={loading} timestamp={timestamp} />
-              <ForecastPanel forecast={forecast} loading={forecastLoading} error={forecastError} />
+                <ForecastPanel 
+                  forecast={forecast} 
+                  comparison={comparison}
+                  loading={forecastLoading || comparisonLoading} 
+                  error={forecastError} 
+                />
             </section>
+            <MapPanel sensors={sensors} loading={loading} />
           </>
         ) : activeTab === 'sensors' ? (
           <SensorDetailTab sensors={sensors} loading={loading} />
+        ) : activeTab === 'health' ? (
+          <HealthTab selectedDevice={selectedDevice} />
         ) : activeTab === 'raw-analysis' ? (
-          <RawAnalysisTab sensors={sensors} loading={loading} />
+          <RawAnalysisTab selectedDevice={selectedDevice} sensors={sensors} loading={loading} />
         ) : (
-          <YourDataTab sensors={sensors} loading={loading} />
+          <YourDataTab selectedDevice={selectedDevice} sensors={sensors} loading={loading} />
         )}
         {showSyncAlert && (
           <div className="data-forward-alert">
@@ -167,6 +260,8 @@ export default function App() {
           </div>
         )}
       </main>
+
+      <ThemeToggle />
     </div>
   );
 }

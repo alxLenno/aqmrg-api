@@ -63,6 +63,16 @@ export default function Sidebar({ activeTab, onTabChange, isOpen, onClose }) {
                     </svg>
                     <span>Sensors</span>
                 </a>
+                <a
+                    href="#"
+                    className={`nav-item ${activeTab === 'health' ? 'active' : ''}`}
+                    onClick={(e) => { e.preventDefault(); onTabChange('health'); onClose(); }}
+                >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                    </svg>
+                    <span>Device Health</span>
+                </a>
             </nav>
 
             <div className="sidebar-footer">

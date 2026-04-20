@@ -20,7 +20,10 @@ export default async function handler(
     // 1. Fetch from PythonAnywhere (Primary Production Source)
     let paReadings: any[] = [];
     try {
-      const resp = await fetch(`${PA_URL}?limit=${limit}`, { signal: AbortSignal.timeout(8000) });
+      const deviceId = typeof request.query.device_id === 'string' ? request.query.device_id : '';
+      let paFetchUrl = `${PA_URL}?limit=${limit}`;
+      if (deviceId) paFetchUrl += `&device_id=${deviceId}`;
+      const resp = await fetch(paFetchUrl, { signal: AbortSignal.timeout(8000) });
       if (resp.ok) {
         const data = await resp.json();
         const raw = data.readings || (Array.isArray(data) ? data : []);

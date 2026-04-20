@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-export default function Header({ apiStatus, sensorsCount, lastUpdate }) {
+export default function Header({ apiStatus, sensorsCount, lastUpdate, devices = [], selectedDevice = '', onDeviceChange }) {
     const [time, setTime] = useState(new Date());
     const [syncCountdown, setSyncCountdown] = useState(null);
 
@@ -11,7 +11,6 @@ export default function Header({ apiStatus, sensorsCount, lastUpdate }) {
 
             if (lastUpdate) {
                 const lastDate = new Date(lastUpdate);
-                // Data arrives approximately every 5 minutes (300 seconds)
                 const nextExpected = new Date(lastDate.getTime() + 5 * 60 * 1000);
                 const diff = Math.floor((nextExpected - now) / 1000);
 
@@ -20,7 +19,6 @@ export default function Header({ apiStatus, sensorsCount, lastUpdate }) {
                     const s = diff % 60;
                     setSyncCountdown(`${m}m ${s}s`);
                 } else {
-                    // If diff is negative, we're waiting for data (overdue)
                     setSyncCountdown('Waiting for data...');
                 }
             }
@@ -48,6 +46,21 @@ export default function Header({ apiStatus, sensorsCount, lastUpdate }) {
                 </span>
             </div>
             <div className="topbar-right">
+                <div className="device-picker-container">
+                    <span className="picker-label">Sensor Node:</span>
+                    <select
+                        className="device-select"
+                        value={selectedDevice}
+                        onChange={(e) => onDeviceChange(e.target.value)}
+                    >
+                        <option value="">All Sensors (Fleet)</option>
+                        {devices.map(d => (
+                            <option key={d.device_id || d} value={d.device_id || d}>
+                                {d.name || d.device_id || d}
+                            </option>
+                        ))}
+                    </select>
+                </div>
                 {syncCountdown && (
                     <div className="sync-timer-badge">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: '6px' }}>
@@ -69,6 +82,44 @@ export default function Header({ apiStatus, sensorsCount, lastUpdate }) {
                     </div>
                 )}
                 <div className="time-display">{formattedTime}</div>
+                <div className="export-container">
+                    <button className="export-toggle-btn" title="Export Station Data">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="7 10 12 15 17 10" />
+                            <line x1="12" y1="15" x2="12" y2="3" />
+                        </svg>
+                        <span>Export</span>
+                    </button>
+                    <div className="export-dropdown">
+                        <a 
+                            href={`/api/v1/data/export/csv${selectedDevice ? '?device_id=' + selectedDevice : ''}`} 
+                            className="export-item"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                <polyline points="14 2 14 8 20 8" />
+                                <line x1="16" y1="13" x2="8" y2="13" />
+                                <line x1="16" y1="17" x2="8" y2="17" />
+                                <polyline points="10 9 9 9 8 9" />
+                            </svg>
+                            Sensor Data (CSV)
+                        </a>
+                        <a 
+                            href={`/api/v1/health/export/csv${selectedDevice ? '?device_id=' + selectedDevice : ''}`} 
+                            className="export-item"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                            </svg>
+                            Health Logs (CSV)
+                        </a>
+                    </div>
+                </div>
             </div>
         </header>
     );

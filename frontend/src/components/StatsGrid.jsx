@@ -1,3 +1,5 @@
+import { discoverMetrics, formatMetricLabel, getMetricUnit } from '../utils/metrics';
+
 /**
  * StatsGrid — displays summary statistics derived from real sensor data.
  * All values come from the analytics-service /dashboard/realtime response.
@@ -19,9 +21,21 @@ export default function StatsGrid({ sensors, loading }) {
     const totalSensors = sensors.length;
     const onlineSensors = sensors.filter((s) => s.is_online).length;
     const manufacturers = [...new Set(sensors.map((s) => s.manufacturer))];
-    const avgPm25 = sensors.length > 0
-        ? (sensors.reduce((acc, s) => acc + (s.readings?.pm25 || 0), 0) / sensors.length).toFixed(1)
-        : '--';
+    
+    // Discovery of all metrics for summary
+    const activeMetricKeys = discoverMetrics(sensors);
+    const primaryKeys = ['pm25', 'co2', 'temperature'];
+    const secondaryKeys = activeMetricKeys.filter(k => !primaryKeys.includes(k));
+
+    const getAverage = (key) => {
+      const validReadings = sensors
+        .map(s => (s.readings || {})[key])
+        .filter(v => v !== undefined && v !== null);
+      
+      if (validReadings.length === 0) return '--';
+      const sum = validReadings.reduce((acc, v) => acc + Number(v), 0);
+      return (sum / validReadings.length).toFixed(key === 'co' || key === 'o3' ? 2 : 1);
+    };
 
     return (
         <section className="stats-grid">
@@ -47,37 +61,74 @@ export default function StatsGrid({ sensors, loading }) {
                 </div>
             </div>
 
-            {/* Average PM2.5 */}
+            {/* Average PM2.5 (Core Highlight) */}
             <div className="stat-card stat-aqi">
                 <div className="stat-header">
                     <span className="stat-label">Avg. PM2.5</span>
                     <div className="stat-trend trend-neutral">
-                        <span>Nairobi Area</span>
+                        <span>City Average</span>
                     </div>
                 </div>
                 <div className="stat-value">
-                    {avgPm25}
-                    <span className="stat-unit">μg/m³</span>
+                    {getAverage('pm25')}
+                    <span className="stat-unit">µg/m³</span>
                 </div>
                 <div className="aqi-indicator">
                     Live from {sensors.length} stations
                 </div>
             </div>
 
-            {/* Manufacturers */}
-            <div className="stat-card stat-manufacturers">
+            {/* Dynamic Secondary Stats */}
+            <div className="stat-card stat-secondary">
                 <div className="stat-header">
-                    <span className="stat-label">Manufacturers</span>
+                    <span className="stat-label">Environmental Metrics</span>
                     <div className="stat-trend trend-neutral">
-                        <span>{manufacturers.length} Provider{manufacturers.length !== 1 ? 's' : ''}</span>
+                        <span>{secondaryKeys.length} Dynamic Parameters</span>
                     </div>
                 </div>
-                <div className="stat-value">{manufacturers.length}</div>
-                <div className="manufacturer-tags">
-                    {manufacturers.map((m) => (
-                        <span key={m} className="tag">{m}</span>
+                <div className="secondary-metrics-list">
+                    {secondaryKeys.slice(0, 4).map(key => (
+                      <div key={key} className="sec-metric">
+                        <span className="sec-label">{formatMetricLabel(key)}</span>
+                        <span className="sec-val">{getAverage(key)} {getMetricUnit(key)}</span>
+                      </div>
                     ))}
+                    {secondaryKeys.length === 0 && (
+                      <div className="sec-empty">Waiting for telemetry...</div>
+                    )}
                 </div>
+                <style jsx>{`
+                  .secondary-metrics-list {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 12px;
+                    margin-top: 15px;
+                  }
+                  .sec-metric {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 2px;
+                    padding-left: 8px;
+                    border-left: 2px solid var(--accent-3);
+                  }
+                  .sec-label {
+                    font-size: 0.65rem;
+                    color: var(--text-secondary);
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                  }
+                  .sec-val {
+                    font-size: 1rem;
+                    font-weight: 600;
+                    color: var(--text-primary);
+                  }
+                  .sec-empty {
+                    font-size: 0.8rem;
+                    color: var(--text-secondary);
+                    font-style: italic;
+                    grid-column: span 2;
+                  }
+                `}</style>
             </div>
         </section>
     );

@@ -3,7 +3,7 @@
  * Data comes from GET /api/v1/predictions/forecast → model-serving-service (FastAPI).
  * When the backend is running, this shows real ML model output.
  */
-export default function ForecastPanel({ forecast, loading, error }) {
+export default function ForecastPanel({ forecast, comparison, loading, error }) {
     if (loading) {
         return (
             <div className="card forecast-card">
@@ -44,14 +44,75 @@ export default function ForecastPanel({ forecast, loading, error }) {
     }
 
     const data = forecast || {};
-    const predicted = data.prediction || 0;
-    const actual = data.actual_pm25 || 0;
-    const shift = data.shift || 0;
+    const compData = comparison || {};
+    const predictions = compData.predictions || {};
+    
+    // Original API values as fallbacks or baseline
+    const apiPredicted = data.prediction || 0;
+    const apiActual = data.actual_pm25 || 0;
+    
+    // Actual PM2.5 value to use for comparison
+    const actual = compData.actual_pm25 || apiActual;
+    const compActual = compData.actual_pm25 || 0;
+    const ensembleMedian = compData.ensemble_median || 0;
+
+    // --- Dynamic Model Selection Logic ---
+    // Create an array of all available models and their predictions
+    let availableModels = [];
+    
+    // Add models if comparison data is available
+    if (comparison && actual > 0) {
+       availableModels = [
+           { name: 'Ensemble', prediction: ensembleMedian },
+           { name: 'GB Model', prediction: predictions.gb || 0 },
+           { name: 'OLS Model', prediction: predictions.ols || 0 },
+           { name: 'Existing', prediction: predictions.existing || 0 }
+       ].filter(m => m.prediction > 0);
+    }
+    
+    // Define the default/fallback model based on the standard API forecast
+    const defaultModel = { 
+        name: 'API Forecast', 
+        prediction: apiPredicted,
+        shift: data.shift || 0
+    };
+    
+    let bestModel = defaultModel;
+
+    // If we have comparison models, find the one with the smallest absolute error
+    if (availableModels.length > 0) {
+        // Calculate error for each model
+        const modelsWithError = availableModels.map(model => ({
+            ...model,
+            shift: model.prediction - actual,
+            absError: Math.abs(model.prediction - actual)
+        }));
+        
+        // Find the index of the model with the minimum absolute error
+        let bestIndex = 0;
+        let minError = modelsWithError[0].absError;
+        
+        for (let i = 1; i < modelsWithError.length; i++) {
+            if (modelsWithError[i].absError < minError) {
+                minError = modelsWithError[i].absError;
+                bestIndex = i;
+            }
+        }
+        
+        bestModel = modelsWithError[bestIndex];
+    } else if (apiPredicted > 0 && actual > 0) {
+         // Calculate shift for API forecast if comparison data isn't available but actual is
+         bestModel.shift = apiPredicted - actual;
+    }
+
+    // Use the best model's values for main display
+    const displayPredicted = bestModel.prediction;
+    const shift = bestModel.shift;
     const absShift = Math.abs(shift);
     
-    // Performance color
+    // Performance color based on the selected best model
     const shiftColor = absShift < 5 ? 'text-green-400' : absShift < 15 ? 'text-yellow-400' : 'text-red-400';
-    const accuracy = Math.max(0, 100 - (absShift / (actual || 1) * 100));
+    const accuracy = actual > 0 ? Math.max(0, 100 - (absShift / actual * 100)) : 0;
 
     return (
         <div className="card forecast-card animate-fade-in shadow-premium">
@@ -70,11 +131,21 @@ export default function ForecastPanel({ forecast, loading, error }) {
 
             <div className="forecast-stats">
                 <div className="forecast-stat-item">
-                    <span className="stat-label">Predicted PM2.5</span>
-                    <span className="stat-value highlight">{predicted} <small>μg/m³</small></span>
+                    <div className="stat-header">
+                        <span className="stat-label">Predicted PM2.5</span>
+                        {bestModel.name !== 'API Forecast' && (
+                            <span className="comp-tag best-model-tag">Using: {bestModel.name}</span>
+                        )}
+                    </div>
+                    <span className="stat-value highlight">{displayPredicted.toFixed(2)} <small>μg/m³</small></span>
                 </div>
                 <div className="forecast-stat-item">
-                    <span className="stat-label">Actual Reading</span>
+                    <div className="stat-header">
+                        <span className="stat-label">Actual Reading</span>
+                        {compActual !== apiActual && compActual > 0 && (
+                            <span className="comp-tag">Comp: {compActual}</span>
+                        )}
+                    </div>
                     <span className="stat-value">{actual} <small>μg/m³</small></span>
                 </div>
             </div>
@@ -83,7 +154,7 @@ export default function ForecastPanel({ forecast, loading, error }) {
                 <div className="accuracy-meta">
                     <span className="meta-label">Model Shift (Error)</span>
                     <span className={`meta-value ${shiftColor}`}>
-                        {shift >= 0 ? '+' : ''}{shift} μg/m³
+                        {shift > 0 ? '+' : ''}{shift.toFixed(2)} μg/m³
                     </span>
                 </div>
                 <div className="accuracy-bar-bg">
@@ -98,21 +169,47 @@ export default function ForecastPanel({ forecast, loading, error }) {
                 <span className="accuracy-pct">{accuracy.toFixed(1)}% Alignment Confidence</span>
             </div>
 
+            {/* Comparison Section */}
+            {comparison && (
+                <div className="comparison-container">
+                    <div className="comparison-header">
+                        <h4>Model Accuracy Comparison</h4>
+                    </div>
+                    <div className="comparison-grid">
+                        <div className={`comparison-item ${bestModel.name === 'Ensemble' ? 'best-model' : ''}`}>
+                            <span className="comp-label">Ensemble</span>
+                            <span className="comp-value">{ensembleMedian}</span>
+                        </div>
+                        <div className={`comparison-item ${bestModel.name === 'GB Model' ? 'best-model' : ''}`}>
+                            <span className="comp-label">GB Model</span>
+                            <span className="comp-value">{predictions.gb}</span>
+                        </div>
+                        <div className={`comparison-item ${bestModel.name === 'OLS Model' ? 'best-model' : ''}`}>
+                            <span className="comp-label">OLS Model</span>
+                            <span className="comp-value">{predictions.ols}</span>
+                        </div>
+                        <div className={`comparison-item ${bestModel.name === 'Existing' ? 'best-model' : ''}`}>
+                            <span className="comp-label">Existing</span>
+                            <span className="comp-value">{predictions.existing}</span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="forecast-location" style={{ marginTop: '16px' }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2">
                     <circle cx="12" cy="12" r="10" />
                     <polyline points="12 6 12 12 16 14" />
                 </svg>
                 <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
-                    Last validation: {data.timestamp ? new Date(data.timestamp).toLocaleTimeString() : 'Just now'}
+                    Last validation: {compData.timestamp || data.timestamp ? new Date(compData.timestamp || data.timestamp).toLocaleTimeString() : 'Just now'}
                 </span>
             </div>
 
             <style jsx>{`
                 .forecast-card {
-                    background: rgba(15, 23, 42, 0.4);
-                    backdrop-filter: blur(12px);
-                    border: 1px solid rgba(255,255,255,0.08);
+                    background: var(--bg-card);
+                    border: 1px solid var(--border);
                 }
                 .intelligence-icon {
                     background: rgba(99, 102, 241, 0.1);
@@ -131,37 +228,55 @@ export default function ForecastPanel({ forecast, loading, error }) {
                     flex-direction: column;
                     gap: 4px;
                     padding: 12px;
-                    background: rgba(255,255,255,0.02);
+                    background: var(--bg-secondary);
                     border-radius: 12px;
-                    border: 1px solid rgba(255,255,255,0.03);
+                    border: 1px solid var(--border);
+                }
+                .stat-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-start;
+                    gap: 8px;
+                }
+                .comp-tag {
+                    font-size: 0.6rem;
+                    background: rgba(99, 102, 241, 0.15);
+                    color: var(--accent);
+                    padding: 2px 6px;
+                    border-radius: 4px;
+                    white-space: nowrap;
+                }
+                .best-model-tag {
+                    background: rgba(16, 185, 129, 0.15);
+                    color: var(--aqi-good);
                 }
                 .stat-label {
                     font-size: 0.65rem;
                     text-transform: uppercase;
-                    color: #64748b;
+                    color: var(--text-secondary);
                     letter-spacing: 0.08em;
                     font-weight: 600;
                 }
                 .stat-value {
                     font-size: 1.4rem;
                     font-weight: 700;
-                    color: #f8fafc;
+                    color: var(--text-primary);
                 }
                 .stat-value.highlight {
-                    color: #818cf8;
+                    color: var(--accent);
                 }
                 .stat-value small {
                     font-size: 0.7rem;
                     font-weight: 400;
-                    color: #64748b;
+                    color: var(--text-secondary);
                 }
                 .accuracy-section {
                     padding: 16px;
                     border-radius: 16px;
-                    border: 1px solid rgba(255,255,255,0.06);
+                    border: 1px solid var(--border);
                 }
                 .glass-fill {
-                    background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+                    background: var(--bg-secondary);
                 }
                 .accuracy-meta {
                     display: flex;
@@ -169,18 +284,17 @@ export default function ForecastPanel({ forecast, loading, error }) {
                     margin-bottom: 10px;
                     font-size: 0.8rem;
                 }
-                .meta-label { color: #94a3b8; font-weight: 500; }
-                .text-green-400 { color: #34d399; }
-                .text-yellow-400 { color: #fbbf24; }
-                .text-red-400 { color: #f87171; }
+                .meta-label { color: var(--text-secondary); font-weight: 500; }
+                .text-green-400 { color: var(--aqi-good); }
+                .text-yellow-400 { color: var(--aqi-moderate); }
+                .text-red-400 { color: var(--aqi-unhealthy); }
                 
                 .accuracy-bar-bg {
                     height: 8px;
-                    background: rgba(0,0,0,0.2);
+                    background: var(--border);
                     border-radius: 4px;
                     overflow: hidden;
                     margin-bottom: 10px;
-                    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
                 }
                 .accuracy-bar-fill {
                     height: 100%;
@@ -189,13 +303,67 @@ export default function ForecastPanel({ forecast, loading, error }) {
                 }
                 .accuracy-pct {
                     font-size: 0.75rem;
-                    color: #94a3b8;
+                    color: var(--text-secondary);
                     display: block;
                     text-align: right;
                     font-family: 'JetBrains Mono', monospace;
                 }
+                
+                .comparison-container {
+                    margin-top: 20px;
+                    padding: 12px;
+                    background: var(--bg-secondary);
+                    border-radius: 12px;
+                    border: 1px solid var(--border);
+                }
+                .comparison-header h4 {
+                    font-size: 0.75rem;
+                    color: var(--text-secondary);
+                    margin-bottom: 12px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                }
+                .comparison-grid {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 12px;
+                }
+                .comparison-item {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding-bottom: 8px;
+                    border-bottom: 1px solid var(--border);
+                    border-radius: 4px;
+                }
+                .comparison-item.best-model {
+                    background: rgba(16, 185, 129, 0.1);
+                    padding: 4px 8px;
+                    border: 1px solid rgba(16, 185, 129, 0.2);
+                    box-shadow: 0 0 10px rgba(16, 185, 129, 0.1);
+                }
+                .comparison-item:last-child, .comparison-item:nth-last-child(2) {
+                    border-bottom: none;
+                    padding-bottom: 0;
+                    margin-top: 4px;
+                }
+                .comparison-item.best-model:last-child, .comparison-item.best-model:nth-last-child(2) {
+                     padding-bottom: 4px;
+                     border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+                }
+                .comp-label {
+                    font-size: 0.7rem;
+                    color: var(--text-secondary);
+                }
+                .comp-value {
+                    font-size: 0.85rem;
+                    font-weight: 600;
+                    color: var(--text-primary);
+                    font-family: 'JetBrains Mono', monospace;
+                }
+
                 .shadow-premium {
-                    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
                 }
             `}</style>
         </div>
