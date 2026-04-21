@@ -624,6 +624,27 @@
     <script>
         let currentDevice = ''; // Empty string implies fetching data from all devices
 
+        // Configuration and Utility for dynamic metrics
+        const METRIC_CONFIG = {
+            pm1: { label: 'PM1.0', unit: 'µg/m³', icon: '💨' },
+            pm25: { label: 'PM2.5 Concentration', unit: 'µg/m³', icon: '😷' },
+            pm10: { label: 'PM10', unit: 'µg/m³', icon: '💨' },
+            co: { label: 'Carbon Monoxide', unit: 'ppm', icon: '🔥' },
+            co2: { label: 'Carbon Dioxide (CO₂)', unit: 'ppm', icon: '🌱' },
+            temperature: { label: 'Temperature', unit: '°C', icon: '🌡️' },
+            humidity: { label: 'Humidity', unit: '%', icon: '💧' },
+            voc_index: { label: 'VOC Index', unit: 'idx', icon: '🧪' },
+            nox_index: { label: 'NOx Index', unit: 'idx', icon: '🚗' },
+        };
+
+        const formatLabel = (key) => {
+            if (METRIC_CONFIG[key]) return METRIC_CONFIG[key].label;
+            return key.replace(/^s_/, '').split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        };
+
+        const getUnit = (key) => METRIC_CONFIG[key]?.unit || '';
+        const getIcon = (key) => METRIC_CONFIG[key]?.icon || '📊';
+
         async function loadDevices() {
             try {
                 const res = await fetch('/api/v1/devices');
@@ -666,7 +687,7 @@
                 if (data.length > 0) {
                     updateDashboard(data);
                 } else {
-                    document.getElementById('readings-body').innerHTML = `<tr><td colspan="7"><div class="empty-state"><p>No data recorded for this sensor yet.</p></div></td></tr>`;
+                    document.getElementById('readings-body').innerHTML = `<tr><td colspan="10"><div class="empty-state"><p>No data recorded for this sensor yet.</p></div></td></tr>`;
                 }
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -674,60 +695,102 @@
         }
 
         function updateDashboard(readings) {
+            const grid = document.getElementById('latest-metrics');
             const tableBody = document.getElementById('readings-body');
+            const tableHead = document.querySelector('thead tr');
+            const lastUpdated = document.getElementById('last-updated');
             const latest = readings[0];
 
-            // Update timestamp
-            document.getElementById('last-updated').textContent =
-                'Last updated: ' + new Date().toLocaleTimeString();
+            lastUpdated.textContent = 'Last updated: ' + new Date().toLocaleTimeString();
 
-            // Update metric cards
-            if (latest.metrics) {
-                document.getElementById('pm25-value').textContent =
-                    latest.metrics.pm25 ?? '--';
-                document.getElementById('co2-value').textContent =
-                    latest.metrics.co2 ?? '--';
-            }
+            // 1. Discover all metric keys available in the latest readings
+            const allKeys = new Set();
+            readings.slice(0, 10).forEach(r => {
+                const m = r.metrics || {};
+                Object.keys(m).forEach(k => {
+                    if (k !== 'status' && typeof m[k] === 'number') allKeys.add(k);
+                });
+            });
+            const activeKeys = Array.from(allKeys).sort((a,b) => {
+              const order = ['pm25', 'co2', 'temperature', 'humidity'];
+              const idxA = order.indexOf(a);
+              const idxB = order.indexOf(b);
+              if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+              if (idxA !== -1) return -1;
+              if (idxB !== -1) return 1;
+              return a.localeCompare(b);
+            });
 
-            if (latest.location) {
-                const lat = latest.location.latitude || '0.000';
-                const lng = latest.location.longitude || '0.000';
-                document.getElementById('location-value').textContent =
-                    `${lat}, ${lng}`;
-            }
+            // 2. Update Metric Cards Grid
+            grid.innerHTML = activeKeys.map(key => {
+                const val = latest.metrics?.[key] ?? '--';
+                return `
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-label">${formatLabel(key)}</span>
+                            <div class="metric-icon">${getIcon(key)}</div>
+                        </div>
+                        <div class="metric-value-wrapper">
+                            <span class="metric-value">${val}</span>
+                            <span class="metric-unit">${getUnit(key)}</span>
+                        </div>
+                        <div class="metric-meta">
+                            <span>Forwarded</span>
+                            <span>Node: ${latest.device_id.slice(-4)}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('') + `
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span class="metric-label">Device Location</span>
+                        <div class="metric-icon">📍</div>
+                    </div>
+                    <div class="metric-value-wrapper">
+                        <span class="metric-value" style="font-size: 1.5rem;">
+                            ${latest.location ? `${latest.location.latitude}, ${latest.location.longitude}` : 'Searching...'}
+                        </span>
+                    </div>
+                    <div class="metric-meta">
+                        <span>GSM LBS Tracking</span>
+                    </div>
+                </div>
+            `;
 
-            // Update table - show only first 5 records
-            const displayData = readings.slice(0, 5);
+            // 3. Update Table Headers dynamically
+            tableHead.innerHTML = `
+                <th>Time</th>
+                <th>Device</th>
+                ${activeKeys.map(k => `<th>${formatLabel(k).split(' ')[0]}</th>`).join('')}
+                <th>Status</th>
+            `;
 
-            tableBody.innerHTML = displayData.map(r => {
+            // 4. Update Table Rows dynamically
+            tableBody.innerHTML = readings.slice(0, 8).map(r => {
                 const time = r.timestamp ? r.timestamp.split(' ')[1] || r.timestamp : '--';
+                const metrics = r.metrics || {};
                 return `
                     <tr>
-                        <td>${time}</td>
-                        <td class="cell-device">${r.device_id || '--'}</td>
-                        <td class="cell-value">${r.metrics?.pm25 ?? '--'}<span class="cell-unit">µg/m³</span></td>
-                        <td class="cell-value">${r.metrics?.co2 ?? '--'}<span class="cell-unit">ppm</span></td>
-                        <td>${r.metrics?.temperature ?? '--'}<span class="cell-unit">°C</span></td>
-                        <td>${r.metrics?.humidity ?? '--'}<span class="cell-unit">%</span></td>
-                        <td>
-                            <span class="status-tag status-success">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                                    <polyline points="20 6 9 17 4 12"/>
-                                </svg>
-                                Forwarded
-                            </span>
-                        </td>
+                        <td style="color: var(--text-muted)">${time}</td>
+                        <td class="cell-device">${r.device_id.slice(-8)}</td>
+                        ${activeKeys.map(k => `
+                            <td class="cell-value">
+                                ${metrics[k] ?? '--'}
+                                <span class="cell-unit">${getUnit(k)}</span>
+                            </td>
+                        `).join('')}
+                        <td><span class="status-tag status-success">Live</span></td>
                     </tr>
                 `;
             }).join('');
         }
 
-        // Initial fetch setup
+        // Initial setup
         loadDevices();
         fetchLatestData();
-        // Poll every 5 seconds
         setInterval(fetchLatestData, 5000);
     </script>
+
 </body>
 
 </html>

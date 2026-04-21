@@ -1,0 +1,203 @@
+% ============================================================
+%  tables.tex – Literature Review Table (20 Most Relevant)
+% ============================================================
+\begin{landscape}
+\small
+\setlength{\LTcapwidth}{\linewidth}
+\begin{longtable}{%
+  >{\raggedright\arraybackslash}p{2.5cm}%
+  >{\raggedright\arraybackslash}p{3.0cm}%
+  >{\raggedright\arraybackslash}p{4.0cm}%
+  >{\raggedright\arraybackslash}p{4.0cm}%
+  >{\raggedright\arraybackslash}p{4.0cm}%
+  >{\raggedright\arraybackslash}p{4.0cm}}
+
+\caption{Structured Literature Review: 20 Most Relevant Studies on Heatwaves, Air Pollution, and AI in Africa}
+\label{tab:litreview}\\
+
+\toprule
+\textbf{Author(s) \& Year} &
+\textbf{Title / Focus} &
+\textbf{Key Methodology} &
+\textbf{Key Findings} &
+\textbf{Limitations \& Gaps} &
+\textbf{Relevance to Our Proposal}\\
+\midrule
+\endfirsthead
+
+\multicolumn{6}{c}{\textit{\tablename\ \thetable{} -- continued}}\\[4pt]
+\toprule
+\textbf{Author(s) \& Year} &
+\textbf{Title / Focus} &
+\textbf{Key Methodology} &
+\textbf{Key Findings} &
+\textbf{Limitations \& Gaps} &
+\textbf{Relevance to Our Proposal}\\
+\midrule
+\endhead
+
+\bottomrule
+\endlastfoot
+
+% 1
+Bhaskar \& Valli Mayil (2025)~\cite{bhaskar2025} &
+Traffic air pollution forecasting using ML &
+Review of ML/DL/hybrid models for PM$_{2.5}$, NO$_2$, CO &
+Traffic is major pollution source; ML provides actionable insights &
+No integration with health or heat variables &
+Informs traffic--pollution correlation and sensor placement \\
+
+% 2
+Gaur \& Deb (2026)~\cite{gaur2026} &
+ML for UHI assessment: comprehensive review &
+Systematic review of 93 studies; RMSE, MAE, R$^2$, SHAP &
+Tropical cities only 9\% of studies; $<$8\% use real-time IoT; 5\% evaluate equity &
+Equity gap; tropical Africa underrepresented &
+Confirms geographic and equity gaps; justifies HVI mapping \\
+
+% 3
+Bainomugisha et al. (2024)~\cite{bainomugisha2024} &
+AirQo: AI-driven sensor networks in Africa &
+Custom low-cost PM monitors; 10+ cities in 8 African countries &
+National air quality standards; city action plans &
+PM only; no NO$_2$, O$_3$, heat stress, or health data integration &
+Closest African precedent; extends AirQo to multi-pollutant + health \\
+
+% 4
+Kalisa \& Sudmant (2025)~\cite{kalisa2024} &
+Heatwaves amplify air pollution in SSA &
+Low-cost sensors in Kigali; PM$_{2.5}$, NO$_2$, O$_3$ analysis &
+O$_3$ peaks 40\% higher during heatwaves; PM$_{2.5}$ driven by local emissions &
+Single city; no health data integration &
+First evidence of heat-pollution synergy in SSA; justifies multi-pollutant monitoring \\
+
+% 5
+Touré et al. (2025)~\cite{toure2024} &
+ML prediction of heatwave hospitalizations in Senegal &
+RF, XGBoost, GAM; hospital data 2017--2022 &
+RF R$^2$=0.51--0.72; 3--5 day lag to hospitalization peak &
+Single hospital; no air pollution covariates &
+Demonstrates ML for heat-health prediction in West Africa; supports health data integration \\
+
+% 6
+Adewumi \& Ajayi (2025)~\cite{adewumi2025} &
+Climate-informed ML for heat-related health risks in Nigeria &
+Transformer, LSTM; 52,846 records from 2,300 patients &
+Transformer accuracy 92.7\%; potential 28--32\% admission reduction &
+Limited to one region; requires personal health data &
+Validates transformer models; informs Llama2 fine-tuning approach \\
+
+% 7
+Ramsay et al. (2024)~\cite{ramsay2024} &
+Humid heat stress overlooked in informal settlements &
+In situ monitoring across 7 cities; wet-bulb temperature analysis &
+Informal settlements experience higher Tw than weather stations &
+Lack of local climate data; no health integration &
+Highlights exposure inequity; justifies HVI mapping and targeting informal settlements \\
+
+% 8
+Awokola et al. (2022)~\cite{awokola2022} &
+Longitudinal PM$_{2.5}$ in 8 SSA countries using low-cost sensors &
+PurpleAir-II-SD network; 15 sites, 11 cities; harmonic regression &
+Annual PM$_{2.5}$ 10--116 $\mu$g/m$^3$; diurnal traffic peaks &
+Low-cost sensor accuracy; limited to PM$_{2.5}$ &
+Establishes PM$_{2.5}$ baseline; informs sensor deployment strategy \\
+
+% 9
+Van de Walle et al. (2021)~\cite{vandewalle2021} &
+Vegetation and heat exposure in Kampala dense settlements &
+Low-cost sensor network; Humidex index; NDVI from satellite &
+Daily max Humidex difference up to 14.5$^\circ$C; NDVI explains 75\% variation &
+Single city; limited time period &
+Quantifies intra-urban heat inequality; supports urban greening recommendations \\
+
+% 10
+Dey, Arora \& Tripathi (2022)~\cite{dey2022} &
+Low-cost sensor calibration via semi-supervised domain adaptation &
+HL+WMME; 11 Mumbai PM$_{2.5}$ locations &
+Avg. R$^2$=69.5\% vs 48\% baseline; leverages unlabelled data &
+Validated only on PM$_{2.5}$ in Mumbai; sensor drift not addressed &
+Enables calibration with minimal labelled data in African deployments \\
+
+% 11
+Garcia et al. (2025)~\cite{garcia2025} &
+IoT-based air quality and AI: systematic review &
+PRISMA review of 147 studies; 5 AI application areas &
+DL (LSTM, transformers) outperform traditional methods; edge computing gap &
+Sensor drift; DL edge deployment; limited policy translation &
+Validated AI taxonomy; edge computing gap motivates edge-cloud hybrid design \\
+
+% 12
+Bekkar et al. (2021)~\cite{bekkar2021} &
+Air-pollution prediction with deep learning &
+CNN-LSTM; Beijing PM$_{2.5}$; 420,768 instances &
+CNN-LSTM: MAE=6.742, RMSE=12.921, R$^2$=0.989 &
+Single city; high-quality data required; no generalizability analysis &
+CNN-LSTM architecture adopted for PM$_{2.5}$ and temperature forecasting \\
+
+% 13
+Assaf, Hu \& Assaad (2023)~\cite{assaf2023} &
+Predicting UHI severity using Bayesian networks &
+White-box Bayesian network; demographic, meteorological, LULC factors &
+87.88\% accuracy predicting UHI severity at census-tract level &
+Limited to New Jersey; relies on expert knowledge; census-tract resolution &
+Informs vulnerability mapping; LULC factors relevant to urban heat mitigation \\
+
+% 14
+Ikegwu et al. (2026)~\cite{ikegwu2026} &
+AI expert systems for environmental surveillance &
+PRISMA review; 26 primary studies &
+Hybrid AI enables real-time alerts; edge AI critical for resource-constrained settings &
+Poor integration with national frameworks; Africa underrepresented &
+Validates hybrid AI + rule-based approach; governance gap addressed by heat action plans \\
+
+% 15
+Mehryar, Yazdanpanah \& Tong (2024)~\cite{mehryar2024} &
+AI and climate resilience governance &
+Systematic review (244 articles) + expert survey &
+64\% focus on risk assessment; only 6\% on implementation &
+Insufficient socio-economic data; interpretability; capacity gaps &
+Frames AI for climate governance; implementation gap motivates policy brief deliverables \\
+
+% 16
+Ramadan et al. (2024)~\cite{ramadan2024} &
+Real-time IoT-AI for industrial air pollution &
+15-sensor node; LSTM, RF; 3 months, 5-min intervals &
+LSTM R$^2$=0.99 (temp); RF R$^2$=0.84 (PM$_{2.5}$); proactive fan control &
+Single industrial site; no long-term drift analysis &
+Validates real-time IoT+AI with proactive alerts; informs forecasting architecture \\
+
+% 17
+Ariff, Bakar \& Lim (2023)~\cite{ariff2023} &
+PM$_{10}$ prediction using K-means + LSTM hybrid &
+K-means clustering + multivariate LSTM; 60 stations &
+Training time reduced from 4,952 s to 168 s; 71.7\% stations maintain accuracy &
+Meteorological features not included &
+Efficient scalable forecasting across many nodes; clustering strategy adapted for multi-city network \\
+
+% 18
+He et al. (2024)~\cite{he2024} &
+Lightweight IoT intrusion detection &
+Feature grouping; DT, RF, KNN, XGB; 3 IoT datasets &
+$>$99.5\% accuracy; low parsing/training time vs DL &
+Tested on botnet/DoS attacks; extensibility to new protocols needs validation &
+Lightweight IDS protects sensor data streams; complements Llama2 anomaly detection \\
+
+% 19
+Yasin et al. (2022)~\cite{yasin2022} &
+IoT IAQ monitoring using off-the-shelf devices &
+COTS sensors; Node-RED, InfluxDB, Grafana; 4-site validation &
+Generic replicable IoT architecture; unified data ingest &
+Sensor accuracy variability; no standardized calibration &
+Practical low-cost IoT stack; InfluxDB/Grafana architecture directly adopted \\
+
+% 20
+Tetali (2025)~\cite{tetali2025} &
+AI in heat mitigation and adaptation &
+Review of 65 studies; DPSIR framework &
+AI used for heatwave/UHI prediction (46\%); gap in tropical/Global South &
+Limited research in tropical regions; lack of practical implementation &
+Directly supports Africa UHI focus; DPSIR framework adopted for policy briefs \\
+
+\end{longtable}
+\end{landscape}

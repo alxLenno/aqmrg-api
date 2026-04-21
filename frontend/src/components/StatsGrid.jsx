@@ -18,24 +18,28 @@ export default function StatsGrid({ sensors, loading }) {
         );
     }
 
-    const totalSensors = sensors.length;
-    const onlineSensors = sensors.filter((s) => s.is_online).length;
-    const manufacturers = [...new Set(sensors.map((s) => s.manufacturer))];
+    const sensorsList = Array.isArray(sensors) ? sensors : [];
+    const totalSensors = sensorsList.length;
+    const onlineSensors = sensorsList.filter((s) => s?.is_online).length;
+    const manufacturers = [...new Set(sensorsList.map((s) => s?.manufacturer).filter(Boolean))];
     
     // Discovery of all metrics for summary
-    const activeMetricKeys = discoverMetrics(sensors);
+    const activeMetricKeys = discoverMetrics(sensorsList);
     const primaryKeys = ['pm25', 'co2', 'temperature'];
     const secondaryKeys = activeMetricKeys.filter(k => !primaryKeys.includes(k));
 
     const getAverage = (key) => {
-      const validReadings = sensors
-        .map(s => (s.readings || {})[key])
+      if (totalSensors === 0) return '--';
+      const validReadings = sensorsList
+        .map(s => (s?.readings || {})[key])
         .filter(v => v !== undefined && v !== null);
       
       if (validReadings.length === 0) return '--';
       const sum = validReadings.reduce((acc, v) => acc + Number(v), 0);
-      return (sum / validReadings.length).toFixed(key === 'co' || key === 'o3' ? 2 : 1);
+      const avg = sum / validReadings.length;
+      return avg.toFixed(key === 'co' || key === 'o3' ? 2 : 1);
     };
+
 
     return (
         <section className="stats-grid">

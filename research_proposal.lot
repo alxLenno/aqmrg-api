@@ -1,0 +1,10 @@
+\contentsline {table}{\numberline {1}{\ignorespaces Arduino Due microcontroller specifications.}}{11}{table.1}%
+\contentsline {table}{\numberline {2}{\ignorespaces Hardware sensor array configuration per AQMRG edge node.}}{11}{table.2}%
+\contentsline {table}{\numberline {3}{\ignorespaces Complete REST API endpoints exposed by the Flask backend.}}{17}{table.3}%
+\contentsline {table}{\numberline {4}{\ignorespaces Frontend polling intervals for different data categories.}}{21}{table.4}%
+\contentsline {table}{\numberline {5}{\ignorespaces Docker Compose service inventory with port assignments.}}{25}{table.5}%
+\contentsline {table}{\numberline {6}{\ignorespaces Air quality status classification thresholds (Kenya AQR 2024).}}{26}{table.6}%
+\contentsline {table}{\numberline {7}{\ignorespaces Polyglot persistence: database technology selection rationale.}}{27}{table.7}%
+\contentsline {table}{\numberline {8}{\ignorespaces Comparative evaluation metrics for $PM_{2.5}$ prediction models on the AQMRG relay dataset.}}{29}{table.8}%
+\contentsline {table}{\numberline {9}{\ignorespaces Expected system performance metrics.}}{30}{table.9}%
+\contentsline {table}{\numberline {10}{\ignorespaces Complete technology stack across all platform tiers.}}{31}{table.10}%

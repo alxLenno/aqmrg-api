@@ -96,17 +96,12 @@ export async function fetchDashboardData(deviceId = '') {
  * Returns: { location, forecast[], model }
  */
 export async function fetchForecast(location = 'Nairobi', hours = 4) {
-    try {
-        const response = await fetch(`${API_BASE}/v1/forecast/realtime`);
-        if (!response.ok) {
-            console.warn(`Forecast API warning: ${response.status}`);
-            return null;
-        }
-        return await response.json();
-    } catch (err) {
-        console.error('Forecast fetch failed:', err);
-        return null;
+    const response = await fetch(`${API_BASE}/v1/forecast/realtime`);
+    if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.message || `Forecast API error: ${response.status}`);
     }
+    return response.json();
 }
 
 /**

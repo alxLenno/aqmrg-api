@@ -4,6 +4,8 @@ import React from 'react';
  * SensorDetailTab — A technical view for developers to see hardware specs and raw JSON data.
  */
 export default function SensorDetailTab({ sensors, loading }) {
+    const sensorsList = Array.isArray(sensors) ? sensors : [];
+    
     if (loading) {
         return (
             <div className="sensor-detail-tab">
@@ -23,7 +25,8 @@ export default function SensorDetailTab({ sensors, loading }) {
             </header>
 
             <div className="technical-grid">
-                {sensors.map((sensor) => (
+                {sensorsList.map((sensor) => (
+
                     <div key={sensor.id} className={`technical-card ${!sensor.is_online ? 'offline' : ''}`}>
                         <div className="tech-card-header">
                             <div className="tech-title">

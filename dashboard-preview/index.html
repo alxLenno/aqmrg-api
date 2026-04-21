@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AQMRG — Air Quality Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Ambient background blobs -->
+    <div class="ambient-blob blob-1"></div>
+    <div class="ambient-blob blob-2"></div>
+    <div class="ambient-blob blob-3"></div>
+
+    <div class="app">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5"/>
+                        <path d="M2 12l10 5 10-5"/>
+                    </svg>
+                </div>
+                <span class="brand-text">AQMRG</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                    <span>Sensors</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    <span>Analytics</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+                    <span>Predictions</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+                    <span>Alerts</span>
+                    <span class="nav-badge">3</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    <span>Reports</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-avatar">LK</div>
+                <div class="user-info">
+                    <span class="user-name">Lennox K.</span>
+                    <span class="user-role">Admin</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Top Bar -->
+            <header class="topbar">
+                <div class="topbar-left">
+                    <h1 class="page-title">Real-Time Dashboard</h1>
+                    <span class="page-subtitle">Air quality monitoring across Kampala metropolitan area</span>
+                </div>
+                <div class="topbar-right">
+                    <div class="live-indicator">
+                        <span class="live-dot"></span>
+                        <span>Live</span>
+                    </div>
+                    <div class="time-display" id="currentTime"></div>
+                </div>
+            </header>
+
+            <!-- Stats Cards -->
+            <section class="stats-grid">
+                <div class="stat-card stat-aqi">
+                    <div class="stat-header">
+                        <span class="stat-label">Average AQI</span>
+                        <div class="stat-trend trend-down">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+                            <span>-12%</span>
+                        </div>
+                    </div>
+                    <div class="stat-value">78</div>
+                    <div class="stat-quality moderate">Moderate</div>
+                    <div class="stat-sparkline" id="aqiSparkline"></div>
+                </div>
+
+                <div class="stat-card stat-pm25">
+                    <div class="stat-header">
+                        <span class="stat-label">PM2.5 (μg/m³)</span>
+                        <div class="stat-trend trend-up">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                            <span>+5%</span>
+                        </div>
+                    </div>
+                    <div class="stat-value">25.5</div>
+                    <div class="stat-quality fair">Fair</div>
+                    <div class="stat-sparkline" id="pmSparkline"></div>
+                </div>
+
+                <div class="stat-card stat-sensors">
+                    <div class="stat-header">
+                        <span class="stat-label">Active Sensors</span>
+                        <div class="stat-trend trend-neutral">
+                            <span>Stable</span>
+                        </div>
+                    </div>
+                    <div class="stat-value">3<span class="stat-unit">/ 3</span></div>
+                    <div class="stat-quality good">All Online</div>
+                    <div class="stat-bar">
+                        <div class="stat-bar-fill" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <div class="stat-card stat-alerts">
+                    <div class="stat-header">
+                        <span class="stat-label">Active Alerts</span>
+                        <div class="stat-trend trend-down">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>
+                            <span>-2</span>
+                        </div>
+                    </div>
+                    <div class="stat-value">3</div>
+                    <div class="stat-quality warning">1 Critical</div>
+                    <div class="alert-dots">
+                        <span class="alert-dot critical"></span>
+                        <span class="alert-dot warning"></span>
+                        <span class="alert-dot info"></span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Row -->
+            <section class="charts-row">
+                <div class="chart-card chart-main">
+                    <div class="chart-header">
+                        <h3>Air Quality Index — 24hr Trend</h3>
+                        <div class="chart-controls">
+                            <button class="chart-btn active">24H</button>
+                            <button class="chart-btn">7D</button>
+                            <button class="chart-btn">30D</button>
+                        </div>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="aqiChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card chart-side">
+                    <div class="chart-header">
+                        <h3>Pollutant Breakdown</h3>
+                    </div>
+                    <div class="chart-body">
+                        <canvas id="pollutantChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sensors + Map Row -->
+            <section class="bottom-row">
+                <!-- Sensor List -->
+                <div class="card sensor-list-card">
+                    <div class="card-header">
+                        <h3>Sensor Stations</h3>
+                        <span class="card-badge">3 Active</span>
+                    </div>
+                    <div class="sensor-list">
+                        <div class="sensor-item" data-id="S001">
+                            <div class="sensor-status online"></div>
+                            <div class="sensor-info">
+                                <span class="sensor-name">Kampala Central</span>
+                                <span class="sensor-meta">S001 · AirQo · 0.3476°N, 32.5825°E</span>
+                            </div>
+                            <div class="sensor-reading">
+                                <span class="reading-value aqi-moderate">82</span>
+                                <span class="reading-label">AQI</span>
+                            </div>
+                            <div class="sensor-reading">
+                                <span class="reading-value">28.3</span>
+                                <span class="reading-label">PM2.5</span>
+                            </div>
+                        </div>
+
+                        <div class="sensor-item" data-id="S002">
+                            <div class="sensor-status online"></div>
+                            <div class="sensor-info">
+                                <span class="sensor-name">Nakawa</span>
+                                <span class="sensor-meta">S002 · AirQo · 0.3348°N, 32.6141°E</span>
+                            </div>
+                            <div class="sensor-reading">
+                                <span class="reading-value aqi-moderate">91</span>
+                                <span class="reading-label">AQI</span>
+                            </div>
+                            <div class="sensor-reading">
+                                <span class="reading-value">31.7</span>
+                                <span class="reading-label">PM2.5</span>
+                            </div>
+                        </div>
+
+                        <div class="sensor-item" data-id="S003">
+                            <div class="sensor-status online"></div>
+                            <div class="sensor-info">
+                                <span class="sensor-name">Entebbe</span>
+                                <span class="sensor-meta">S003 · PurpleAir · 0.0511°N, 32.4435°E</span>
+                            </div>
+                            <div class="sensor-reading">
+                                <span class="reading-value aqi-good">42</span>
+                                <span class="reading-label">AQI</span>
+                            </div>
+                            <div class="sensor-reading">
+                                <span class="reading-value">12.1</span>
+                                <span class="reading-label">PM2.5</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Forecast Card -->
+                <div class="card forecast-card">
+                    <div class="card-header">
+                        <h3>4-Hour Forecast</h3>
+                        <span class="card-badge model-badge">RF v1</span>
+                    </div>
+                    <div class="forecast-grid">
+                        <div class="forecast-item">
+                            <span class="forecast-time">Now</span>
+                            <div class="forecast-bar">
+                                <div class="forecast-fill moderate" style="width: 65%"></div>
+                            </div>
+                            <span class="forecast-val">78</span>
+                        </div>
+                        <div class="forecast-item">
+                            <span class="forecast-time">+1hr</span>
+                            <div class="forecast-bar">
+                                <div class="forecast-fill moderate" style="width: 70%"></div>
+                            </div>
+                            <span class="forecast-val">84</span>
+                        </div>
+                        <div class="forecast-item">
+                            <span class="forecast-time">+2hr</span>
+                            <div class="forecast-bar">
+                                <div class="forecast-fill usg" style="width: 78%"></div>
+                            </div>
+                            <span class="forecast-val">93</span>
+                        </div>
+                        <div class="forecast-item">
+                            <span class="forecast-time">+3hr</span>
+                            <div class="forecast-bar">
+                                <div class="forecast-fill usg" style="width: 85%"></div>
+                            </div>
+                            <span class="forecast-val">102</span>
+                        </div>
+                        <div class="forecast-item">
+                            <span class="forecast-time">+4hr</span>
+                            <div class="forecast-bar">
+                                <div class="forecast-fill moderate" style="width: 72%"></div>
+                            </div>
+                            <span class="forecast-val">86</span>
+                        </div>
+                    </div>
+                    <div class="forecast-note">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                        <span>PM2.5 may peak around 14:00 EAT due to traffic patterns</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

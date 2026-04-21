@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AQMRG | Local Sensor Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --accent: #00d2ff;
+            --accent-glow: rgba(0, 210, 255, 0.3);
+            --danger: #ff4d4d;
+            --success: #00ff88;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            background: radial-gradient(circle at top right, #1a2a6c, #b21f1f, #fdbb2d);
+            background-attachment: fixed;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            padding: 40px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin: 0;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 20px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            font-size: 0.9rem;
+            margin-top: 10px;
+            backdrop-filter: blur(5px);
+        }
+
+        .status-dot {
+            height: 10px;
+            width: 10px;
+            background-color: var(--success);
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            box-shadow: 0 0 10px var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7);
+            }
+
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 10px rgba(0, 255, 136, 0);
+            }
+
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(0, 255, 136, 0);
+            }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 10px 30px var(--accent-glow);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0.5;
+        }
+
+        .metric-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 10px;
+        }
+
+        .metric-value {
+            font-size: 2.2rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .metric-unit {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-left: 5px;
+        }
+
+        .device-info {
+            font-size: 0.8rem;
+            margin-top: 15px;
+            color: rgba(255, 255, 255, 0.5);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .data-table-container {
+            margin-top: 60px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 30px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            margin-top: 0;
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 400;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.9rem;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .fresh-tag {
+            background: var(--success);
+            color: #000;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .btn-download {
+            background: var(--glass-bg);
+            color: #fff;
+            border: 1px solid var(--glass-border);
+            padding: 8px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-download:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Local Air Quality Dashboard</h1>
+            <div class="status-badge">
+                <span class="status-dot"></span>
+                Monitoring Live Sensor Data
+            </div>
+        </header>
+
+        <div class="grid" id="latest-metrics">
+            {% include 'components/stats_grid.html' %}
+        </div>
+
+        {% include 'components/sensor_list.html' %}
+    </div>
+
+    <script>
+        async function fetchLatestData() {
+            try {
+                const response = await fetch('/api/v1/data/latest');
+                const data = await response.json();
+
+                if (data.length > 0) {
+                    updateDashboard(data);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        function updateDashboard(readings) {
+            const tableBody = document.getElementById('readings-body');
+            const metricsGrid = document.getElementById('latest-metrics');
+            const latest = readings[0];
+
+            // Update main metrics grid (Latest 3 important ones)
+            metricsGrid.innerHTML = `
+                <div class="card">
+                    <div class="metric-title">Particulate Matter (PM2.5)</div>
+                    <div class="metric-value">${latest.metrics.pm25 ?? '--'}<span class="metric-unit">µg/m³</span></div>
+                    <div class="device-info">
+                        <span>Device: ${latest.device_id}</span>
+                        <span>${latest.timestamp}</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="metric-title">Carbon Dioxide (CO2)</div>
+                    <div class="metric-value">${latest.metrics.co2 ?? '--'}<span class="metric-unit">ppm</span></div>
+                    <div class="device-info">
+                        <span>Status: Optimal</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="metric-title">Location (GSM LBS)</div>
+                    <div class="metric-value" style="font-size: 1.5rem;">${latest.location.latitude || '0.000'} , ${latest.location.longitude || '0.000'}</div>
+                    <div class="device-info">
+                        <span>Mode: Dynamic Cellular</span>
+                    </div>
+                </div>
+            `;
+
+            // Update table
+            tableBody.innerHTML = readings.map(r => `
+                <tr>
+                    <td>${r.timestamp.split(' ')[1]}</td>
+                    <td>${r.device_id}</td>
+                    <td>${r.metrics.pm25 ?? '--'} µg/m³</td>
+                    <td>${r.metrics.co2 ?? '--'} ppm</td>
+                    <td>${r.metrics.temperature ?? '--'}°C</td>
+                    <td>${r.metrics.humidity ?? '--'}%</td>
+                    <td style="color: var(--success)">✓ Forwarded</td>
+                </tr>
+            `).join('');
+        }
+
+        // Poll every 5 seconds
+        setInterval(fetchLatestData, 5000);
+        // Initial fetch
+        fetchLatestData();
+    </script>
+</body>
+
+</html>

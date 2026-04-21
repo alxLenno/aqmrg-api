@@ -41,6 +41,7 @@ start:
 	@echo "  API Gateway:  http://localhost:8000"
 	@echo "  Grafana:      http://localhost:3000"
 	@echo "  Prometheus:   http://localhost:9090"
+	@echo "  Dashboard:    http://localhost:5173"
 	@echo "  MLflow:       http://localhost:5000"
 
 # Stop all services
@@ -92,7 +93,7 @@ migrate:
 # Seed development data
 seed:
 	@echo "Seeding development data..."
-	cd scripts/seed-data && python seed.py || true
+	docker-compose exec postgres psql -U aqmrg -d aqmrg -f /databases/postgres/seeds/seed.sql || true
 
 # Lint code
 lint:

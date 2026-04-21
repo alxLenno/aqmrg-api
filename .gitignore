@@ -68,7 +68,6 @@ secrets/
 .dockerignore
 
 # ML artifacts
-*.pkl
 *.h5
 *.pb
 *.onnx

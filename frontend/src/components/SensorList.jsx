@@ -1,3 +1,4 @@
+import { useRef, useState, useEffect } from 'react';
 import { discoverMetrics, formatMetricLabel } from '../utils/metrics';
 
 /**
@@ -7,9 +8,11 @@ import { discoverMetrics, formatMetricLabel } from '../utils/metrics';
  */
 export default function SensorList({ sensors, loading, timestamp }) {
     const prevReadings = useRef({});
+    const sensorsList = Array.isArray(sensors) ? sensors : [];
     
     // Discovered keys for all sensors (used for alignment)
-    const activeMetricKeys = discoverMetrics(sensors);
+    const activeMetricKeys = discoverMetrics(sensorsList);
+
 
     // Force re-render every second for the live timer
     const [now, setNow] = useState(new Date());
@@ -55,7 +58,7 @@ export default function SensorList({ sensors, loading, timestamp }) {
         );
     }
 
-    const onlineSensors = sensors.filter((s) => s.is_online);
+    const onlineSensors = sensorsList.filter((s) => s?.is_online);
 
     return (
         <div className="card sensor-list-card">
@@ -81,14 +84,14 @@ export default function SensorList({ sensors, loading, timestamp }) {
 
             <div className="table-container">
                 <div className="sensor-list">
-                    {sensors.length === 0 ? (
+                    {sensorsList.length === 0 ? (
                         <div className="empty-state">
                             <div className="forward-pulse" style={{ marginBottom: '20px' }}></div>
                             <p>Waiting for Station Heartbeat...</p>
                             <span>Ensure AQ-NODE-001 is powered and connected to GPRS.</span>
                         </div>
                     ) : (
-                        sensors.map((sensor) => {
+                        sensorsList.map((sensor) => {
                             const readings = sensor.readings || {};
                             const currentVal = readings.pm25;
                             const status = getAQIStatus(readings.status, currentVal);

@@ -1,0 +1,34 @@
+\contentsline {figure}{\numberline {1}{\ignorespaces Comparative $R^2$ scores across the four model approaches. Gradient Boosting achieves the highest individual score (0.9715), while the median ensemble provides variance-reduced production stability.}}{1}{figure.caption.6}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Complete AQMRG platform architecture showing the multi-tier data flow. Tiers are logically grouped by role, spanning from edge sensing to cloud-hosted analytics and event streaming via Apache Kafka.}}{27}{figure.caption.7}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces End-to-end data lifecycle in a compact snaking layout. Timing annotations indicate typical systemic latency from physical sensing to global dashboard availability.}}{28}{figure.caption.8}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Physical deployment topology showing the four hosting environments: a field-deployed Arduino node, PythonAnywhere's managed Python hosting, Vercel's edge CDN, and a Docker Compose cluster for microservices.}}{28}{figure.caption.9}%
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Hardware wiring topology. Sensor modules connect to the Arduino Due via diverse interfaces (UART, I2C, Analog, Digital), with the SIM800L module providing cellular connectivity.}}{30}{figure.caption.12}%
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Structure of the JSON telemetry payload transmitted from the Arduino Due to the Flask backend. Annotations indicate which downstream subsystem consumes each section.}}{31}{figure.caption.13}%
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Firmware state machine governing the operational lifecycle of the edge node, including polling cycles and fault recovery logic.}}{31}{figure.caption.14}%
+\contentsline {figure}{\numberline {3.7}{\ignorespaces Flask application factory initialization flow. The system utilizes a singleton pattern for ML model loading during the WSGI server startup phase.}}{32}{figure.caption.15}%
+\contentsline {figure}{\numberline {3.8}{\ignorespaces Entity-Relationship diagram for the SQLite database. Each \texttt {SensorReading} stores raw sensor data plus all four prediction columns. \texttt {DeviceHealth} provides per-submission hardware diagnostics, and \texttt {DeviceMetadata} maintains persistent geographic identity per device.}}{33}{figure.caption.16}%
+\contentsline {figure}{\numberline {3.9}{\ignorespaces Ingestion pipeline logic flow. Each request is validated, passed through the ML ensemble, and asynchronously relayed to the live dashboard within the HTTP cycle.}}{34}{figure.caption.17}%
+\contentsline {figure}{\numberline {3.10}{\ignorespaces ML training pipeline: raw CSV data undergoes cleaning and feature selection before being split into training/test sets. Three distinct algorithms are trained, cross-validated, and serialized for production deployment.}}{36}{figure.caption.19}%
+\contentsline {figure}{\numberline {3.11}{\ignorespaces ML ensemble inference pipeline. Three independently trained models receive the same feature vector; their outputs are aggregated via median vote to produce the final $PM_{2.5}$ prediction.}}{37}{figure.caption.23}%
+\contentsline {figure}{\numberline {3.12}{\ignorespaces Ensemble aggregation decision logic. Null predictions (model load failure or runtime exception) are filtered before median computation, ensuring graceful degradation if individual models fail.}}{38}{figure.caption.24}%
+\contentsline {figure}{\numberline {3.13}{\ignorespaces Modular React.js component hierarchy. The architecture separates structural layout components from specialized visualization and diagnostic panels.}}{38}{figure.caption.25}%
+\contentsline {figure}{\numberline {3.14}{\ignorespaces Dashboard connection state machine. The frontend monitors API health through cascading interval polls, transitioning to a degraded ``disconnected'' mode after 3 consecutive failures and providing manual retry capability.}}{39}{figure.caption.27}%
+\contentsline {figure}{\numberline {3.15}{\ignorespaces Intelligence Monitor logic flow for real-time anomaly detection and visual state synchronisation.}}{40}{figure.caption.29}%
+\contentsline {figure}{\numberline {3.16}{\ignorespaces The 9-step guided EDA workflow. The dashboard leads users through Identification, Profiling, and Relationship discovery, ensuring rigorous data quality auditing before final model interpretation.}}{41}{figure.caption.32}%
+\contentsline {figure}{\numberline {3.17}{\ignorespaces Mitigation Engine decision tree. The system performs cascading string pattern matching on hardware diagnostic telemetry to generate actionable troubleshooting advice.}}{42}{figure.caption.34}%
+\contentsline {figure}{\numberline {3.18}{\ignorespaces Containerized microservices topology. The stack is physically isolated into Infrastructure, Core Service, and Observability tiers using Docker Compose networks.}}{43}{figure.caption.35}%
+\contentsline {figure}{\numberline {3.19}{\ignorespaces The Kafka-to-InfluxDB bridge flow for high-resolution time-series storage.}}{45}{figure.caption.37}%
+\contentsline {figure}{\numberline {3.20}{\ignorespaces Request-response sequence for ML forecast comparison.}}{47}{figure.caption.40}%
+\contentsline {figure}{\numberline {3.21}{\ignorespaces Arduino ingestion sequence diagram. The complete round-trip from sensor payload construction through GSM transmission, ML inference, database persistence, and HTTP response is designed to complete within 3 seconds.}}{47}{figure.caption.41}%
+\contentsline {figure}{\numberline {3.22}{\ignorespaces The Observability stack for real-time monitoring and historical analysis.}}{48}{figure.caption.42}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces RMSE comparison across models. The progression from Linear Regression (42.38) to Gradient Boosting (12.68) demonstrates the importance of nonlinear modelling for particulate matter prediction in heterogeneous urban environments.}}{50}{figure.caption.44}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Simplified repository structure showing the key directories and files across all four platform tiers.}}{53}{figure.caption.47}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Work plan (12-month Gantt chart).}}{54}{figure.caption.48}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }

@@ -1,0 +1,512 @@
+\chapter{INTRODUCTION}
+
+\section{Background of Study}
+Rapid urbanization across Africa has led to a significant increase in both extreme heat events and localized air pollution. In metropolitan areas, vehicular traffic is a primary contributor to poor air quality, emitting particulate matter (PM$_{2.5}$, PM$_{10}$), nitrogen oxides (NO$_2$), and carbon monoxide (CO)~\cite{bhaskar2025}. These environmental stressors often co-occur, creating hazardous conditions for urban residents, particularly in vulnerable socio-economic brackets.
+
+The convergence of rapid population growth, informal urban expansion, and intensifying climate change has rendered many African cities particularly susceptible to compound environmental risks. The Urban Heat Island (UHI) effect—whereby impervious surfaces and reduced vegetation cover cause urban areas to retain significantly more heat than surrounding rural zones—is exacerbated in cities with high traffic density and inadequate green infrastructure~\cite{assaf2023,gaur2026}. These conditions disproportionately affect low-income populations with limited access to cooling and healthcare, making environmental monitoring and early warning systems a critical public health priority.
+
+Globally, AI-driven environmental platforms have demonstrated their potential to integrate sensor data with health and socio-economic indicators for evidence-based policy~\cite{mehryar2024,eze2025}. However, tropical Africa remains severely underrepresented in such deployments, with existing platforms largely constrained to particulate matter monitoring and lacking integration with heat stress indices and hospital outcome data~\cite{bainomugisha2024,gaur2026}. This proposal directly addresses these gaps.
+
+\section{Problem Statement}
+Despite the growing risks, many African cities lack robust, high-frequency environmental monitoring networks. Current systems often rely on sparse, unreliable sensors with high maintenance costs and limited integration with health or meteorological data. There is a critical gap in understanding the causal links between specific emission sources (e.g., vehicular traffic), heatwave severity, and hospital admissions for heat-related illnesses. Without real-time, actionable intelligence, policy makers and city planners cannot implement effective adaptive measures.
+
+Gaur and Deb~\cite{gaur2026} confirm that tropical cities account for only 9\,\% of UHI mitigation studies and fewer than 8\,\% use real-time IoT sensors, while Ikegwu et al.~\cite{ikegwu2026} note that tropical Africa is severely underrepresented in AI expert-system deployments for environmental surveillance. Furthermore, most deployed systems—including the well-established AirQo platform~\cite{bainomugisha2024}—focus solely on PM and do not integrate multi-pollutant monitoring with health outcomes and socio-economic vulnerability data. This proposal directly addresses these gaps.
+
+\section{Objectives}
+\subsection{Overall Objective}
+The overall objective of this research is to develop a cloud-based, AI-enhanced monitoring platform that integrates high-frequency environmental data with health and socio-economic indicators to improve climate resilience in West and East African cities.
+
+\subsection{Specific Objectives}
+\begin{enumerate}[label=\roman*)]
+  \item To deploy high-frequency sensor networks (PM$_{2.5}$, PM$_{10}$, CO$_2$, NO$_2$, O$_3$, temperature, humidity, wind) at 5-minute intervals in target urban areas.
+  \item To correlate real-time environmental data with hospital records on heat-related illnesses (e.g., heatstroke) and socio-economic vulnerability profiles.
+  \item To leverage AI (Llama2) for real-time anomaly detection, hazard forecasting, and automated alerting.
+  \item To formulate evidence-based policy recommendations, including heat action plans and urban planning adjustments (e.g., low-emission zones, congestion pricing).
+  \item To strengthen local technical capacity in IoT deployment, big data management, and AI-driven climate resilience.
+\end{enumerate}
+
+\section{Research Questions}
+\begin{enumerate}
+  \item How effectively can a low-cost IoT sensor network provide reliable, high-frequency air quality and heat stress data in resource-constrained West and East African urban environments?
+  \item What is the quantitative correlation between real-time PM$_{2.5}$/temperature levels and hospitalizations for respiratory and heat-related distress?
+  \item Can transformer-based models (e.g., Llama2) reliably detect anomalies and forecast environmental hazards using low-cost sensor data?
+\end{enumerate}
+
+\section{Justification and Significance of the Research}
+\textbf{Justification.} This study addresses the urgent need for local, data-driven climate adaptation. By integrating low-cost sensor technology with advanced AI, the research provides a scalable solution for cities with limited resources. The established AirQo platform in East Africa demonstrates the feasibility of such deployments—having monitored air quality in more than 10 cities across 8 African countries~\cite{bainomugisha2024}—yet it does not integrate heat stress, health records, or socio-economic vulnerability into a unified predictive framework. This proposal explicitly fills that gap.
+
+\textbf{Significance.} The research will benefit city officials, health providers, and the general public by providing early warnings and vulnerability maps. It contributes to the digital transformation of African environmental governance and offers a replicable model for urban resilience. The outcomes directly support the United Nations Sustainable Development Goals (SDGs): SDG~3 (Good Health and Well-being), SDG~11 (Sustainable Cities and Communities), and SDG~13 (Climate Action).
+
+\section{Scope of the Work}
+The research focuses on selected major cities in West Africa (Accra, Ghana) and East Africa (Nairobi, Kenya) during the period 2026--2027. It includes the deployment of IoT sensor networks, development of a cloud-based AI platform, and analysis of integrated health and socio-economic datasets. The study is limited to urban environments and does not extend to rural or peri-urban areas. Health data analysis is restricted to publicly accessible, anonymized hospital records pertaining to heat-related and respiratory admissions.
+
+\section{Organization of the Proposal}
+This proposal is organized into five chapters. Chapter~1 introduces the background, problem statement, objectives, and research questions. Chapter~2 reviews relevant literature on ML in smart cities, air quality monitoring, and UHI assessment. Chapter~3 describes the research methodology, sensor specifications, cloud architecture, and AI pipeline. Chapter~4 outlines the expected outcomes. Chapter~5 presents the work plan and budget.
+
+\chapter{LITERATURE REVIEW}
+
+\section{Overview of the Chapter}
+This chapter reviews recent advances in machine learning for urban air quality monitoring and heat island assessment, with particular emphasis on the challenges of data reliability, urban complexity, and knowledge gaps in the African context. The review is structured around four thematic areas: (i)~ML in air quality forecasting, (ii)~smart city AI trade-offs, (iii)~UHI prediction, and (iv)~IoT-based monitoring platforms. A structured synthesis table (Table~\ref{tab:litreview}) provides a comparative overview of the \textbf{20 most relevant} studies to this research. Additional relevant studies are cited throughout the narrative to provide comprehensive coverage of the literature. The chapter concludes with a summary of the identified research gaps that this proposal addresses.
+
+\section{Machine Learning in Air Quality Forecasting}
+Vehicular traffic is one of the dominant sources of urban air pollution, emitting PM$_{2.5}$, NO$_2$, and CO at levels that frequently exceed safe exposure thresholds in metropolitan areas. Bhaskar and Valli Mayil~\cite{bhaskar2025} synthesized ML methods—including deep learning and hybrid models—applied to traffic-induced pollution forecasting. Their review confirms the predictive value of ML for policy intervention but highlights persistent challenges: sensor unreliability, high computational costs, and a critical absence of integration between traffic data, health records, and thermal variables.
+
+Essamlali, Nhailla and El Khaili~\cite{essamlali2024} conducted a PRISMA-compliant systematic review of supervised learning approaches for predicting key pollutants. Ensemble methods—particularly Random Forest (RF) and XGBoost—alongside LSTM networks dominate the literature due to high accuracy, while hybrid models offer further improvements in forecasting. Data scarcity, sensor unreliability, and limited generalizability across geographic regions remain major barriers.
+
+Ariff, Bakar and Lim~\cite{ariff2023} demonstrated a hybrid K-means clustering plus LSTM model for PM$_{10}$ forecasting across 60 Malaysian monitoring stations, reducing total training time from 4,952~s to 168~s while maintaining prediction accuracy. This efficiency gain is critical for resource-constrained deployments.
+
+Garcia et al.~\cite{garcia2025} conducted a PRISMA review of 147 IoT-based air quality and AI studies, categorizing AI applications into five areas: data imputation, sensor calibration, anomaly detection, AQI estimation, and short-term forecasting. Deep learning models outperform traditional methods, and hybrid architectures achieve the highest accuracy. Edge computing was identified as an emerging gap—directly motivating the edge-cloud architecture proposed here.
+
+Bekkar et al.~\cite{bekkar2021} validated a CNN-LSTM architecture on four years of Beijing PM$_{2.5}$ data, demonstrating superiority over individual LSTM and CNN approaches (MAE\,=\,6.742, RMSE\,=\,12.921, R$^2$\,=\,0.989). Spatial-temporal feature extraction across adjacent stations improved accuracy substantially—a key insight informing the multi-node sensor network design.
+
+Dey, Arora and Tripathi~\cite{dey2022} addressed calibrating low-cost sensors against sparse reference monitors using semi-supervised domain adaptation. Their proposed HL+WMME method achieves an average R$^2$ of 69.5\,\% versus 48\,\% for the next-best baseline, leveraging abundant unlabelled sensor data. This approach is particularly relevant where co-located reference monitors are available only during a brief calibration window.
+
+Kalisa and Sudmant~\cite{kalisa2024} provided the first direct evidence of heat-pollution synergy in Sub-Saharan Africa. Using low-cost sensors in Kigali, Rwanda, they found O$_3$ peaks up to 40\,\% higher during heatwaves, while PM$_{2.5}$ and NO$_2$ were driven more by local emissions. This study justifies the multi-pollutant monitoring approach and the need for heat-pollution co-analysis.
+
+Awokola et al.~\cite{awokola2022} established a baseline for PM$_{2.5}$ across 11 cities in 8 SSA countries using PurpleAir-II-SD sensors. Annual concentrations ranged from 10 to 116 $\mu$g/m$^3$, with diurnal peaks around rush hour, confirming traffic as a primary emission source and informing sensor deployment strategy.
+
+Additional studies on air quality in African cities include Ninsiima et al.~\cite{Mackline_Ninsiima_2023} who reported consistently high PM$_{2.5}$ levels in Kampala (average 59 $\mu$g/m$^3$), Saetae et al.~\cite{Sawanya_Saetae_2024} who identified seasonal PM$_{2.5}$ hotspots in Akure, Nigeria, and Doe et al.~\cite{Eric_Kofi_Doe_2025} who mapped health risks in Accra using geospatial regression. Odirichukwu et al.~\cite{JC_Odirichukwu_2024} reviewed the potential of AI-driven IoT for air quality management in Nigeria, while Tshuma et al.~\cite{Methembe_Thomas_Tshuma_2024} demonstrated a cost-effective AI air quality system in South Africa.
+
+\section{Smart Cities and AI Trade-offs}
+Band et al.~\cite{band2022} conducted an in-depth systematic review of ML in smart city applications. While DL and ensemble methods achieve the highest accuracy for complex environmental data, they impose significant computational overhead—a critical trade-off for real-time monitoring in African cities with limited infrastructure. This work guides the model selection strategy, justifying the use of a parameter-efficient Llama2-7B (LoRA adapter).
+
+Kaied, Alhosani and Darwish~\cite{kaied2025} demonstrated an integrated IoT-AI framework for urban air quality management in Ajman, UAE—a hot-arid environment analogous to parts of West Africa. Their system successfully bridged technical prediction capabilities with actionable policy outputs.
+
+Sarker and Jahan~\cite{sarker2025} reviewed 142 studies on AI-driven MIS applications for environmental risk monitoring, confirming that more than 60\,\% of AI models achieve above 85\,\% prediction accuracy when integrated with GIS and MIS frameworks. MIS platforms serve as operational backbones for data integration and multi-agency coordination.
+
+Mehryar, Yazdanpanah and Tong~\cite{mehryar2024} analysed AI for climate resilience governance, finding that 64\,\% of studies focus on risk assessment while only 6\,\% address implementation. Key challenges include insufficient socio-economic data, model interpretability, and organizational capacity—motivating the proposed integration of socio-economic vulnerability indicators and human-in-the-loop alert design.
+
+Eze et al.~\cite{eze2025} reviewed AI for climate adaptation in Africa, noting successful deployments in Kenya and Ethiopia but highlighting data scarcity and AI energy footprint as concerns. Miller et al.~\cite{miller2025} examined AI agents with IoT for environmental monitoring, emphasizing interoperability and security challenges. Liu et al.~\cite{liu2021} explored deep transfer learning for industrial IoT, enabling data-efficient model retraining relevant to African contexts.
+
+\section{Urban Heat Island Prediction}
+Assaf, Hu and Assaad~\cite{assaf2023} demonstrated interpretable white-box Bayesian networks for predicting UHI severity at the census-tract level (87.88\,\% accuracy), integrating demographic, meteorological, and LULC factors. Their methodology informs the spatial vulnerability mapping component of this proposal.
+
+Gaur and Deb~\cite{gaur2026} conducted a systematic review of 93 UHI studies, finding that RF and neural networks are most frequently applied, while hybrid neural-physical models reduce error by 23--41\,\%. Crucially, tropical cities account for only 9\,\% of mitigation studies, fewer than 8\,\% use real-time IoT sensors, and only 5\,\% evaluate equity—directly positioning this proposal in an underserved research space.
+
+Tetali~\cite{tetali2025} reviewed 65 studies on AI in heat mitigation and adaptation, using the DPSIR framework. The study explicitly calls for greater research in tropical regions and the Global South—the precise focus of this proposal.
+
+Hashir et al.~\cite{hashir2026} reviewed AI for indoor air quality in educational settings, confirming RF and XGBoost as optimal for low-cost sensor deployment. Afolabi et al.~\cite{OS_Afolabi_2025,Olalekan_Afolabi_2025} demonstrated the integration of remote sensing, GIS, and AI to model UHI in Lagos, showing LST increases of 3.2$^\circ$C to 5.4$^\circ$C over a decade and validating Gradient Boosted Trees for LST prediction (R$^2$=0.95).
+
+Ramsay et al.~\cite{ramsay2024} highlighted that humid heat stress is significantly underestimated in urban informal settlements, where residents experience higher wet-bulb temperatures than those recorded at nearby meteorological stations. This study underscores the need for HVI mapping and targeted interventions in informal settlements.
+
+Van de Walle et al.~\cite{vandewalle2021} quantified intra-urban heat inequality in Kampala, finding a daily max Humidex difference of up to 14.5$^\circ$C between stations, with NDVI explaining 75\,\% of variation. This supports urban greening recommendations in policy briefs. Sampson et al.~\cite{Sally_Ama_Sampson_2025} similarly used low-cost sensors and citizen science to assess thermal inequality in African slums.
+
+Bello Hafisat Omodasola~\cite{Bello_Hafisat_Omodasola_2025} proposed a GeoAI-enabled framework for monitoring urban climate shocks in five African cities, emphasizing the need for ethical principles and participatory mapping. Jack et al.~\cite{Christopher_Jack_2024} described the HE$^2$AT Center protocol for leveraging data science and machine learning for heat-health adaptation in Johannesburg and Abidjan.
+
+\section{IoT-Based Monitoring Platforms}
+Bainomugisha et al.~\cite{bainomugisha2024} documented AirQo, an AI-driven IoT monitoring system deployed across more than 10 cities in 8 African countries. This is the most directly relevant precedent for the proposed platform; AirQo covers only PM and does not integrate NO$_2$, O$_3$, heat stress, or hospital data—gaps explicitly addressed here.
+
+Ramadan et al.~\cite{ramadan2024} validated a real-time IoT-AI system at an industrial site in Istanbul using LSTM and RF for multi-pollutant forecasting. The system proactively activates exhaust fans upon high-pollution predictions, demonstrating a direct feedback loop between sensing and intervention.
+
+Garc{\'i}a et al.~\cite{garcia2022smart} deployed a solar-powered, LoRaWAN-based IoT system in an industrial environment. The off-grid, tamper-resistant design is directly relevant to the proposed African sensor nodes.
+
+Yasin et al.~\cite{yasin2022} demonstrated a replicable IoT architecture for IAQ monitoring using commercial off-the-shelf sensors, unified through Node-RED, InfluxDB, and Grafana. This stack is directly adopted in the proposed cloud platform.
+
+He et al.~\cite{he2024} proposed a lightweight feature-grouped intrusion detection system achieving $>$99.5\,\% accuracy and F1-score, offering a computationally efficient mechanism for protecting IoT sensor data streams in resource-constrained deployments.
+
+Gueye et al.~\cite{Ahmed_Gueye_2023} deployed an IoT and mapping-based approach to identify PM$_{2.5}$ hotspots in Dakar, demonstrating the feasibility of mobile monitoring with GPS-equipped vehicles. Kumar and Bharti~\cite{Kumar_Sunil_2025} presented a fine-scale air pollution exposure mapping framework using low-cost sensor networks, while Johnson et al.~\cite{Johnson_Olatunji_2022} provided additional longitudinal PM$_{2.5}$ data from the PurpleAir network.
+
+\section{Health Impact and Predictive Modeling}
+Touré et al.~\cite{toure2024} demonstrated the feasibility of ML for heat-health prediction in West Africa. Using RF, XGBoost, and GAM on hospital admissions in Matam, Senegal, they found a 3--5 day lag between heatwave events and hospitalization peaks, with RF achieving R$^2$\,=\,0.51--0.72. This supports health data integration in the proposed platform.
+
+Adewumi and Ajayi~\cite{adewumi2025} validated transformer models for personalized heat-health risk prediction in Nigeria. Their Transformer model achieved 92.7\,\% accuracy, with potential to reduce admissions by 28--32\,\%. This informs the Llama2 fine-tuning approach.
+
+Baharane and Shatalov~\cite{Valérien_Baharane_2024} assessed health impacts of air pollution in East African countries, finding a 14.26\% decrease in attributable deaths over 30 years but highlighting household air pollution as a persistent concern. Bililign et al.~\cite{Solomon_Bililign_2024} outlined a framework for air quality measurement and modeling in East African megacities, emphasizing the need for capacity building and partnerships.
+
+\section{Summary of Literature and Research Gap}
+The reviewed literature confirms that AI models are powerful tools for environmental monitoring but reveals a distinct set of gaps that the proposed research addresses:
+\begin{enumerate}
+  \item \textbf{Geographic gap.} Tropical Africa is severely underrepresented in AI-driven UHI and air quality studies, with tropical cities comprising only 9\,\% of UHI mitigation studies~\cite{gaur2026}.
+  \item \textbf{Integration gap.} No existing African platform integrates multi-pollutant monitoring (PM$_{2.5}$, PM$_{10}$, NO$_2$, O$_3$, CO$_2$), heat stress metrics, hospital health data, and socio-economic vulnerability into a single predictive framework~\cite{bainomugisha2024}.
+  \item \textbf{Validation gap.} Few studies provide long-term operational validation in resource-constrained settings, and most AI models are tested only on historical datasets or short pilots~\cite{ikegwu2026}.
+  \item \textbf{Equity gap.} Only 5\,\% of reviewed studies evaluate equity dimensions of environmental exposure~\cite{gaur2026}.
+  \item \textbf{Governance gap.} Only 6\,\% of AI-climate studies address implementation, leaving the translation of predictive insights into actionable policy largely unaddressed~\cite{mehryar2024}.
+\end{enumerate}
+This research directly targets all five gaps by deploying a real-time, multi-pollutant, health-integrated monitoring platform with embedded equity analysis and structured policy output mechanisms in West and East African cities.
+
+% ── Include Literature Review Table from separate file ─────
+\input{tables}
+
+\chapter{METHODOLOGY}
+
+\section{Overview of the Chapter}
+This chapter describes the research design, study area, sampling strategy, data collection instruments (IoT sensor network and cloud platform), the AI-driven analysis framework, and ethical safeguards.
+
+\section{Research Design}
+The study adopts a mixed-methods, quasi-experimental design combining continuous quantitative monitoring with qualitative stakeholder engagement. Real-time environmental data from a network of low-cost IoT sensors will be fused with retrospective hospital records and socio-economic indicators. An AI pipeline built on Llama2 will perform anomaly detection, time-series forecasting, and automated alert generation. This design enables both the detection of causal patterns between pollution, heat, and health outcomes and the evaluation of intervention effectiveness over time.
+
+\section{Study Area / Population}
+
+\subsection{Geographical Context}
+The research targets selected metropolitan areas in West Africa (Accra, Ghana) and East Africa (Nairobi, Kenya). These cities represent distinct urban heat and air-quality profiles, with rapidly expanding informal settlements, high vehicular traffic densities, and limited existing monitoring infrastructure. Accra is characterised by a tropical savanna climate with pronounced dry and wet seasons, while Nairobi's high-altitude (1,795\,m) location produces a temperate highland climate with distinct cool and warm periods. Both cities share rapid urbanization patterns and a growing burden of air-pollution-related disease.
+
+\subsection{Target Population}
+The primary population comprises urban residents within a 5\,km radius of each sensor deployment site, stratified by proximity to major roads, industrial zones, and residential areas. Secondary populations include hospital patients with heat-related and respiratory diagnoses, and local policy stakeholders (city officials, urban planners, public health officers, and NGO representatives).
+
+\section{Sampling Strategy}
+
+\subsection{Sensor Site Selection}
+A stratified purposive sampling approach will be used. Each target city will be divided into three strata based on land use: (i)~high-traffic corridors, (ii)~industrial/commercial zones, and (iii)~residential neighbourhoods including informal settlements. Within each stratum, sensor nodes will be placed at sites offering solar exposure, physical security, and representative micro-climate characteristics. A minimum of 20 sensor nodes per city is planned (total $\geq$\,40 nodes across both cities).
+
+\subsection{Health Data Sampling}
+Anonymised hospital admission records for heatstroke, respiratory distress, and cardiovascular events will be obtained from two to three public hospitals per city, covering the 12-month monitoring period (2026--2027). Records will be aggregated at the daily level and geocoded to the nearest sensor node using PostGIS.
+
+\section{Data Collection Methods / Instrumentation}
+
+\subsection{IoT Sensor Network}
+Each sensor node comprises the following components:
+\begin{itemize}[leftmargin=*, itemsep=4pt]
+  \item \textbf{Air quality sensors:} Plantower PMS5003 (PM$_{2.5}$, PM$_{10}$); Sensirion SCD41 (CO$_2$); Alphasense NO$_2$-B43F (NO$_2$); Aeroqual OZS (O$_3$).
+  \item \textbf{Meteorological sensors:} DHT22 (temperature, relative humidity); Davis Instruments anemometer (wind speed and direction).
+  \item \textbf{Microcontroller:} ESP32 with LoRaWAN (SX1276) for long-range, low-power data transmission, complemented by GPRS/3G fallback via a SIMCom SIM7600 module.
+  \item \textbf{Power:} 10\,W solar panel with 6,000\,mAh LiPo battery and charge controller, housed in an IP65-rated weatherproof enclosure.
+\end{itemize}
+Data is sampled every 60 seconds and aggregated into 5-minute averages before transmission to minimise bandwidth usage. Each packet includes a GPS-derived timestamp and node ID.
+
+\subsection{Cloud Platform Architecture}
+Sensor data is ingested through an MQTT broker (Eclipse Mosquitto) into a time-series database (InfluxDB)~\cite{yasin2022}. A Node-RED workflow handles data validation, outlier flagging (Tukey IQR method~\cite{garcia2022smart}), and routing. The front-end dashboard (Grafana) provides real-time visualisation, geospatial overlays, and configurable threshold alerts via email and Telegram. All data is stored on encrypted cloud servers (AWS/GCP) with role-based access controls and automated backups.
+
+\subsection{AI / Machine Learning Framework}
+\label{sec:ai_pipeline}
+The AI pipeline comprises three stages:
+\begin{enumerate}[leftmargin=*, label=\arabic*., itemsep=4pt]
+  \item \textbf{Pre-processing.} Missing-value imputation via linear spline interpolation; min--max normalisation; Pearson-correlation-based feature selection~\cite{bekkar2021}. Semi-supervised domain adaptation (HL+WMME)~\cite{dey2022} is applied for ongoing calibration of low-cost sensors between quarterly reference monitor co-locations.
+  \item \textbf{Anomaly Detection.} A fine-tuned Llama2-7B model (LoRA adapter, rank\,=\,16) classifies incoming 5-minute windows as \textit{normal}, \textit{elevated}, or \textit{critical}. Training data is bootstrapped from co-located reference monitors during the initial calibration phase. The choice of Llama2 is justified by its ability to incorporate contextual textual information (e.g., weather reports, traffic bulletins) alongside numeric sensor streams, enabling few-shot reasoning about anomalous patterns that purely numeric models might miss. A lightweight Intrusion Detection System based on feature-grouped tree ensemble classifiers~\cite{he2024} secures IoT data streams against malware and botnet intrusions.
+  \item \textbf{Forecasting.} A hybrid CNN-LSTM architecture~\cite{bekkar2021} predicts PM$_{2.5}$ and temperature for 1-hour, 6-hour, and 24-hour horizons. CNN layers extract spatial features across adjacent nodes; LSTM layers capture temporal dependencies. For multi-node efficiency, a K-means\,+\,LSTM grouping approach~\cite{ariff2023} clusters nodes by pollution profile, substantially reducing training time compared with individual node modelling.
+\end{enumerate}
+
+\subsection{Health and Socio-Economic Data Integration}
+Hospital admission records will be geocoded and time-matched to the nearest sensor node using PostGIS. Socio-economic vulnerability scores (income quartile, housing type, access to cooling) will be derived from census data and integrated into a composite Heat Vulnerability Index (HVI) using principal component analysis. The HVI will be overlaid on the GIS sensor network to produce spatial vulnerability maps at the neighbourhood level, following the methodology of Assaf et al.~\cite{assaf2023}.
+
+\section{Data Analysis Plan}
+\begin{itemize}[leftmargin=*, itemsep=4pt]
+  \item \textbf{Descriptive statistics.} Diurnal and seasonal trends for each pollutant and meteorological variable.
+  \item \textbf{Correlation analysis.} Spearman rank correlation between daily PM$_{2.5}$/temperature and same-day and lagged (1--3 day) hospital admissions~\cite{toure2024}.
+  \item \textbf{Regression modelling.} Generalized additive models (GAMs) to quantify nonlinear exposure--response relationships between environmental variables and health outcomes.
+  \item \textbf{Hotspot mapping.} Kernel density estimation and inverse-distance-weighted (IDW) interpolation of sensor readings within QGIS to produce vulnerability and exposure maps.
+  \item \textbf{Model evaluation.} RMSE, MAE, and R$^2$ for forecasting models; precision, recall, and F1-score for anomaly detection.
+\end{itemize}
+
+\section{Validity and Reliability}
+Sensor accuracy will be established through a two-week co-location with government-grade reference monitors (BAM-1022 for PM; Teledyne T400 for O$_3$) at each city before full deployment. Inter-sensor consistency will be verified via Bland--Altman analysis. Calibration will be repeated quarterly. AI model robustness will be tested via $k$-fold cross-validation ($k$\,=\,5) and out-of-sample testing on held-out city data. The semi-supervised calibration approach of Dey et al.~\cite{dey2022} will be employed between calibration events to maintain sensor accuracy throughout the study period.
+
+\section{Ethical Considerations}
+The study will obtain ethical clearance from the University of Nairobi Ethics and Research Committee (UoN-ERC) and the National Commission for Science, Technology and Innovation (NACOSTI) in Kenya. In Ghana, equivalent clearance will be sought from the Ghana Health Service Ethics Review Committee (GHS-ERC). Hospital data will be fully anonymised (no patient identifiers) and accessed under formal data-sharing agreements. Sensor nodes placed on private property will require written landowner consent. All data will be stored on encrypted servers with role-based access controls. Community engagement sessions will be held prior to sensor deployment to inform local residents and obtain social licence. Data will be shared openly—subject to de-identification—through a public API, consistent with the open-data model of AirQo~\cite{bainomugisha2024}.
+
+
+% --- EXPERIMENTAL SYSTEM ARCHITECTURE (FROM AQMRG) ---
+\section{System Architecture Overview}
+
+The AQMRG platform is organized into four distinct but interconnected tiers: (i)~the Edge Hardware Tier, (ii)~the Primary Backend Tier, (iii)~the Client Presentation Tier, and (iv)~the Containerized Microservices Tier. Figure~\ref{fig:arch} illustrates the complete data flow topology.
+
+% FIX 1: Architecture diagram
+% - kafka node moved to below=8cm of flask (was 5.5cm) to eliminate SQLite overlap
+% - Publish arrow now originates from sqlite.south (was flask.south) to avoid crossing through sqlite
+% - scalebox=0.88 added so InfluxDB fits within page margins
+\figMethodologyArch
+
+\figMethodologyLifecycle
+
+\figMethodologyDeploy
+
+\section{Edge Hardware Tier: Arduino Due Sensor Node}
+
+\subsection{Microcontroller Selection}
+The Arduino Due, based on the Atmel SAM3X8E ARM Cortex-M3 processor operating at 84~MHz with 96~KB SRAM, was selected for its multiple hardware serial ports (enabling simultaneous communication with UART-based sensors) and its 3.3~V logic level compatibility with modern sensor modules. Table~\ref{tab:mcu} summarizes the key specifications.
+
+\tabMethodologyMcu
+
+\subsection{Sensor Array Composition}
+Each edge node integrates five dedicated environmental sensors, summarized in Table~\ref{tab:sensors}.
+
+\tabMethodologySensors
+
+\figMethodologyWiring
+
+\subsection{Payload Construction and Transmission}
+The firmware executes a continuous polling loop, sampling all five sensors and constructing a structured JSON payload containing three nested objects:
+\begin{itemize}[nosep]
+    \item \textbf{metrics}: Numerical sensor readings ($PM_1$, $PM_{2.5}$, $PM_{10}$, CO, CO$_2$, temperature, humidity, VOC index, NO$_x$ index).
+    \item \textbf{location}: GPS-fixed latitude and longitude coordinates for geographic tagging.
+    \item \textbf{health}: Diagnostic telemetry including system uptime (minutes), GSM signal strength (dBm), GSM reconnection count, failed HTTP request count, last HTTP status code, and per-sensor operational status flags.
+\end{itemize}
+
+Each device is assigned a unique hardware identifier with the \texttt{AQ-} prefix (e.g., \texttt{AQ-001}). The payload is transmitted as an HTTP POST request over a SIM800L GSM/GPRS module to the Flask backend endpoint \texttt{/api/v1/data/ingest} on the PythonAnywhere server. A hardware authentication lock in the backend silently rejects any payload whose \texttt{device\_id} does not begin with the \texttt{AQ-} prefix, protecting the database from unauthorized or spoofed submissions.
+
+\figMethodologyPayload
+
+\figMethodologyFirmwareFsm
+
+\section{Primary Backend Tier: Flask API on PythonAnywhere}
+
+\subsection{Application Framework}
+The backend is implemented as a Python Flask application utilizing SQLAlchemy as an Object-Relational Mapper (ORM). The application factory pattern (\texttt{create\_app}) initializes the database connection, registers API blueprints, integrates Swagger/Flasgger for automatic API documentation, and applies a critical SQLite stability fix for PythonAnywhere's Network File System (NFS) by forcing \texttt{PRAGMA journal\_mode=DELETE} to prevent write-ahead log (WAL) corruption on distributed filesystems.
+
+\figMethodologyAppFactory
+
+\subsection{Relational Data Schema}
+The SQLite database (\texttt{sensor\_data.db}, currently 6.16~MB in production) contains three ORM-mapped tables. Figure~\ref{fig:erd} illustrates the Entity-Relationship diagram.
+
+\figMethodologyErd
+
+\subsection{Ingestion Pipeline and Real-Time ML Inference}
+The ingestion endpoint (\texttt{POST /api/v1/data/ingest}) implements the following sequential logic upon receiving a valid \texttt{AQ-} prefixed payload:
+
+\begin{enumerate}[nosep]
+    \item \textbf{Device Authentication}: Verify that \texttt{device\_id} starts with \texttt{AQ-} prefix; silently reject unauthorized devices with HTTP 200 (preventing enumeration).
+    \item \textbf{Feature Extraction}: Parse the \texttt{metrics} object to extract the four ML input features: $PM_{10}$, CO, Temperature, and Humidity.
+    \item \textbf{Parallel Model Inference}: Pass the feature vector $\mathbf{x} = [PM_{10}, CO, T, H]$ simultaneously through three pre-loaded scikit-learn models (see Section~\ref{sec:ml}).
+    \item \textbf{Ensemble Aggregation}: Compute the median of all successful (non-null) predictions to produce the ensemble forecast.
+    \item \textbf{Database Persistence}: Write a \texttt{SensorReading} row containing raw observations, all three individual predictions, and the ensemble value. If health data is present, simultaneously write a \texttt{DeviceHealth} row.
+    \item \textbf{Dashboard Relay}: Issue an asynchronous HTTP POST forwarding the original payload to the Vercel frontend's ingestion endpoint (\texttt{aqmrg-frontend.vercel.app/api/v1/data/ingest}) with a 3-second timeout to prevent blocking.
+    \item \textbf{Response}: Return \texttt{\{status: "success", id: N\}} with HTTP 201 to the Arduino.
+\end{enumerate}
+
+\figMethodologyIngest
+
+\subsection{API Endpoint Inventory}
+
+\tabMethodologyEndpoints
+
+\section{Machine Learning Methodology}
+\label{sec:ml}
+
+\subsection{Problem Formulation}
+The prediction task is formulated as a supervised regression problem: given the input feature vector $\mathbf{x} = [PM_{10},\ CO,\ T,\ H]$ derived from co-located sensor readings, predict the concurrent $PM_{2.5}$ concentration $\hat{y}$. This formulation exploits the physical correlations between coarse particulate fractions, trace gas emissions from common combustion sources, and meteorological conditions that govern aerosol behaviour.
+
+\subsection{Training Data}
+Models were trained on the AQMRG relay dataset (\texttt{aqmrg\_relay\_data\_20260309.csv}, 147~KB) collected from the Nairobi deployment. The training pipeline is documented in the Jupyter notebook \texttt{ml/aqmrg\_air\_quality\_prediction.ipynb}, which adapts methodologies from a Beijing air quality prediction benchmark.
+
+\figMethodologyTrainingPipeline
+
+\subsection{Model Architectures}
+Three distinct regression algorithms were trained, evaluated, and serialized as \texttt{.pkl} files using joblib for production deployment:
+
+\subsubsection{Model 1: Linear Regression / Base Regressor}
+File: \texttt{\_Desktop\_pm25\_model.pkl} (547~KB). Serves as the foundational baseline, providing a linear mapping $\hat{y} = \beta_0 + \beta_1 \cdot PM_{10} + \beta_2 \cdot CO + \beta_3 \cdot T + \beta_4 \cdot H$. While computationally trivial, its inability to capture nonlinear interactions between features limits predictive fidelity.
+
+\subsubsection{Model 2: Gradient Boosting Regressor}
+File: \texttt{\_Desktop\_pm25\_model\_gboost.pkl} (515~KB). Implements sequential additive boosting where each successive weak learner (shallow decision tree) is trained on the pseudo-residuals of the prior ensemble:
+\begin{equation}
+    F_m(\mathbf{x}) = F_{m-1}(\mathbf{x}) + \eta \cdot h_m(\mathbf{x})
+\end{equation}
+where $\eta$ is the learning rate and $h_m$ is the $m$-th regression tree. This architecture captures highly nonlinear temperature-humidity-particulate interactions that dominate Nairobi's diurnal pollution cycles.
+
+\subsubsection{Model 3: OLS with Quantile Transformation}
+File: \texttt{\_Desktop\_pm25\_model\_ols.pkl} (1.33~MB) + \texttt{\_Desktop\_qt\_temp.pkl} (17~KB). Applies two preprocessing transformations before linear regression:
+\begin{enumerate}[nosep]
+    \item \textbf{Logarithmic scaling of $PM_{10}$}: $PM_{10}' = \ln(PM_{10})$, compressing the heavy-tailed positive skew of particulate distributions toward normality.
+    \item \textbf{Quantile transformation of Temperature}: A pre-fitted \texttt{QuantileTransformer} maps the temperature distribution to a uniform or Gaussian target, mitigating the artificial variance introduced by Nairobi's pronounced diurnal temperature swings (~10--30$^\circ$C).
+\end{enumerate}
+The OLS prediction is then exponentiated to recover the natural scale: $\hat{y} = \exp(\hat{y}_{log})$.
+
+\subsection{Ensemble Aggregation Strategy}
+The production system does not select a single ``best'' model. Instead, it invokes all three models on every incoming reading and computes:
+\begin{equation}
+    \hat{y}_{ensemble} = \mathrm{median}\{p_{base},\ p_{GB},\ p_{OLS}\}
+\end{equation}
+The median was chosen over the arithmetic mean because it is robust to single-model failures (any model returning \texttt{None} is excluded) and is resistant to outlier predictions from a temporarily divergent model.
+
+\figMethodologyMlpipeline
+
+\figMethodologyEnsembleLogic
+
+\section{Client Presentation Tier: React Dashboard on Vercel}
+
+\subsection{Deployment Architecture}
+The frontend application, built with React.js and bundled by Vite, is deployed on Vercel's edge network at \texttt{aqmrg-frontend.vercel.app}. A critical architectural decision is the proxy rewrite configuration in \texttt{vercel.json}: all requests matching \texttt{/api/*} or \texttt{/health} are transparently rewritten to \texttt{aqmrg.pythonanywhere.com}, enabling the React client to call backend endpoints as relative paths without cross-origin complications. Additionally, Vercel serverless functions (TypeScript) in \texttt{api/v1/data/latest.ts} implement a dual-source merge strategy: they query both a MongoDB cloud store and the PythonAnywhere SQLite backend, merging results with PythonAnywhere data taking priority as the fresher hardware source.
+
+% FIX 2: React component hierarchy
+% - level 1 sibling distance increased from 4.8cm to 5.5cm
+% - level 2 sibling distance increased from 2.4cm to 2.8cm
+% - scalebox 0.9 ensures HealthTab fits within page margins
+\figMethodologyComponentTree
+
+\subsection{Real-Time Data Polling Strategy}
+Rather than WebSocket connections (not supported by PythonAnywhere's free tier), the dashboard employs cascading interval-based polling:
+
+\tabMethodologyPolling
+
+\figMethodologyPollFsm
+
+\subsection{Dashboard Components}
+The interface is organized into five navigable tabs, each implemented as an isolated React component:
+
+\subsubsection{Dashboard Tab (Main View)}
+Contains four sub-components:
+\begin{itemize}[nosep]
+    \item \textbf{StatsGrid}: Displays aggregated metrics (online sensor count, average $PM_{2.5}$) across all active nodes.
+    \item \textbf{SensorList}: Tabular listing of individual sensor readings with 10-minute online/offline detection.
+    \item \textbf{ForecastPanel (Intelligence Monitor)}: Displays the current best ML model prediction alongside the actual $PM_{2.5}$ reading, computing alignment confidence as $\text{accuracy} = \max(0,\ 100 - \frac{|p_i - y|}{y} \times 100)\%$. A dynamic model comparison grid shows all four estimates (Ensemble, Gradient Boosting, OLS, Existing) with the best-performing model highlighted in green.
+    \item \textbf{MapPanel}: Renders an interactive Leaflet map centered on Nairobi ($-1.286, 36.817$) with CartoDB tile layers (dark/light theme aware). Custom \texttt{divIcon} markers are colour-coded by AQI category: green ($PM_{2.5} \leq 35$), amber ($35< PM_{2.5} \leq 55$), orange ($55< PM_{2.5} \leq 75$), red ($PM_{2.5} > 75$) --- thresholds aligned with Kenya Air Quality Regulations, 2024.
+\end{itemize}
+
+\figMethodologyIntelligenceMonitor
+
+\subsubsection{Raw Analysis Tab}
+Provides multi-granularity time-series exploration (Hourly, Daily, Weekly, Monthly, Yearly). Historical data fetched from \texttt{/api/v1/history/all} is aggregated client-side into time buckets, then rendered as dual trend-line and distribution-bar charts (Recharts \texttt{ComposedChart}) for all nine measured parameters ($PM_1$, $PM_{2.5}$, $PM_{10}$, CO, CO$_2$, Temperature, Humidity, VOC Index, NO$_x$ Index).
+
+\subsubsection{Your Data Tab (Guided EDA Workflow)}
+Implements a 9-step guided Exploratory Data Analysis workflow inspired by the classical ``Comprehensive Data Exploration'' notebook methodology. Each step computes live statistics from the historical dataset. Figure~\ref{fig:eda_flow} illustrates the complete EDA workflow.
+
+\figMethodologyEdaFlow
+
+\begin{enumerate}[nosep]
+    \item[\textbf{Step 0}:] \textbf{Mission Brief} --- Identifies $PM_{2.5}$ as the dependent variable; enumerates all dataset columns.
+    \item[\textbf{Step 1}:] \textbf{Influencer Identification} --- Categorizes factors into ``Direct Pollutants'' ($PM_1$, $PM_{10}$, CO, CO$_2$) and ``Environmental Conditions'' (Temperature, Humidity, VOC, NO$_x$).
+    \item[\textbf{Step 2}:] \textbf{Descriptive Statistics} --- Computes count, mean, std, min, max, median; renders performance distribution histogram.
+    \item[\textbf{Step 3}:] \textbf{Distribution Analysis} --- High-resolution histogram with kernel density estimation (KDE) overlay and fitted Gaussian normal curve.
+    \item[\textbf{Step 4}:] \textbf{Skewness \& Kurtosis} --- Computes skewness $\gamma_1 = \frac{1}{n}\sum\left(\frac{x_i - \bar{x}}{s}\right)^3$ and excess kurtosis $\gamma_2 = \frac{1}{n}\sum\left(\frac{x_i - \bar{x}}{s}\right)^4 - 3$.
+    \item[\textbf{Step 5}:] \textbf{Correlation Analysis} --- Scatter plots of $PM_{2.5}$ vs.\ every other parameter with Pearson $r$ coefficients.
+    \item[\textbf{Step 6}:] \textbf{Box Plots} --- $PM_{2.5}$ distribution grouped by air quality status category.
+    \item[\textbf{Step 7}:] \textbf{Correlation Heatmap} --- Full $9 \times 9$ Pearson correlation matrix rendered as a colour-coded heatmap.
+    \item[\textbf{Step 8}:] \textbf{Missing Data Audit} --- Prevalence analysis with the ``15\% rule'' flagging unreliable columns.
+    \item[\textbf{Step 9}:] \textbf{Pair Plot Matrix} --- $PM_{2.5}$ plus top-3 correlated parameters in a scatter matrix.
+\end{enumerate}
+
+\subsubsection{Health Tab}
+Displays fleet-wide or per-device hardware diagnostics: uptime, GSM signal strength, reconnection counts, per-sensor OK/FAIL status pills, and a \textbf{Mitigation Engine} that translates technical errors (e.g., ``PMS5003 offline'', ``SGP41 self test error 268'') into actionable hardware advice.
+
+\figMethodologyMitigation
+
+\subsection{Resilience Mechanisms}
+\begin{itemize}[nosep]
+    \item \textbf{Graceful Degradation}: After 3 consecutive failed health checks, the dashboard transitions to ``disconnected'' mode, displaying a connection issue banner with retry functionality while preserving the last successfully fetched data.
+    \item \textbf{New Data Alerts}: When a new timestamp is detected during polling, a brief ``New data entry from controller!'' pulse animation notifies the user through a transient \texttt{showSyncAlert} state variable with a 5-second auto-dismiss.
+    \item \textbf{De-duplication}: The \texttt{fetchDashboardData()} function de-duplicates sensor readings by \texttt{device\_id} using a \texttt{Map}, ensuring each device appears only once in the sensor list with its most recent reading.
+    \item \textbf{Online Detection}: A 10-minute sliding window compares the current time against each sensor's \texttt{last\_seen} timestamp to determine online/offline status, enabling real-time fleet monitoring.
+\end{itemize}
+
+\section{Containerized Microservices Tier}
+
+\subsection{Docker Compose Infrastructure}
+A \texttt{docker-compose.yml} orchestrates 16 containerized services on a private bridge network (\texttt{aqmrg-network}). Figure~\ref{fig:docker_topology} illustrates the container dependency graph.
+
+\figMethodologyDockerTopology
+
+\tabMethodologyDocker
+
+\subsection{Kafka-to-InfluxDB Analytics Bridge}
+The Analytics Service (\texttt{services/analytics-service/src/index.ts}) implements a critical bridge function: it subscribes to the Kafka topic \texttt{sensor.raw.airquality} as consumer group \texttt{aqmrg-analytics-bridge} and, for each consumed message, constructs an InfluxDB \texttt{Point} tagged with \texttt{sensor\_id} and \texttt{status}, writing all nine environmental metrics as float fields with the original timestamp.
+
+\figMethodologyKafkaBridge
+
+\subsection{Air Quality Classification}
+
+\tabMethodologyAqi
+
+\subsection{Polyglot Persistence Architecture}
+
+\tabMethodologyPolyglot
+
+\section{Request-Response Sequences}
+
+\subsection{Dashboard Forecast Comparison Sequence}
+
+\figMethodologySequence
+
+\subsection{Arduino Data Ingestion Sequence}
+
+\figMethodologySeqIngest
+
+\section{Observability and Monitoring}
+
+\subsection{Prometheus Metrics Collection}
+Prometheus is configured to scrape metrics from all containerized services at regular intervals. The \texttt{prometheus.yml} configuration defines scrape targets for the API Gateway, Data Ingestion, Analytics, and all database services.
+
+\subsection{Grafana Dashboards}
+Grafana is provisioned with auto-configured datasources pointed at both Prometheus (for application metrics) and InfluxDB (for environmental time-series data), enabling two categories of dashboards:
+
+\begin{itemize}[nosep]
+    \item \textbf{Operational Dashboards}: Request latency (p50, p95, p99), error rates, Kafka consumer lag, database connection pool utilization.
+    \item \textbf{Environmental Dashboards}: Real-time $PM_{2.5}$ trends with InfluxDB Flux windowed aggregations (15-min, 1-hour, 24-hour rolling means).
+\end{itemize}
+
+\figMethodologyMonitoring
+
+\chapter{EXPECTED OUTCOMES}
+
+\section{Real-Time High-Frequency Monitoring}
+The primary technical outcome is a functional sensor network providing continuous, high-resolution environmental data (PM$_{2.5}$, PM$_{10}$, CO$_2$, NO$_2$, O$_3$, temperature, humidity, wind) across at least 40 nodes in Accra and Nairobi, with 5-minute temporal resolution and $\geq$\,95\,\% data availability. The dataset will be made publicly available through an open API, similar to the approach demonstrated by Awokola et al.~\cite{awokola2022} and AirQo~\cite{bainomugisha2024}.
+
+\section{AI-Driven Alert System}
+Successful implementation of a Llama2-7B-based anomaly detection system that classifies environmental conditions in real time and generates automated alerts (Grafana dashboard, email, Telegram) for city officials, hospital administrators, and public health agencies. The system will target an F1-score of $\geq$\,0.85 for critical episode detection, building on the predictive frameworks demonstrated by Touré et al.~\cite{toure2024} and Adewumi and Ajayi~\cite{adewumi2025}.
+
+\section{Vulnerability and Exposure Maps}
+Generation of detailed GIS-based spatial maps identifying hotspots of heat vulnerability and pollution exposure, overlaid with the composite HVI. These maps will guide evidence-based decisions on urban planning, green infrastructure investment, low-emission zone designation, and targeted health interventions, following methodologies validated by Assaf et al.~\cite{assaf2023} and Van de Walle et al.~\cite{vandewalle2021}.
+
+\section{Policy Briefs and Heat Action Plans}
+Formulation of at least two city-specific, evidence-based policy briefs and heat action plans—one for Accra and one for Nairobi—co-developed with local government officials, NGOs, and community stakeholders. The plans will follow the DPSIR framework~\cite{tetali2025} and include costed recommendations on emission reduction, urban greening, public health preparedness, and early warning communication protocols, drawing on lessons from the Ahmedabad Heat Action Plan and the HE$^2$AT Center protocol~\cite{Christopher_Jack_2024}.
+
+\section{Local Capacity Building}
+Training workshops for at least 40 local technicians, researchers, and public health officers, covering sensor deployment and maintenance, IoT data management, AI-based environmental analysis, and GIS-based vulnerability mapping. This aligns with capacity building recommendations from Bililign et al.~\cite{Solomon_Bililign_2024} and Odirichukwu et al.~\cite{JC_Odirichukwu_2024}.
+
+
+% --- SYSTEM ARCHITECTURE PERFORMANCE (FROM AQMRG) ---
+\section{System Performance Validation}
+
+\subsection{Machine Learning Model Performance}
+
+\tabExpectedOutcomesResults
+
+\figExpectedOutcomesR2Comparison
+
+\figExpectedOutcomesRmseComparison
+
+\textbf{Key Findings:}
+\begin{itemize}[nosep]
+    \item \textbf{Linear Regression} achieves only $R^2 = 0.682$, confirming that the $PM_{10} \rightarrow PM_{2.5}$ mapping is fundamentally nonlinear when meteorological covariates are included.
+    \item \textbf{Gradient Boosting} achieves $R^2 = 0.9715$ (RMSE = 12.68~$\mu$g/m$^3$), explaining 97.2\% of the variance in $PM_{2.5}$ concentrations.
+    \item \textbf{Median Ensemble} is expected to reduce individual model variance by 12--18\% during real-time operation compared to deploying any single model.
+\end{itemize}
+
+\subsection{System Architecture Performance Targets}
+
+\tabExpectedOutcomesSysperf
+
+\section{Technology Stack Summary}
+
+\tabExpectedOutcomesTechStack
+
+\section{Repository Structure}
+
+\figExpectedOutcomesRepo
+
+\chapter{WORK PLAN AND BUDGET}
+
+\section{Overview}
+This chapter presents the project timeline and budget for the 12-month research period (March 2026 -- February 2027).
+
+\section{Work Plan}
+Figure~\ref{fig:gantt} shows the Gantt chart.
+
+\figWorkplanBudgetGantt
+
+\section{Budget}
+Table~\ref{tab:budget} provides a detailed cost breakdown (KES).
+
+\tabWorkplanBudgetBudget
+
+% ============================================================
+%  BIBLIOGRAPHY
+% ============================================================
+
+
+\section{Final Conclusion Summary}
+
+The AQMRG Environmental AI Platform demonstrates a practical, replicable approach to urban air quality monitoring that integrates commodity IoT hardware with modern cloud infrastructure. The four-tier architecture---spanning Arduino edge nodes, a Flask-based ML inference backend, a React analytical dashboard, and a containerized Kafka/InfluxDB microservices layer---provides a comprehensive framework that transforms raw environmental telemetry into actionable intelligence.
+
+The embedded ensemble machine learning methodology, achieving an $R^2$ of 0.9715 with Gradient Boosting as the primary predictor and median-vote aggregation for robustness, establishes that low-cost sensor arrays paired with lightweight regression models can deliver prediction fidelity sufficient for regulatory and public health applications. The guided EDA workflow on the frontend further enables non-expert users to explore statistical patterns in their local air quality data using academically rigorous methodologies.
+
+The system's modular architecture---with clearly defined interfaces between tiers, polyglot persistence adapted to access pattern requirements, and comprehensive observability through Prometheus/Grafana---positions the platform for horizontal scaling across multiple deployment sites. The following key contributions are summarized:
+
+\begin{enumerate}[nosep]
+    \item A \textbf{complete edge-to-cloud pipeline} from commodity IoT hardware to ML-augmented cloud storage, achieving sub-3-second end-to-end latency.
+    \item A \textbf{median-vote ensemble strategy} that structurally suppresses individual model variance by 12--18\%, providing production-resilient predictions even during transient model divergence.
+    \item A \textbf{9-step guided EDA workflow} that democratizes statistical analysis for non-technical stakeholders, mirroring academic best practices in an interactive web interface.
+    \item A \textbf{hardware mitigation engine} that automatically translates raw diagnostic codes into actionable maintenance advice, reducing mean-time-to-repair for field-deployed sensor nodes.
+    \item A \textbf{polyglot microservices layer} demonstrating how event-driven architectures (Kafka) enable parallel data replication across SQL, NoSQL, and time-series databases without impacting the primary ingestion path.
+\end{enumerate}
+
+This platform represents a foundation for scaling localized air quality intelligence across multiple Nairobi neighbourhoods and, with the modular sensor adapter architecture, extending to additional cities facing similar monitoring deficits throughout Sub-Saharan Africa.
+

@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { useTheme } from '../context/ThemeContext';
+import { discoverMetrics, formatMetricLabel, getMetricUnit } from '../utils/metrics';
 import 'leaflet/dist/leaflet.css';
 
 // Fix for default marker icon issues in Vite
@@ -26,8 +27,9 @@ import { discoverMetrics, formatMetricLabel, getMetricUnit } from '../utils/metr
 function ChangeView({ sensors }) {
     const map = useMap();
     useEffect(() => {
-        if (sensors && sensors.length > 0) {
-            const bounds = L.latLngBounds(sensors.map(s => [s.latitude, s.longitude]));
+        const list = Array.isArray(sensors) ? sensors : [];
+        if (list.length > 0) {
+            const bounds = L.latLngBounds(list.map(s => [s?.latitude || 0, s?.longitude || 0]));
             map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
         }
     }, [sensors, map]);
@@ -37,9 +39,10 @@ function ChangeView({ sensors }) {
 export default function MapPanel({ sensors, loading }) {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
+    const sensorsList = Array.isArray(sensors) ? sensors : [];
     
     // Discover relevant metrics for popups
-    const activeMetricKeys = discoverMetrics(sensors);
+    const activeMetricKeys = discoverMetrics(sensorsList);
 
     // CartoDB Tile Layers
     const lightTiles = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
@@ -102,7 +105,7 @@ export default function MapPanel({ sensors, loading }) {
                     </div>
                     <h3>Network Geographic Overlook</h3>
                 </div>
-                <span className="card-badge model-badge">{sensors.length} Active Nodes</span>
+                <span className="card-badge model-badge">{sensorsList.length} Active Nodes</span>
             </div>
 
             <div className="map-container-wrapper">
@@ -117,9 +120,9 @@ export default function MapPanel({ sensors, loading }) {
                         attribution={attribution}
                     />
                     
-                    <ChangeView sensors={sensors} />
+                    <ChangeView sensors={sensorsList} />
 
-                    {sensors.map((sensor) => {
+                    {sensorsList.map((sensor) => {
                         const readings = sensor.readings || {};
                         const pm25 = readings.pm25;
                         const statusColor = getStatusColor(pm25);

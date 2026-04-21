@@ -1,0 +1,321 @@
+% ============================================================
+%  main.tex  –  MSc Research Proposal (Final Complete Version)
+%  University of Nairobi · Department of Electrical &
+%  Information Engineering
+%
+%  Addressing Heatwaves, Air Pollution, and Human Health
+%  in West and East Africa:
+%  High-Frequency Sensor Monitoring and AI-Driven Analysis
+%
+%  Lennox Kahati · FEE6/49465/2025
+%  March 2026
+% ============================================================
+\documentclass[12pt,a4paper]{report}
+
+% ── Geometry ────────────────────────────────────────────────
+\usepackage[a4paper,
+            top=2.5cm, bottom=2.5cm,
+            left=3.5cm, right=2.5cm]{geometry}
+
+% ── Typography ──────────────────────────────────────────────
+\usepackage[protrusion=false,expansion=false]{microtype}
+\usepackage{setspace}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+% ── Graphics & Colour ───────────────────────────────────────
+\usepackage{graphicx}
+\usepackage[dvipsnames,svgnames,table]{xcolor}
+
+% ── Tables ──────────────────────────────────────────────────
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{tabularx}
+
+% ── Maths ───────────────────────────────────────────────────
+\usepackage{amsmath}
+
+% ── Landscape ───────────────────────────────────────────────
+\usepackage{pdflscape}
+
+% ── Lists ───────────────────────────────────────────────────
+\usepackage{enumitem}
+
+% ── Captions ────────────────────────────────────────────────
+\usepackage{caption}
+
+% ── Float placement (H) ────────────────────────────────────
+\usepackage{float}
+
+% ── Gantt Chart ─────────────────────────────────────────────
+\usepackage{pgfgantt}
+
+% ── Headers & Footers ───────────────────────────────────────
+\usepackage{fancyhdr}
+
+% ── TOC Formatting ──────────────────────────────────────────
+\usepackage{tocloft}
+
+% ── Chapter / Section Titles ────────────────────────────────
+\usepackage{titlesec}
+
+% ── Hyperlinks (load last) ──────────────────────────────────
+\usepackage[hidelinks,
+            pdftitle={MSc Proposal – Heatwaves and Air Pollution in Africa},
+            pdfauthor={Lennox Kahati}]{hyperref}
+
+% ── Bibliography ────────────────────────────────────────────
+\usepackage[square,numbers,sort&compress]{natbib}
+
+% ── Appendices ──────────────────────────────────────────────
+\usepackage[toc,page]{appendix}
+
+% ============================================================
+%  FORMATTING
+% ============================================================
+
+\onehalfspacing
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+
+\titleformat{\chapter}[display]
+  {\normalfont\large\bfseries}
+  {CHAPTER \thechapter}
+  {0.5ex}
+  {\large\bfseries\MakeUppercase}
+  []
+\titlespacing*{\chapter}{0pt}{-10pt}{24pt}
+
+\titleformat{\section}{\normalfont\bfseries\normalsize}{\thesection}{1em}{}
+\titleformat{\subsection}{\normalfont\bfseries\normalsize}{\thesubsection}{1em}{}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\nouppercase{\leftmark}}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\fancypagestyle{plain}{%
+  \fancyhf{}
+  \fancyfoot[C]{\thepage}
+  \renewcommand{\headrulewidth}{0pt}%
+}
+
+\newcommand{\sigline}[1][6cm]{\underline{\hspace{#1}}}
+
+% ============================================================
+
+% --- AQMRG TIKZ SETTINGS ---
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, fit, backgrounds, calc, decorations.markings, patterns, shapes.multipart, matrix, chains, scopes, shadows}
+\pgfplotsset{compat=1.18}
+\tikzset{
+    sysblock/.style={rectangle, draw=#1, fill=#1!12, rounded corners=3pt, minimum width=2.6cm, minimum height=0.9cm, align=center, font=\sffamily\small, line width=0.6pt, drop shadow={opacity=0.1, shadow xshift=1pt, shadow yshift=-1pt}},
+    sysdb/.style={cylinder, draw=#1, fill=#1!12, shape border rotate=90, aspect=0.3, minimum width=1.8cm, minimum height=1cm, align=center, font=\sffamily\small, line width=0.6pt, drop shadow={opacity=0.1, shadow xshift=1pt, shadow yshift=-1pt}},
+    sysarrow/.style={-{Stealth[length=2.5mm]}, thick, gray!80, line width=0.8pt},
+    sysdarrow/.style={{Stealth[length=2.5mm]}-{Stealth[length=2.5mm]}, thick, gray!80, line width=0.8pt},
+    sysannot/.style={font=\sffamily\scriptsize\itshape, text=softgray, align=center},
+    systier/.style={font=\sffamily\footnotesize\bfseries, text=#1!80!black, inner sep=5pt},
+    syscontainer/.style={rectangle, fill=#1!5, draw=#1!20, rounded corners=8pt, dashed, line width=0.5pt, inner sep=15pt}
+}
+\definecolor{edgeblue}{RGB}{59,130,246}
+\definecolor{flaskgreen}{RGB}{16,185,129}
+\definecolor{kafkaorange}{RGB}{245,158,11}
+\definecolor{influxpurple}{RGB}{139,92,246}
+\definecolor{reactcyan}{RGB}{6,182,212}
+\definecolor{dangered}{RGB}{239,68,68}
+\definecolor{codebg}{RGB}{15,23,42}
+\definecolor{softgray}{RGB}{148,163,184}
+\definecolor{darkslate}{RGB}{30,41,59}
+\definecolor{emerald}{RGB}{16,185,129}
+\definecolor{amber}{RGB}{245,158,11}
+\definecolor{rose}{RGB}{244,63,94}
+\definecolor{indigo}{RGB}{99,102,241}
+
+\begin{document}
+
+% ============================================================
+%  TITLE PAGE
+% ============================================================
+\begin{titlepage}
+\centering
+
+\IfFileExists{uon_logo.png}{%
+  \includegraphics[width=0.22\textwidth]{uon_logo.png}\\[0.4cm]
+}{%
+  \framebox[3cm]{\rule{0pt}{3cm}\small\centering UoN Logo}\\[0.4cm]
+}
+
+{\Large\textbf{UNIVERSITY OF NAIROBI}}\\[0.3cm]
+{\normalsize FACULTY OF ENGINEERING}\\[0.2cm]
+{\normalsize DEPARTMENT OF ELECTRICAL AND INFORMATION ENGINEERING}\\[1.4cm]
+
+\rule{\linewidth}{0.6pt}\\[0.4cm]
+{\large\bfseries
+  Addressing Heatwaves, Air Pollution, and Human Health in\\
+  West and East Africa:\\[0.25cm]
+  High-Frequency Sensor Monitoring and AI-Driven Analysis
+}\\[0.4cm]
+\rule{\linewidth}{0.6pt}\\[1.2cm]
+
+{\large\bfseries MSc Proposal}\\[1.4cm]
+
+{\large\underline{Lennox Kahati}}\\[0.35cm]
+{\large\underline{FEE6/49465/2025}}\\[0.35cm]
+{\large\underline{[BSc. Electrical and Electronics Engineering (UoN)]}}\\[1.4cm]
+
+\begin{minipage}{0.82\textwidth}
+\centering\normalsize
+A Research Proposal Submitted in Partial Fulfilment of the
+Requirements for the Award of Master of Science Degree in
+\underline{Nuclear Science and Technology} at the Department of
+Electrical and Information Engineering of the University of Nairobi.
+\end{minipage}\\[1.6cm]
+
+{\large March, 2026}
+\end{titlepage}
+
+% ============================================================
+%  FRONT MATTER
+% ============================================================
+\pagenumbering{roman}
+\setcounter{page}{1}
+
+\chapter*{APPROVALS}
+\addcontentsline{toc}{chapter}{APPROVALS}
+\markboth{APPROVALS}{APPROVALS}
+
+\textbf{Supervisors' Approval}
+
+This Research Proposal is submitted with our approval as University Supervisors:
+
+\vspace{1.0cm}
+\noindent
+1)\quad\textbf{Dr.~Supervisor1}\\
+\hspace*{1em}Department of Electrical and Information Engineering, University of Nairobi
+
+\vspace{0.5cm}
+\noindent
+Signature \sigline[7cm]\quad Date \sigline[4cm]
+
+\vspace{1.1cm}
+\noindent
+2)\quad\textbf{Dr.~Supervisor2}\\
+\hspace*{1em}Department of Electrical and Information Engineering, University of Nairobi
+
+\vspace{0.5cm}
+\noindent
+Signature \sigline[7cm]\quad Date \sigline[4cm]
+
+\vspace{1.4cm}
+\textbf{Administrative Approval}
+
+\vspace{0.4cm}
+\noindent
+1)\quad Department of Electrical and Information Engineering\\
+\hspace*{1em}Chairman:
+
+\vspace{0.5cm}
+\noindent
+Signature \sigline[7cm]\quad Date \sigline[4cm]
+
+\vspace{1.0cm}
+\noindent
+2)\quad Faculty Postgraduate Studies Committee (FPSC)\\
+\hspace*{1em}Chairman:
+
+\vspace{0.5cm}
+\noindent
+Signature \sigline[7cm]\quad Date \sigline[4cm]
+
+\vspace{1.0cm}
+\noindent
+3)\quad Faculty of Engineering\\
+\hspace*{1em}Dean:
+
+\vspace{0.5cm}
+\noindent
+Signature \sigline[7cm]\quad Date \sigline[4cm]
+
+\chapter*{DECLARATION OF ORIGINALITY}
+\addcontentsline{toc}{chapter}{DECLARATION OF ORIGINALITY}
+\markboth{DECLARATION OF ORIGINALITY}{DECLARATION OF ORIGINALITY}
+
+\begin{tabular}{@{}ll}
+\textbf{NAME OF STUDENT:}          & Lennox Kahati \\[4pt]
+\textbf{REGISTRATION NUMBER:}      & FEE6/49465/2025 \\[4pt]
+\textbf{FACULTY/SCHOOL/INSTITUTE:} & Engineering \\[4pt]
+\textbf{DEPARTMENT:}               & Electrical \& Information Engineering \\[4pt]
+\textbf{COURSE NAME:}              & Master of Science in Nuclear Science and Technology \\[4pt]
+\textbf{TITLE OF WORK:}            & Addressing Heatwaves, Air Pollution, and Human Health \\
+                                   & in West and East Africa: High-Frequency Sensor \\
+                                   & Monitoring and AI-Driven Analysis \\
+\end{tabular}
+
+\vspace{1cm}
+\begin{enumerate}[leftmargin=*, label=\arabic*.]
+  \item I understand what plagiarism is and I am aware of the university policy in this regard.
+  \item I declare that this research proposal is my original work and has not been submitted elsewhere for examination, award of a degree, or publication. Where other people's work, or my own work, has been used, this has properly been acknowledged and referenced in accordance with the University of Nairobi's requirements.
+  \item I have not sought or used the services of any professional agencies to produce this work.
+  \item I have not allowed, and shall not allow, anyone to copy my work with the intention of passing it off as his/her own work.
+  \item I understand that any false claim in respect of this work shall result in disciplinary action, in accordance with the university anti-plagiarism policy.
+\end{enumerate}
+
+\vspace{1cm}
+Lennox Kahati,\quad FEE6/49465/2025
+
+\vspace{0.7cm}
+\noindent
+Signature: \sigline[8cm]\qquad Date: \sigline[4cm]
+
+\chapter*{ACKNOWLEDGEMENT}
+\addcontentsline{toc}{chapter}{ACKNOWLEDGEMENT}
+\markboth{ACKNOWLEDGEMENT}{ACKNOWLEDGEMENT}
+The development of this research proposal has been made possible through the support and guidance of many individuals and institutions, to whom I am sincerely grateful. First and foremost, I give thanks to God for the strength, wisdom, and perseverance throughout this academic journey. I am deeply indebted to my academic supervisors, Dr.~Supervisor1 and Dr.~Supervisor2, for their invaluable guidance, constructive feedback, and expert direction in shaping this proposal. Their commitment to research excellence has been a constant source of inspiration. I also wish to acknowledge the Department of Electrical and Information Engineering, University of Nairobi, for providing the academic environment and resources necessary for this work. Special thanks to the faculty members who offered advice and encouragement during seminars and consultations. I gratefully acknowledge the institutions and researchers whose published work forms the foundation of this proposal. Their contributions to the fields of IoT, AI, and environmental monitoring have been instrumental in defining the scope and methodology of this study. Finally, I express heartfelt gratitude to my family and friends for their unwavering moral support, patience, and encouragement throughout this process. Any errors or omissions in this proposal remain entirely my own responsibility.
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+% ── Include Acronyms from separate file ─────────────────────
+\input{acronym}
+
+\chapter*{ABSTRACT}
+\addcontentsline{toc}{chapter}{ABSTRACT}
+\markboth{ABSTRACT}{ABSTRACT}
+Rapid urbanization in Africa has intensified extreme heat events and air pollution, posing serious health risks to vulnerable populations. This proposal outlines a cloud-based, AI-enhanced monitoring platform that integrates real-time environmental data (PM$_{2.5}$, PM$_{10}$, CO$_2$, NO$_2$, O$_3$, temperature, humidity, wind) with health records and socio-economic indicators. Using Llama2 for anomaly detection and forecasting, the system will generate timely alerts, vulnerability maps, and policy briefs. Key objectives include deploying sensor networks in target cities (Accra, Ghana and Nairobi, Kenya), correlating pollution and heat with hospital data, building local technical capacity, and producing replicable heat action plans. The initiative aims to improve health resilience, guide adaptive urban planning, and foster digital transformation in West and East Africa.
+
+% ============================================================
+%  MAIN MATTER
+% ============================================================
+\pagenumbering{arabic}
+\input{figures.tex}
+\input{tables.tex}
+\input{sections.tex}
+
+\bibliographystyle{unsrt}
+\bibliography{references}
+
+% ============================================================
+%  APPENDICES
+% ============================================================
+\begin{appendices}
+\chapter{CONSENT FORM}
+\label{app:consent}
+This appendix contains the informed consent form to be administered to all research participants. The form will be produced in English and translated into relevant local languages.
+
+\chapter{SURVEY QUESTIONNAIRE}
+\label{app:questionnaire}
+This appendix contains the structured questionnaire for community stakeholder engagement, administered via KoboToolbox.
+
+\chapter{LETTERS OF PERMISSION}
+\label{app:permissions}
+This appendix will include copies of ethical clearance letters, research permits, and data-sharing agreements.
+
+\end{appendices}
+
+\end{document}

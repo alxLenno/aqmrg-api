@@ -48,7 +48,9 @@ export default function YourDataTab({ selectedDevice }) {
     }, [selectedDevice]);
 
     const processedData = useMemo(() => {
-        if (!history.length) return null;
+        const historyList = Array.isArray(history) ? history : [];
+        if (!historyList.length) return null;
+
 
         const getVal = (h) => Number(h.metrics?.pm25 || h.pm25 || 0);
         const rawValues = history.map(getVal).filter(v => !isNaN(v));

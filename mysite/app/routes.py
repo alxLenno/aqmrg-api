@@ -274,7 +274,7 @@
 
 from flask import Blueprint, request, jsonify, Response, render_template
 from .models import db, SensorReading, DeviceHealth
-from .ml import predict_all_models, ensemble_predict, has_any_model
+from .ml import predict_all_models, ensemble_predict, has_any_model, get_model_status
 from datetime import datetime
 import json
 import csv
@@ -302,21 +302,30 @@ def sanitize_sensor_key(key):
     if len(clean) > 28: clean = clean[:28]
     return f"s_{clean}"
 
+_known_dynamic_cols = set()
+
 def ensure_col_exists(col_name):
-    """Checks if a column exists in SensorReading and adds it if missing."""
+    """Checks if a column exists in SensorReading and adds it if missing.
+    Uses an in-memory cache so the DB is only inspected once per column."""
+    if col_name in _known_dynamic_cols:
+        return False
+
     with db.engine.connect() as conn:
         inspector = inspect(db.engine)
         existing_cols = [c['name'] for c in inspector.get_columns('sensor_reading')]
         
-        if col_name not in existing_cols:
-            print(f"!!! DISCOVERED NEW SENSOR: {col_name}. Altering database...")
-            try:
-                # SQLite ALTER TABLE is lightweight for adding columns
-                conn.execute(text(f"ALTER TABLE sensor_reading ADD COLUMN {col_name} FLOAT"))
-                conn.commit()
-                return True
-            except Exception as e:
-                print(f"Error adding column {col_name}: {e}")
+        if col_name in existing_cols:
+            _known_dynamic_cols.add(col_name)
+            return False
+
+        print(f"!!! DISCOVERED NEW SENSOR: {col_name}. Altering database...")
+        try:
+            conn.execute(text(f"ALTER TABLE sensor_reading ADD COLUMN {col_name} FLOAT"))
+            conn.commit()
+            _known_dynamic_cols.add(col_name)
+            return True
+        except Exception as e:
+            print(f"Error adding column {col_name}: {e}")
     return False
 
 # ----------------------
@@ -352,7 +361,7 @@ def ingest():
         voc_index = metrics.get('voc_index'); nox_index = metrics.get('nox_index')
 
         # 2. Extract & Auto-Migrate Dynamic Metrics
-        core_keys = {'pm1', 'pm25', 'pm10', 'co', 'co2', 'o3', 'temperature', 'humidity', 'voc_index', 'nox_index'}
+        core_keys = {'pm1', 'pm25', 'pm10', 'co', 'co2', 'temperature', 'humidity', 'voc_index', 'nox_index'}
         dynamic_payload = {} # Will hold {sanitized_col_name: value}
         
         for k, v in metrics.items():
@@ -422,8 +431,13 @@ def ingest():
 
 @api_bp.route('/api/v1/forecast/realtime', methods=['GET'])
 def get_prediction():
-    if not has_any_model():
-        return jsonify({"status": "error", "message": "No models loaded"}), 500
+    status = get_model_status()
+    if not status["has_models"]:
+        return jsonify({
+            "status": "error", 
+            "message": "No models loaded on server",
+            "diagnostics": status if request.args.get('debug') == 'true' else None
+        }), 500
 
     latest = SensorReading.query.order_by(SensorReading.timestamp.desc()).first()
     if not latest:
@@ -450,8 +464,13 @@ def get_prediction():
 
 @api_bp.route('/api/v1/forecast/comparison', methods=['GET'])
 def get_model_comparison():
-    if not has_any_model():
-        return jsonify({"status": "error", "message": "No models loaded"}), 500
+    status = get_model_status()
+    if not status["has_models"]:
+        return jsonify({
+            "status": "error", 
+            "message": "No models loaded on server",
+            "diagnostics": status if request.args.get('debug') == 'true' else None
+        }), 500
 
     latest = SensorReading.query.order_by(SensorReading.timestamp.desc()).first()
     if not latest:
@@ -481,6 +500,11 @@ def get_model_comparison():
         "predictions": preds,
         "ensemble_median": ensemble_median
     })
+
+@api_bp.route('/api/v1/forecast/debug', methods=['GET'])
+def debug_forecast():
+    """Diagnostic endpoint to check model loading state."""
+    return jsonify(get_model_status())
 
 @api_bp.route('/api/v1/data/latest', methods=['GET'])
 def get_latest():

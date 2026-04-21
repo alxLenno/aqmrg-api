@@ -1,3 +1,6 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { ResponsiveContainer, ComposedChart, CartesianGrid, XAxis, YAxis, Tooltip, Area, Bar } from 'recharts';
+import { fetchSampledHistory } from '../api/dashboard';
 import { METRIC_CONFIG, formatMetricLabel, getMetricUnit, discoverMetrics } from '../utils/metrics';
 
 /**
@@ -10,7 +13,10 @@ export default function RawAnalysisTab({ selectedDevice }) {
     const [activeBuckets, setActiveBuckets] = useState('daily'); // hourly, daily, weekly, monthly, yearly
 
     // Discovered keys for the charts
-    const activeMetricKeys = useMemo(() => discoverMetrics(history), [history]);
+    const activeMetricKeys = useMemo(() => {
+        const hList = Array.isArray(history) ? history : [];
+        return discoverMetrics(hList);
+    }, [history]);
 
     const parameters = useMemo(() => {
         return activeMetricKeys.map(key => ({
@@ -75,9 +81,8 @@ export default function RawAnalysisTab({ selectedDevice }) {
     }, [selectedDevice]);
 
     const aggregatedData = useMemo(() => {
-        if (!history.length) return [];
-
-        let rawData = [...history].map(item => ({
+        const historyList = Array.isArray(history) ? history : [];
+        let rawData = [...historyList].map(item => ({
             ...item,
             _date: new Date(item.recorded_at || item.timestamp),
             _localDate: new Date(item.recorded_at || item.timestamp).toLocaleDateString('en-CA') // YYYY-MM-DD

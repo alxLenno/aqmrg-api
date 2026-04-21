@@ -1,0 +1,57 @@
+This is BibTeX, Version 0.99d
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: main.aux
+Reallocating 'name_of_file' (item size: 1) to 6 items.
+The style file: unsrt.bst
+Reallocating 'name_of_file' (item size: 1) to 11 items.
+Database file #1: references.bib
+Warning--empty journal in kalisa2024
+Warning--empty journal in Eric_Kofi_Doe_2025
+Warning--empty journal in JC_Odirichukwu_2024
+Warning--empty institution in kaied2025
+Warning--empty institution in tetali2025
+Warning--empty journal in Olalekan_Afolabi_2025
+Warning--empty journal in toure2024
+Warning--empty journal in adewumi2025
+You've used 44 entries,
+            1791 wiz_defined-function locations,
+            678 strings with 15142 characters,
+and the built_in function-call counts, 11319 in all, are:
+= -- 780
+> -- 941
+< -- 3
++ -- 329
+- -- 285
+* -- 923
+:= -- 2011
+add.period$ -- 133
+call.type$ -- 44
+change.case$ -- 46
+chr.to.int$ -- 0
+cite$ -- 52
+duplicate$ -- 399
+empty$ -- 897
+format.name$ -- 285
+if$ -- 2341
+int.to.chr$ -- 0
+int.to.str$ -- 44
+missing$ -- 38
+newline$ -- 224
+num.names$ -- 44
+pop$ -- 112
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 174
+stack$ -- 0
+substring$ -- 539
+swap$ -- 64
+text.length$ -- 3
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 8
+while$ -- 86
+width$ -- 46
+write$ -- 467
+(There were 8 warnings)

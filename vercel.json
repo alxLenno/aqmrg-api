@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://your-backend-url.vercel.app/api/$1"
+    },
+    {
+      "source": "/health",
+      "destination": "https://your-backend-url.vercel.app/health"
+    }
+  ],
+  "env": {
+    "VITE_API_URL": "https://your-backend-url.vercel.app"
+  }
+}

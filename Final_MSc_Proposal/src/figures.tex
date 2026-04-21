@@ -1,0 +1,892 @@
+\newcommand{\figMethodologyArch}{%
+\begin{figure}[H]
+\centering
+\scalebox{0.88}{%
+\begin{tikzpicture}[node distance=1.5cm and 2.5cm]
+
+\node[sysblock=edgeblue] (arduino) {Arduino Due\\Controller};
+\node[below=0.3cm of arduino, sysannot] (sensors) {PMS5003, MH-Z19C, SGP41,\\MQ-7, DHT11 Sensors};
+
+\node[sysblock=flaskgreen, right=4cm of arduino] (flask) {Flask API\\(PythonAnywhere)};
+\node[sysblock=flaskgreen, below=1cm of flask, opacity=0.8] (ml) {ML Ensemble\\(3$\times$ .pkl models)};
+\node[sysdb=gray, below=1cm of ml] (sqlite) {SQLite\\sensor\_data.db};
+
+\node[sysblock=reactcyan, right=4cm of flask] (vercel) {Vercel Serverless\\(Edge Proxy)};
+\node[sysblock=reactcyan, above=1cm of vercel] (react) {React.js Dashboard\\(Vite/Recharts)};
+
+\node[sysblock=kafkaorange, below=8cm of flask] (kafka) {Apache Kafka\\Event Bus};
+\node[sysblock=influxpurple, right=2cm of kafka] (analytics) {Analytics\\Service};
+\node[sysdb=influxpurple, right=1.8cm of analytics] (influx) {InfluxDB\\Time-Series};
+\node[sysdb=gray, below=1cm of kafka] (mongo) {MongoDB\\Document Store};
+\node[sysblock=dangered, left=2.5cm of kafka] (prom) {Prometheus\\+ Grafana};
+
+\draw[sysarrow, edgeblue] (arduino) -- node[above, sysannot] {HTTP POST\\JSON/GSM} (flask);
+\draw[sysarrow, flaskgreen] (flask) -- (ml);
+\draw[sysarrow, flaskgreen] (ml) -- (sqlite);
+\draw[sysarrow, gray] (flask) -- node[above, sysannot] {Webhook relay} (vercel);
+\draw[sysdarrow, reactcyan] (vercel) -- (react);
+\draw[sysarrow, reactcyan] (vercel.south) -- ++(0,-0.8) -| node[near start, above, sysannot] {Proxy rewrite to PA} (flask.north east);
+\draw[sysarrow, kafkaorange] (sqlite.south) -- node[left, sysannot] {Publish} (kafka.north);
+\draw[sysarrow, kafkaorange] (kafka) -- node[above, sysannot] {Consume} (analytics);
+\draw[sysarrow, influxpurple] (analytics) -- node[above, sysannot] {Write points} (influx);
+\draw[sysarrow, gray] (kafka) -- (mongo);
+\draw[sysarrow, dangered] (prom) -- (kafka);
+
+\begin{scope}[on background layer]
+    \node[syscontainer=edgeblue, fit=(arduino) (sensors), label={[systier=edgeblue]above:TIER 1: EDGE}] {};
+    \node[syscontainer=flaskgreen, fit=(flask) (ml) (sqlite), label={[systier=flaskgreen]above:TIER 2: BACKEND}] {};
+    \node[syscontainer=reactcyan, fit=(vercel) (react), label={[systier=reactcyan]above:TIER 3: CLIENT}] {};
+    \node[syscontainer=kafkaorange, fit=(kafka) (analytics) (influx) (mongo) (prom), label={[systier=kafkaorange]below:TIER 4: MICROSERVICES}] {};
+\end{scope}
+
+\end{tikzpicture}%
+}
+\caption{Complete AQMRG platform architecture showing the multi-tier data flow. Tiers are logically grouped by role, spanning from edge sensing to cloud-hosted analytics and event streaming via Apache Kafka.}
+\label{fig:arch}
+\end{figure}
+}
+
+\newcommand{\figMethodologyLifecycle}{%
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=1cm and 2cm]
+
+\node[sysblock=edgeblue] (p1) {1. Sensing\\(Arduino Due)};
+\node[sysblock=edgeblue, right=of p1] (p2) {2. Payload\\(JSON Build)};
+\node[sysblock=amber, right=of p2] (p3) {3. Transmit\\(GSM/GPRS)};
+\node[sysblock=flaskgreen, right=of p3] (p4) {4. Ingestion\\(Flask/Auth)};
+
+\node[sysblock=indigo, below=1.5cm of p4] (p5) {5. ML Inference\\(Ensemble)};
+\node[sysblock=flaskgreen, left=of p5] (p6) {6. Persistence\\(SQLite)};
+\node[sysblock=reactcyan, left=of p6] (p7) {7. Dashboard\\(Dashboard)};
+\node[sysblock=kafkaorange, left=of p7] (p8) {8. Streaming\\(Kafka Bus)};
+
+\draw[sysarrow] (p1) -- (p2);
+\draw[sysarrow] (p2) -- (p3);
+\draw[sysarrow] (p3) -- (p4);
+\draw[sysarrow] (p4) -- (p5);
+\draw[sysarrow] (p5) -- (p6);
+\draw[sysarrow] (p6) -- (p7);
+\draw[sysarrow] (p7) -- (p8);
+
+\node[sysannot, above=0.2cm of p1] {$\sim$2s};
+\node[sysannot, above=0.2cm of p3] {$\sim$1--3s};
+\node[sysannot, below=0.2cm of p5] {$\sim$50ms};
+\node[sysannot, below=0.2cm of p7] {$\sim$200ms};
+
+\end{tikzpicture}
+\caption{End-to-end data lifecycle in a compact snaking layout. Timing annotations indicate typical systemic latency from physical sensing to global dashboard availability.}
+\label{fig:lifecycle}
+\end{figure}
+}
+
+\newcommand{\figMethodologyDeploy}{%
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    every node/.style={font=\small},
+    cloudbox/.style={rectangle, draw, rounded corners=8pt, minimum width=4.5cm, minimum height=2cm, align=center, dashed, draw=#1!50, fill=#1!3},
+    innerblock/.style={rectangle, draw, rounded corners=3pt, minimum width=3.5cm, minimum height=0.6cm, align=center, font=\footnotesize, fill=#1!12, draw=#1!40},
+    arrow/.style={-{Stealth[length=2.5mm]}, thick}
+]
+
+\node[cloudbox=edgeblue, minimum height=2.5cm] (physical) at (0,0) {};
+\node[above=-0.1cm of physical.north, font=\footnotesize\bfseries, text=edgeblue] {PHYSICAL LAYER};
+\node[innerblock=edgeblue] (ard) at (0, 0.2) {Arduino Due + Sensors};
+\node[innerblock=amber, below=0.3cm of ard] (gsm) {SIM800L GSM Module};
+
+\node[cloudbox=flaskgreen, minimum height=3.5cm, right=3cm of physical] (pacloud) {};
+\node[above=-0.1cm of pacloud.north, font=\footnotesize\bfseries, text=flaskgreen] {PYTHONANYWHERE};
+\node[innerblock=flaskgreen] (flaskd) at ([yshift=0.6cm]pacloud.center) {Flask WSGI App};
+\node[innerblock=indigo, below=0.25cm of flaskd] (mld) {scikit-learn Models};
+\node[innerblock=gray, below=0.25cm of mld] (sqld) {SQLite 3.x DB};
+
+\node[cloudbox=reactcyan, minimum height=2.5cm, right=3cm of pacloud] (vercelcloud) {};
+\node[above=-0.1cm of vercelcloud.north, font=\footnotesize\bfseries, text=reactcyan] {VERCEL EDGE CDN};
+\node[innerblock=reactcyan] (reactd) at ([yshift=0.2cm]vercelcloud.center) {React + Vite SPA};
+\node[innerblock=gray, below=0.3cm of reactd] (sless) {Serverless Functions};
+
+\node[cloudbox=kafkaorange, minimum height=3cm, below=2.5cm of pacloud] (docker) {};
+\node[above=-0.1cm of docker.north, font=\footnotesize\bfseries, text=kafkaorange] {DOCKER HOST (14 containers)};
+\node[innerblock=kafkaorange] (kd) at ([yshift=0.4cm]docker.center) {Kafka + Zookeeper};
+\node[innerblock=influxpurple, below=0.2cm of kd] (idb) {InfluxDB + MongoDB + PostgreSQL};
+\node[innerblock=dangered, below=0.2cm of idb] (obd) {Prometheus + Grafana};
+
+\draw[arrow, edgeblue] (gsm.east) -- node[above, font=\tiny\itshape, text=gray] {GPRS/HTTP} (flaskd.west);
+\draw[arrow, flaskgreen] (flaskd.east) -- node[above, font=\tiny\itshape, text=gray] {Relay} (sless.west);
+\draw[arrow, reactcyan] (sless) -- (reactd);
+\draw[arrow, kafkaorange] (sqld.south) -- ++(0,-0.4) -| node[near start, right, font=\tiny\itshape, text=gray] {Publish} (kd.north);
+\draw[arrow, reactcyan, dashed] (sless.south) -- ++(0,-0.3) -| node[near start, right, font=\tiny\itshape, text=gray] {Proxy rewrite} ([xshift=0.3cm]flaskd.north east);
+
+\end{tikzpicture}
+\caption{Physical deployment topology showing the four hosting environments: a field-deployed Arduino node, PythonAnywhere's managed Python hosting, Vercel's edge CDN, and a Docker Compose cluster for microservices.}
+\label{fig:deploy}
+\end{figure}
+}
+
+\newcommand{\figMethodologyWiring}{%
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=1cm and 2.5cm,
+    sensor/.style={sysblock=#1, minimum width=2.5cm, font=\sffamily\scriptsize},
+    bus/.style={draw=#1, thick, line width=1pt}
+]
+
+\node[sysblock=edgeblue, minimum width=4cm, minimum height=3cm] (mcu) {\textbf{Arduino Due}\\\textbf{Controller}};
+
+\node[sensor=flaskgreen, left=of mcu, yshift=1.2cm] (pms) {PMS5003\\Particle};
+\node[sensor=indigo, left=of mcu, yshift=0.4cm] (mhz) {MH-Z19C\\CO$_2$};
+\node[sensor=influxpurple, left=of mcu, yshift=-0.4cm] (sgp) {SGP41\\VOC/NOx};
+\node[sensor=dangered, left=of mcu, yshift=-1.2cm] (mq7) {MQ-7\\CO Sensor};
+
+\node[sensor=amber, right=of mcu, yshift=1cm] (gsm) {SIM800L\\GSM/GPRS};
+\node[sensor=reactcyan, right=of mcu, yshift=-1cm] (dht) {DHT11\\Temp/Hum};
+
+\draw[bus=flaskgreen] (pms.east) -- node[above, sysannot] {Serial3} (mcu.west |- pms.east);
+\draw[bus=indigo] (mhz.east) -- node[above, sysannot] {Serial2} (mcu.west |- mhz.east);
+\draw[bus=influxpurple] (sgp.east) -- node[above, sysannot] {I2C} (mcu.west |- sgp.east);
+\draw[bus=dangered] (mq7.east) -- node[above, sysannot] {A0} (mcu.west |- mq7.east);
+\draw[bus=amber] (gsm.west) -- node[above, sysannot] {Serial1} (mcu.east |- gsm.west);
+\draw[bus=reactcyan] (dht.west) -- node[above, sysannot] {Pin 7} (mcu.east |- dht.west);
+
+\end{tikzpicture}
+\caption{Hardware wiring topology. Sensor modules connect to the Arduino Due via diverse interfaces (UART, I2C, Analog, Digital), with the SIM800L module providing cellular connectivity.}
+\label{fig:wiring}
+\end{figure}
+}
+
+\newcommand{\figMethodologyPayload}{%
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    every node/.style={font=\footnotesize},
+    jsonblock/.style={rectangle, draw=gray!50, fill=darkslate!5, rounded corners=3pt, minimum width=5cm, align=left, inner sep=8pt}
+]
+
+\node[jsonblock, text width=12cm] (json) {
+\texttt{\{}\\
+\quad\texttt{"sensorId": "AQ-001",}\\
+\quad\texttt{"metrics": \{}\\
+\quad\quad\texttt{"pm1": 12, "pm25": 28, "pm10": 45,}\\
+\quad\quad\texttt{"co": 1.2, "co2": 485,}\\
+\quad\quad\texttt{"temperature": 24.5, "humidity": 62,}\\
+\quad\quad\texttt{"voc\_index": 120, "nox\_index": 35}\\
+\quad\texttt{\},}\\
+\quad\texttt{"location": \{"latitude": -1.2864, "longitude": 36.8172\},}\\
+\quad\texttt{"health": \{}\\
+\quad\quad\texttt{"uptime\_minutes": 1440,}\\
+\quad\quad\texttt{"signal\_dbm": -78,}\\
+\quad\quad\texttt{"gsm\_reconnects": 2,}\\
+\quad\quad\texttt{"failed\_requests": 0,}\\
+\quad\quad\texttt{"last\_http\_status": 201,}\\
+\quad\quad\texttt{"sensors": \{"PMS5003": "OK", "SGP41": "OK", ...\},}\\
+\quad\quad\texttt{"issue\_descriptions": []}\\
+\quad\texttt{\}}\\
+\texttt{\}}
+};
+
+\node[above=0.2cm of json, font=\small\bfseries, text=edgeblue] {Arduino Telemetry Payload Structure};
+
+\draw[{Stealth[length=2mm]}-, thick, softgray] ([xshift=5.5cm, yshift=-0.4cm]json.north west) -- ++(1.5,0) node[right, font=\tiny, text=edgeblue] {Device authentication};
+\draw[{Stealth[length=2mm]}-, thick, softgray] ([xshift=5.5cm, yshift=-1.5cm]json.north west) -- ++(1.5,0) node[right, font=\tiny, text=flaskgreen] {ML feature source};
+\draw[{Stealth[length=2mm]}-, thick, softgray] ([xshift=5.5cm, yshift=-3.5cm]json.north west) -- ++(1.5,0) node[right, font=\tiny, text=reactcyan] {Map marker placement};
+\draw[{Stealth[length=2mm]}-, thick, softgray] ([xshift=5.5cm, yshift=-4.8cm]json.north west) -- ++(1.5,0) node[right, font=\tiny, text=dangered] {Fleet diagnostics};
+
+\end{tikzpicture}
+\caption{Structure of the JSON telemetry payload transmitted from the Arduino Due to the Flask backend. Annotations indicate which downstream subsystem consumes each section.}
+\label{fig:payload}
+\end{figure}
+}
+
+\newcommand{\figMethodologyFirmwareFsm}{%
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=1.2cm and 2.2cm]
+
+\node[sysblock=edgeblue] (init) {INIT\\Setup};
+\node[sysblock=flaskgreen, right=of init] (sensor) {POLLING\\Sensors};
+\node[sysblock=indigo, right=of sensor] (build) {BUILD\\JSON};
+\node[sysblock=amber, below=1.5cm of build] (gsm) {TRANSMIT\\HTTP};
+\node[sysblock=flaskgreen, below=1.5cm of sensor] (wait) {WAIT\\Delay};
+\node[sysblock=dangered, below=1.5cm of init] (error) {RECOVERY\\Reset};
+
+\draw[sysarrow] (init) -- node[above, sysannot] {sensors OK} (sensor);
+\draw[sysarrow] (sensor) -- node[above, sysannot] {Ready} (build);
+\draw[sysarrow] (build) -- node[right, sysannot] {JSON OK} (gsm);
+\draw[sysarrow] (gsm) -- node[below, sysannot] {201 OK} (wait);
+\draw[sysarrow] (wait) -- node[left, sysannot] {Next} (sensor);
+\draw[sysarrow, dangered] (gsm.west) -- node[below, sysannot] {Fail} (error);
+\draw[sysarrow, dangered] (error) -- node[left, sysannot] {Retry} (sensor);
+
+\draw[sysarrow, dashed, amber] (gsm.south) -- ++(0,-0.5) -- ++(1.5,0) |- (gsm.east);
+
+\end{tikzpicture}
+\caption{Firmware state machine governing the operational lifecycle of the edge node, including polling cycles and fault recovery logic.}
+\label{fig:firmware_fsm}
+\end{figure}
+}
+
+\newcommand{\figMethodologyAppFactory}{%
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=1.1cm]
+
+\node[sysblock=flaskgreen] (s1) {1. create\_app()\\Entry Point};
+\node[sysblock=flaskgreen, below=of s1] (s2) {2. Configure SQL\\sensor\_data.db};
+\node[sysblock=amber, below=of s2] (s3) {3. Event hooks\\journal\_mode=DELETE};
+\node[sysblock=indigo, below=of s3] (s4) {4. Swagger\\API Docs};
+\node[sysblock=flaskgreen, below=of s4] (s5) {5. Blueprints\\Route Mapping};
+\node[sysblock=emerald, below=of s5] (s6) {6. ML Load\\Import ml.py};
+
+\draw[sysarrow] (s1) -- (s2);
+\draw[sysarrow] (s2) -- (s3);
+\draw[sysarrow] (s3) -- (s4);
+\draw[sysarrow] (s4) -- (s5);
+\draw[sysarrow] (s5) -- (s6);
+
+\end{tikzpicture}
+\caption{Flask application factory initialization flow. The system utilizes a singleton pattern for ML model loading during the WSGI server startup phase.}
+\label{fig:app_factory}
+\end{figure}
+}
+
+\newcommand{\figMethodologyErd}{%
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    every node/.style={font=\small},
+    entity/.style={rectangle split, rectangle split parts=2, draw=#1, fill=#1!8, rounded corners=3pt, minimum width=5cm, align=left, font=\footnotesize, inner sep=6pt},
+    arrow/.style={-{Stealth[length=2.5mm]}, thick, gray!60},
+    rel/.style={font=\tiny\itshape, text=softgray}
+]
+
+\node[entity=flaskgreen] (sr) {
+    \textbf{SensorReading}
+    \nodepart{second}
+    \texttt{id} : Integer (PK)\\
+    \texttt{device\_id} : String(50)\\
+    \texttt{timestamp} : DateTime (EAT)\\
+    \texttt{pm1, pm25, pm10} : Float\\
+    \texttt{co, co2} : Float\\
+    \texttt{temperature, humidity} : Float\\
+    \texttt{voc\_index, nox\_index} : Float\\
+    \texttt{latitude, longitude} : Float\\
+    \texttt{raw\_payload} : Text (JSON)\\
+    \texttt{predicted\_pm25} : Float (ensemble)\\
+    \texttt{predicted\_pm25\_existing} : Float\\
+    \texttt{predicted\_pm25\_gb} : Float\\
+    \texttt{predicted\_pm25\_ols} : Float
+};
+
+\node[entity=amber, right=2cm of sr] (dh) {
+    \textbf{DeviceHealth}
+    \nodepart{second}
+    \texttt{id} : Integer (PK)\\
+    \texttt{device\_id} : String(50)\\
+    \texttt{timestamp} : DateTime (EAT)\\
+    \texttt{uptime\_minutes} : Integer\\
+    \texttt{signal\_dbm} : Integer\\
+    \texttt{gsm\_reconnects} : Integer\\
+    \texttt{failed\_requests} : Integer\\
+    \texttt{last\_http\_status} : Integer\\
+    \texttt{issues} : Text (JSON array)\\
+    \texttt{sensor\_status} : Text (JSON obj)
+};
+
+\node[entity=indigo, below=1.5cm of sr, xshift=3.5cm] (dm) {
+    \textbf{DeviceMetadata}
+    \nodepart{second}
+    \texttt{id} : Integer (PK)\\
+    \texttt{device\_id} : String(50) UNIQUE\\
+    \texttt{last\_latitude} : Float\\
+    \texttt{last\_longitude} : Float\\
+    \texttt{location\_name} : String(100)\\
+    \texttt{updated\_at} : DateTime (EAT)
+};
+
+\draw[arrow] (sr.east) -- node[above, rel] {device\_id (1:N)} ([yshift=2cm]dh.west);
+\draw[arrow] (dm.north) -- ++(0,0.5) -| node[near start, above, rel] {device\_id (1:1)} (sr.south);
+\draw[arrow] (dm.north east) -- ++(0.5,0.5) -| node[near start, above, rel] {device\_id (1:N)} (dh.south);
+
+\end{tikzpicture}
+\caption{Entity-Relationship diagram for the SQLite database. Each \texttt{SensorReading} stores raw sensor data plus all four prediction columns. \texttt{DeviceHealth} provides per-submission hardware diagnostics, and \texttt{DeviceMetadata} maintains persistent geographic identity per device.}
+\label{fig:erd}
+\end{figure}
+}
+
+\newcommand{\figMethodologyIngest}{%
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=1.2cm]
+
+\node[sysblock=edgeblue] (s1) {1. Arduino Ingest\\POST request};
+\node[diamond, draw=amber, fill=amber!10, below=of s1, aspect=2, align=center, font=\sffamily\scriptsize] (d1) {AQ- prefix?};
+\node[sysblock=dangered, right=2cm of d1] (reject) {Reject (401)};
+\node[sysblock=flaskgreen, below=of d1] (s2) {2. Extract Metrics\\PM, CO, Gas};
+\node[sysblock=indigo, below=of s2] (s3) {3. ML Inference\\Median Ensemble};
+\node[sysblock=gray, below=of s3] (s4) {4. Persist\\SQLite DB};
+\node[sysblock=reactcyan, below=of s4] (s5) {5. Dashboard Relay\\Vercel Webhook};
+
+\draw[sysarrow] (s1) -- (d1);
+\draw[sysarrow] (d1) -- node[above, sysannot] {No} (reject);
+\draw[sysarrow] (d1) -- node[left, sysannot] {Yes} (s2);
+\draw[sysarrow] (s2) -- (s3);
+\draw[sysarrow] (s3) -- (s4);
+\draw[sysarrow] (s4) -- (s5);
+
+\end{tikzpicture}
+\caption{Ingestion pipeline logic flow. Each request is validated, passed through the ML ensemble, and asynchronously relayed to the live dashboard within the HTTP cycle.}
+\label{fig:ingest}
+\end{figure}
+}
+
+\newcommand{\figMethodologyTrainingPipeline}{%
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    every node/.style={font=\small},
+    block/.style={rectangle, draw=#1, fill=#1!10, rounded corners=3pt, minimum width=3cm, minimum height=0.8cm, align=center, font=\footnotesize},
+    arrow/.style={-{Stealth[length=2.5mm]}, thick, gray!60}
+]
+
+\node[block=edgeblue] (raw) {Raw CSV\\(147 KB)};
+\node[block=flaskgreen, right=1.5cm of raw] (clean) {Data Cleaning\\NaN handling};
+\node[block=indigo, right=1.5cm of clean] (feat) {Feature Selection\\$[PM_{10}, CO, T, H]$};
+\node[block=amber, right=1.5cm of feat] (split) {Train/Test Split\\(80/20)};
+
+\node[block=flaskgreen, below=1.5cm of raw, xshift=1cm] (lr) {Linear\\Regression};
+\node[block=kafkaorange, right=2cm of lr] (gb) {Gradient\\Boosting};
+\node[block=influxpurple, right=2cm of gb] (ols) {OLS + Quantile\\Transform};
+
+\node[block=emerald, below=1.5cm of gb] (eval) {Cross-Validation\\RMSE, $R^2$, MAE};
+\node[block=dangered, below=1cm of eval] (serial) {joblib.dump()\\$\rightarrow$ .pkl files};
+
+\draw[arrow] (raw) -- (clean);
+\draw[arrow] (clean) -- (feat);
+\draw[arrow] (feat) -- (split);
+
+\draw[arrow] (split.south) -- ++(0,-0.5) -| (lr.north);
+\draw[arrow] (split.south) -- ++(0,-0.5) -| (gb.north);
+\draw[arrow] (split.south) -- ++(0,-0.5) -| (ols.north);
+
+\draw[arrow] (lr) -- (eval.north west);
+\draw[arrow] (gb) -- (eval);
+\draw[arrow] (ols) -- (eval.north east);
+\draw[arrow] (eval) -- (serial);
+
+\end{tikzpicture}
+\caption{ML training pipeline: raw CSV data undergoes cleaning and feature selection before being split into training/test sets. Three distinct algorithms are trained, cross-validated, and serialized for production deployment.}
+\label{fig:training_pipeline}
+\end{figure}
+}
+
+\newcommand{\figMethodologyMlpipeline}{%
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=0.6cm and 1.5cm,
+    every node/.style={font=\small},
+    block/.style={rectangle, draw, rounded corners=3pt, minimum width=2.8cm, minimum height=0.8cm, align=center},
+    arrow/.style={-{Stealth[length=2.5mm]}, thick}
+]
+
+\node[block, fill=edgeblue!10] (input) {Input Features\\$[PM_{10}, CO, T, H]$};
+
+\node[block, fill=gray!10, right=2cm of input, yshift=1.2cm] (m1) {Base Regressor\\(.pkl)};
+\node[block, fill=kafkaorange!12, right=2cm of input] (m2) {Gradient Boosting\\(.pkl)};
+\node[block, fill=influxpurple!10, right=2cm of input, yshift=-1.2cm] (m3) {OLS + QuantileT\\(.pkl)};
+
+\node[block, fill=flaskgreen!15, right=2cm of m2] (median) {Median Vote\\$\hat{y}_{ens}$};
+
+\node[block, fill=reactcyan!10, right=2cm of median] (out) {predicted\_pm25\\$\mu g/m^3$};
+
+\draw[arrow] (input) -- (m1.west);
+\draw[arrow] (input) -- (m2.west);
+\draw[arrow] (input) -- (m3.west);
+\draw[arrow] (m1.east) -- (median.north west);
+\draw[arrow] (m2.east) -- (median.west);
+\draw[arrow] (m3.east) -- (median.south west);
+\draw[arrow] (median) -- (out);
+
+\node[below=0.1cm of m3, font=\tiny\itshape, text=gray] {$\ln(PM_{10})$, QuantileT($T$)};
+
+\end{tikzpicture}
+\caption{ML ensemble inference pipeline. Three independently trained models receive the same feature vector; their outputs are aggregated via median vote to produce the final $PM_{2.5}$ prediction.}
+\label{fig:mlpipeline}
+\end{figure}
+}
+
+\newcommand{\figMethodologyEnsembleLogic}{%
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    every node/.style={font=\small},
+    block/.style={rectangle, draw, rounded corners=3pt, minimum width=3cm, minimum height=0.7cm, align=center, font=\footnotesize},
+    decision/.style={diamond, draw=amber, fill=amber!8, minimum width=1.5cm, aspect=2.5, align=center, font=\footnotesize},
+    arrow/.style={-{Stealth[length=2mm]}, thick, gray!60}
+]
+
+\node[block, fill=flaskgreen!10] (call) {predict\_all\_models(x)};
+\node[block, fill=gray!8, below=0.8cm of call, xshift=-3cm] (p1) {$p_{base}$};
+\node[block, fill=kafkaorange!8, below=0.8cm of call] (p2) {$p_{GB}$};
+\node[block, fill=influxpurple!8, below=0.8cm of call, xshift=3cm] (p3) {$p_{OLS}$};
+
+\node[decision, below=1.2cm of p2] (check) {Any\\None?};
+\node[block, fill=dangered!10, right=2.5cm of check] (filter) {Filter nulls\\from list};
+
+\node[block, fill=emerald!12, below=1cm of check] (median) {np.median(valid\_preds)};
+\node[block, fill=reactcyan!10, below=0.8cm of median] (result) {$\hat{y}_{ensemble}$ = round(median, 2)};
+
+\draw[arrow] (call) -- (p1);
+\draw[arrow] (call) -- (p2);
+\draw[arrow] (call) -- (p3);
+\draw[arrow] (p1) -- (check);
+\draw[arrow] (p2) -- (check);
+\draw[arrow] (p3) -- (check);
+\draw[arrow] (check) -- node[right, font=\tiny\itshape, text=amber] {Yes} (filter);
+\draw[arrow] (filter.south) -- ++(0,-0.3) -| (median);
+\draw[arrow] (check) -- node[left, font=\tiny\itshape, text=flaskgreen] {No (all valid)} (median);
+\draw[arrow] (median) -- (result);
+
+\end{tikzpicture}
+\caption{Ensemble aggregation decision logic. Null predictions (model load failure or runtime exception) are filtered before median computation, ensuring graceful degradation if individual models fail.}
+\label{fig:ensemble_logic}
+\end{figure}
+}
+
+\newcommand{\figMethodologyComponentTree}{%
+\begin{figure}[H]
+\centering
+\scalebox{0.9}{%
+\begin{tikzpicture}[
+    sysblock/.style={rectangle, draw=#1, fill=#1!10, rounded corners=3pt, minimum width=2.2cm, minimum height=0.6cm, align=center, font=\footnotesize},
+    level 1/.style={sibling distance=5.5cm},
+    level 2/.style={sibling distance=2.8cm, level distance=1.5cm},
+    level 3/.style={sibling distance=1.8cm, level distance=1.5cm}
+]
+
+\node[sysblock=reactcyan, minimum width=3cm] (app) {App.jsx}
+    child { node[sysblock=gray] {Sidebar} }
+    child { node[sysblock=edgeblue] {Dashboard}
+        child { node[sysblock=indigo] {StatsGrid} }
+        child { node[sysblock=indigo] {MapPanel} }
+    }
+    child { node[sysblock=indigo] {Expert EDA}
+        child { node[sysblock=influxpurple] {Heatmap} }
+        child { node[sysblock=influxpurple] {BoxPlot} }
+    }
+    child { node[sysblock=amber] {HealthTab} };
+
+\end{tikzpicture}%
+}
+\caption{Modular React.js component hierarchy. The architecture separates structural layout components from specialized visualization and diagnostic panels.}
+\label{fig:component_tree}
+\end{figure}
+}
+
+\newcommand{\figMethodologyPollFsm}{%
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    every node/.style={font=\small},
+    state/.style={rectangle, draw=#1, fill=#1!10, rounded corners=6pt, minimum width=3cm, minimum height=1cm, align=center, font=\sffamily\footnotesize, line width=0.6pt},
+    arrow/.style={-{Stealth[length=2.5mm]}, thick, gray!70, line width=0.8pt},
+    annot/.style={font=\scriptsize\itshape, text=darkslate, fill=white, inner sep=2pt, rounded corners=1pt}
+]
+
+\node[state=flaskgreen] (conn) {CONNECTED\\apiStatus};
+\node[state=amber, right=5cm of conn] (fetch) {FETCHING\\loading=true};
+\node[state=dangered, below=3cm of conn] (disc) {DISCONNECTED\\failCount $>$ 3};
+\node[state=edgeblue, below=3cm of fetch] (retry) {RECONNECTING\\checkApiHealth()};
+
+% CONNECTED -> FETCHING (top, curved)
+\draw[arrow] (conn.north east) .. controls +(1,0.6) and +(-1,0.6) .. node[above, annot] {setInterval fires} (fetch.north west);
+
+% FETCHING -> CONNECTED (bottom, curved)
+\draw[arrow, flaskgreen] (fetch.south west) .. controls +(-1,-0.6) and +(1,-0.6) .. node[below, annot] {success; new data} (conn.south east);
+
+% FETCHING -> DISCONNECTED (diagonal)
+\draw[arrow, dangered] (fetch.south west) -- node[annot, pos=0.5, sloped, above] {3 consecutive fails} (disc.north east);
+
+% DISCONNECTED -> RECONNECTING
+\draw[arrow] (disc) -- node[below, annot] {Retry button clicked} (retry);
+
+% RECONNECTING -> CONNECTED
+\draw[arrow, flaskgreen] (retry.north west) -- node[annot, pos=0.5, sloped, above] {health OK} (conn.south east);
+
+% RECONNECTING -> DISCONNECTED (loop back)
+\draw[arrow, dangered] (retry.east) -- ++(1.2,0) |- node[near start, annot, right] {still failing} (disc.east);
+
+% Sync alert annotation
+\draw[arrow, dashed, emerald] (fetch.north) -- ++(0,1) node[above, font=\scriptsize, text=emerald] {timestamp changed $\rightarrow$ showSyncAlert};
+
+\end{tikzpicture}
+\caption{Dashboard connection state machine. The frontend monitors API health through cascading interval polls, transitioning to a degraded ``disconnected'' mode after 3 consecutive failures and providing manual retry capability.}
+\label{fig:poll_fsm}
+\end{figure}
+}
+
+\newcommand{\figMethodologyIntelligenceMonitor}{%
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=1.2cm]
+
+\node[sysblock=reactcyan] (start) {Interval Poll\\fires};
+\node[diamond, draw=amber, fill=amber!10, below=of start, aspect=2, align=center, font=\sffamily\scriptsize] (d1) {PM2.5 $>$ 1.5$\times$?};
+\node[sysblock=indigo, right=1.5cm of d1] (alert) {Intelligence Monitor\\Visual Sync};
+\node[sysblock=edgeblue, below=of d1] (pass) {Normal View\\Update State};
+
+\draw[sysarrow] (start) -- (d1);
+\draw[sysarrow] (d1) -- node[above, sysannot] {Yes} (alert);
+\draw[sysarrow] (d1) -- node[left, sysannot] {No} (pass);
+
+\end{tikzpicture}
+\caption{Intelligence Monitor logic flow for real-time anomaly detection and visual state synchronisation.}
+\label{fig:intelligence_monitor}
+\end{figure}
+}
+
+\newcommand{\figMethodologyEdaFlow}{%
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=1cm and 2cm]
+
+\node[sysblock=edgeblue] (s0) {Step 0\\Mission};
+\node[sysblock=edgeblue, right=of s0] (s1) {Step 1\\Influencers};
+\node[sysblock=flaskgreen, right=of s1] (s2) {Step 2\\Stats};
+
+\node[sysblock=flaskgreen, below=of s2] (s3) {Step 3\\Distros};
+\node[sysblock=flaskgreen, left=of s3] (s4) {Step 4\\Skew};
+\node[sysblock=indigo, left=of s4] (s5) {Step 5\\Scatter};
+
+\node[sysblock=indigo, below=of s5] (s6) {Step 6\\BoxPlot};
+\node[sysblock=indigo, right=of s6] (s7) {Step 7\\Heatmap};
+\node[sysblock=dangered, right=of s7] (s8) {Step 8\\Quality};
+
+\draw[sysarrow] (s0) -- (s1);
+\draw[sysarrow] (s1) -- (s2);
+\draw[sysarrow] (s2) -- (s3);
+\draw[sysarrow] (s3) -- (s4);
+\draw[sysarrow] (s4) -- (s5);
+\draw[sysarrow] (s5) -- (s6);
+\draw[sysarrow] (s6) -- (s7);
+\draw[sysarrow] (s7) -- (s8);
+
+\begin{scope}[on background layer]
+    \node[syscontainer=edgeblue, fit=(s0) (s1), label={[systier=edgeblue]above:ID}] {};
+    \node[syscontainer=flaskgreen, fit=(s2) (s3) (s4), label={[systier=flaskgreen]above:PROFILE}] {};
+    \node[syscontainer=indigo, fit=(s5) (s6) (s7), label={[systier=indigo]below:RELATE}] {};
+\end{scope}
+
+\end{tikzpicture}
+\caption{The 9-step guided EDA workflow. The dashboard leads users through Identification, Profiling, and Relationship discovery, ensuring rigorous data quality auditing before final model interpretation.}
+\label{fig:eda_flow}
+\end{figure}
+}
+
+\newcommand{\figMethodologyMitigation}{%
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=1.2cm]
+
+\node[sysblock=dangered] (input) {Error String\\(DeviceHealth)};
+\node[diamond, draw=amber, fill=amber!10, below=of input, aspect=2, align=center, font=\sffamily\scriptsize] (d1) {``pms5003''?};
+\node[sysblock=edgeblue, right=2cm of d1] (a1) {Check Rail\\and Serial3};
+\node[diamond, draw=amber, fill=amber!10, below=of d1, aspect=2, align=center, font=\sffamily\scriptsize] (d2) {``sgp41''?};
+\node[sysblock=edgeblue, right=2cm of d2] (a2) {I$^2$C pull-ups\\and ground};
+\node[sysblock=gray, below=of d2] (fallback) {Default: Reset\\MSc Controller};
+
+\draw[sysarrow] (input) -- (d1);
+\draw[sysarrow] (d1) -- node[above, sysannot] {Yes} (a1);
+\draw[sysarrow] (d1) -- node[left, sysannot] {No} (d2);
+\draw[sysarrow] (d2) -- node[above, sysannot] {Yes} (a2);
+\draw[sysarrow] (d2) -- node[left, sysannot] {No} (fallback);
+
+\end{tikzpicture}
+\caption{Mitigation Engine decision tree. The system performs cascading string pattern matching on hardware diagnostic telemetry to generate actionable troubleshooting advice.}
+\label{fig:mitigation}
+\end{figure}
+}
+
+\newcommand{\figMethodologyDockerTopology}{%
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=0.8cm and 1.2cm]
+
+\node[sysblock=gray] (pg) {Postgres};
+\node[sysblock=influxpurple, right=of pg] (influx) {InfluxDB};
+\node[sysblock=kafkaorange, right=of influx] (kafka) {Kafka};
+\node[sysblock=gray, right=of kafka] (mongo) {MongoDB};
+
+\node[sysblock=flaskgreen, below=2cm of pg] (api) {Gateway};
+\node[sysblock=indigo, right=of api] (auth) {Auth};
+\node[sysblock=edgeblue, right=of auth] (ingest) {Ingest};
+\node[sysblock=amber, right=of ingest] (ml) {ML Logic};
+
+\node[sysblock=dangered, below=2cm of api] (prom) {Prometheus};
+\node[sysblock=dangered, right=of prom] (graf) {Grafana};
+\node[sysblock=reactcyan, right=of graf] (front) {Frontend};
+
+\draw[sysarrow] (kafka) -- (ingest);
+\draw[sysarrow] (pg) -- (auth);
+\draw[sysarrow] (api) -- (front);
+
+\begin{scope}[on background layer]
+    \node[syscontainer=gray, fit=(pg) (influx) (kafka) (mongo), label={[systier=gray]above:INFRASTRUCTURE}] {};
+    \node[syscontainer=indigo, fit=(api) (auth) (ingest) (ml), label={[systier=indigo]above:SERVICES}] {};
+    \node[syscontainer=dangered, fit=(prom) (graf) (front), label={[systier=dangered]below:OBSERVABILITY}] {};
+\end{scope}
+
+\end{tikzpicture}
+\caption{Containerized microservices topology. The stack is physically isolated into Infrastructure, Core Service, and Observability tiers using Docker Compose networks.}
+\label{fig:docker_topology}
+\end{figure}
+}
+
+\newcommand{\figMethodologyKafkaBridge}{%
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=1.2cm]
+
+\node[sysblock=kafkaorange] (k) {Kafka Topic\\(telemetry)};
+\node[sysblock=indigo, below=of k] (c) {Go/Node Consumer\\Bridge Service};
+\node[sysdb=influxpurple, below=of c] (i) {InfluxDB\\(v2.7)};
+
+\draw[sysarrow] (k) -- node[left, sysannot] {Consume} (c);
+\draw[sysarrow] (c) -- node[left, sysannot] {Write Point} (i);
+
+\end{tikzpicture}
+\caption{The Kafka-to-InfluxDB bridge flow for high-resolution time-series storage.}
+\label{fig:kafka_bridge}
+\end{figure}
+}
+
+\newcommand{\figMethodologySequence}{%
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    every node/.style={font=\small},
+    actor/.style={rectangle, draw, rounded corners=2pt, minimum width=2.2cm, minimum height=0.6cm, align=center, fill=gray!5},
+    arrow/.style={-{Stealth[length=2mm]}, thick},
+    darrow/.style={{Stealth[length=2mm]}-{Stealth[length=2mm]}, thick},
+    note/.style={font=\tiny\itshape, text=gray}
+]
+
+\node[actor, fill=reactcyan!12] (user) at (0,0) {React Client};
+\node[actor, fill=gray!8] (vercel) at (4,0) {Vercel Proxy};
+\node[actor, fill=flaskgreen!12] (flask) at (8,0) {Flask API};
+\node[actor, fill=kafkaorange!12] (ml) at (12,0) {ML Engine};
+\node[actor, fill=gray!8] (db) at (12,-1) {SQLite};
+
+\draw[dashed, gray!40] (0,-0.5) -- (0,-7);
+\draw[dashed, gray!40] (4,-0.5) -- (4,-7);
+\draw[dashed, gray!40] (8,-0.5) -- (8,-7);
+\draw[dashed, gray!40] (12,-0.5) -- (12,-7);
+
+\draw[arrow] (0,-1) -- node[above, note] {GET /api/v1/forecast/comparison} (4,-1.5);
+\draw[arrow] (4,-1.5) -- node[above, note] {Rewrite to PA} (8,-2);
+\draw[arrow] (8,-2.5) -- node[above, note] {predict\_all\_models()} (12,-3);
+\draw[arrow, dashed] (12,-3.5) -- node[above, note] {predictions\{gb, ols, existing\}} (8,-4);
+\draw[arrow] (8,-4.5) -- node[above, note] {Query latest SensorReading} (12,-5);
+\draw[arrow, dashed] (12,-5.5) -- node[above, note] {\{actual\_pm25, predictions, ensemble\_median\}} (8,-6);
+\draw[arrow, dashed] (8,-6) -- (4,-6.3);
+\draw[arrow, dashed] (4,-6.3) -- node[below, note] {JSON response rendered by ForecastPanel} (0,-6.6);
+
+\end{tikzpicture}
+\caption{Request-response sequence for ML forecast comparison.}
+\label{fig:sequence}
+\end{figure}
+}
+
+\newcommand{\figMethodologySeqIngest}{%
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    every node/.style={font=\small},
+    actor/.style={rectangle, draw, rounded corners=2pt, minimum width=2cm, minimum height=0.6cm, align=center, fill=gray!5},
+    arrow/.style={-{Stealth[length=2mm]}, thick},
+    note/.style={font=\tiny\itshape, text=gray}
+]
+
+\node[actor, fill=edgeblue!12] (ard) at (0,0) {Arduino Due};
+\node[actor, fill=amber!12] (gsm) at (3,0) {SIM800L};
+\node[actor, fill=flaskgreen!12] (flask) at (7,0) {Flask API};
+\node[actor, fill=indigo!12] (ml) at (10.5,0) {ML Models};
+\node[actor, fill=gray!8] (db) at (13.5,0) {SQLite};
+
+\foreach \x in {0,3,7,10.5,13.5} {
+    \draw[dashed, gray!40] (\x,-0.5) -- (\x,-9);
+}
+
+\draw[arrow, edgeblue] (0,-1) -- node[above, note] {JSON payload} (3,-1.3);
+\draw[arrow, amber] (3,-1.5) -- node[above, note] {HTTP POST /api/v1/data/ingest} (7,-2);
+\draw[arrow, flaskgreen] (7,-2.5) -- node[above, note] {predict\_all\_models(pm10,co,t,h)} (10.5,-3);
+\draw[arrow, dashed, indigo] (10.5,-3.5) -- node[above, note] {\{existing, gb, ols\}} (7,-4);
+\draw[arrow, flaskgreen] (7,-4.3) -- node[above, note, text width=2.5cm] {ensemble\_predict()\\np.median()} (7,-5);
+\draw[arrow, flaskgreen] (7,-5.5) -- node[above, note] {db.session.add(SensorReading)} (13.5,-6);
+\draw[arrow, flaskgreen] (7,-6.5) -- node[above, note] {db.session.add(DeviceHealth)} (13.5,-7);
+\draw[arrow, dashed, gray] (13.5,-7.3) -- node[above, note] {commit()} (7,-7.8);
+\draw[arrow, dashed, flaskgreen] (7,-8) -- node[above, note] {\{status: success, id: N\}} (3,-8.3);
+\draw[arrow, dashed, amber] (3,-8.5) -- node[above, note] {HTTP 201} (0,-8.8);
+
+\draw[arrow, dashed, reactcyan] (7,-7.8) -- ++(2.5,0) node[right, note, text=reactcyan] {async relay $\rightarrow$ Vercel (3s timeout)};
+
+\end{tikzpicture}
+\caption{Arduino ingestion sequence diagram. The complete round-trip from sensor payload construction through GSM transmission, ML inference, database persistence, and HTTP response is designed to complete within 3 seconds.}
+\label{fig:seq_ingest}
+\end{figure}
+}
+
+\newcommand{\figMethodologyMonitoring}{%
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=1.5cm]
+
+\node[sysblock=dangered] (p) {Prometheus\\(Scraper)};
+\node[sysblock=dangered, below=of p] (g) {Grafana\\(UI)};
+\node[sysblock=influxpurple, right=2cm of g] (i) {InfluxDB\\(Datasource)};
+
+\draw[sysarrow] (p) -- (g);
+\draw[sysarrow] (i) -- node[above, sysannot] {Flux} (g);
+
+\end{tikzpicture}
+\caption{The Observability stack for real-time monitoring and historical analysis.}
+\label{fig:monitoring}
+\end{figure}
+}
+
+\newcommand{\figExpectedOutcomesR2Comparison}{%
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    ybar,
+    bar width=15pt,
+    width=12cm,
+    height=6cm,
+    ylabel={$R^2$ Score},
+    symbolic x coords={Linear Regression, Random Forest, Gradient Boosting, Median Ensemble},
+    xtick=data,
+    x tick label style={rotate=15, anchor=east, font=\footnotesize},
+    ymin=0.5, ymax=1.05,
+    enlarge x limits=0.2,
+    nodes near coords,
+    nodes near coords style={font=\tiny},
+    every axis plot/.append style={fill opacity=0.8},
+    grid=major,
+    grid style={dashed, gray!30}
+]
+\addplot[fill=edgeblue!60, draw=edgeblue] coordinates {
+    (Linear Regression, 0.682)
+    (Random Forest, 0.9562)
+    (Gradient Boosting, 0.9715)
+    (Median Ensemble, 0.965)
+};
+\end{axis}
+\end{tikzpicture}
+\caption{Comparative $R^2$ scores across the four model approaches. Gradient Boosting achieves the highest individual score (0.9715), while the median ensemble provides variance-reduced production stability.}
+\label{fig:r2_comparison}
+\end{figure}
+}
+
+\newcommand{\figExpectedOutcomesRmseComparison}{%
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    ybar,
+    bar width=15pt,
+    width=12cm,
+    height=6cm,
+    ylabel={RMSE ($\mu$g/m$^3$)},
+    symbolic x coords={Linear Regression, Random Forest, Gradient Boosting, Median Ensemble},
+    xtick=data,
+    x tick label style={rotate=15, anchor=east, font=\footnotesize},
+    ymin=0, ymax=50,
+    enlarge x limits=0.2,
+    nodes near coords,
+    nodes near coords style={font=\tiny},
+    every axis plot/.append style={fill opacity=0.8},
+    grid=major,
+    grid style={dashed, gray!30}
+]
+\addplot[fill=dangered!60, draw=dangered] coordinates {
+    (Linear Regression, 42.38)
+    (Random Forest, 15.73)
+    (Gradient Boosting, 12.68)
+    (Median Ensemble, 14.0)
+};
+\end{axis}
+\end{tikzpicture}
+\caption{RMSE comparison across models. The progression from Linear Regression (42.38) to Gradient Boosting (12.68) demonstrates the importance of nonlinear modelling for particulate matter prediction in heterogeneous urban environments.}
+\label{fig:rmse_comparison}
+\end{figure}
+}
+
+\newcommand{\figExpectedOutcomesRepo}{%
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    every node/.style={font=\footnotesize\ttfamily, anchor=west},
+    dir/.style={text=edgeblue, font=\footnotesize\ttfamily\bfseries},
+    file/.style={text=softgray}
+]
+
+\node[dir] at (0,0) {aqmrg-api/};
+\node[dir] at (0.5,-0.4) {mysite/};
+\node[file] at (1,-0.8) {flask\_app.py};
+\node[dir] at (1,-1.2) {app/};
+\node[file] at (1.5,-1.6) {\_\_init\_\_.py \ \ (create\_app factory)};
+\node[file] at (1.5,-2.0) {models.py \ \ (SQLAlchemy ORM)};
+\node[file] at (1.5,-2.4) {routes.py \ \ (API endpoints)};
+\node[file] at (1.5,-2.8) {ml.py \ \ \ \ \ \ (ML loader + ensemble)};
+\node[file] at (1,-3.2) {*.pkl \ \ \ \ \ \ (4 model files)};
+\node[file] at (1,-3.6) {sensor\_data.db};
+\node[dir] at (0.5,-4.0) {frontend/};
+\node[dir] at (1,-4.4) {src/components/ \ \ (14 React files)};
+\node[dir] at (1,-4.8) {src/api/ \ \ (dashboard.js)};
+\node[dir] at (0.5,-5.2) {services/ \ \ (8 microservices)};
+\node[dir] at (0.5,-5.6) {infrastructure/ \ \ (Prometheus/Grafana)};
+\node[dir] at (0.5,-6.0) {ml/ \ \ (Jupyter notebooks + data)};
+\node[file] at (0.5,-6.4) {docker-compose.yml};
+\node[file] at (0.5,-6.8) {vercel.json};
+
+\end{tikzpicture}
+\caption{Simplified repository structure showing the key directories and files across all four platform tiers.}
+\label{fig:repo}
+\end{figure}
+}
+
+\newcommand{\figWorkplanBudgetGantt}{%
+\begin{figure}[htbp]
+  \centering
+  \begin{ganttchart}[
+      hgrid,
+      vgrid={*{1}{draw=gray!30, dashed}},
+      x unit         = 1.0cm,
+      y unit title   = 0.65cm,
+      y unit chart   = 0.6cm,
+      title height   = 1,
+      bar height     = 0.55,
+      bar/.style={fill=RoyalBlue!70, rounded corners=2pt},
+      title label font  = \small,
+      bar label font    = \small,
+  ]{1}{12}
+    \gantttitle{Month, 2026--2027}{12}\\
+    \gantttitlelist{1,...,12}{1}\\
+    \ganttbar{Literature Review}{1}{2}\\
+    \ganttbar{Sensor Procurement \& Setup}{1}{3}\\
+    \ganttbar{Network Deployment}{3}{4}\\
+    \ganttbar{Cloud Platform Development}{2}{5}\\
+    \ganttbar{Data Collection}{5}{9}\\
+    \ganttbar{AI Model Training}{5}{8}\\
+    \ganttbar{Health Data Integration}{6}{9}\\
+    \ganttbar{Analysis \& Mapping}{8}{11}\\
+    \ganttbar{Policy Briefs}{9}{11}\\
+    \ganttbar{Final Report \& Submission}{11}{12}
+  \end{ganttchart}
+  \caption{Work plan (12-month Gantt chart).}
+  \label{fig:gantt}
+\end{figure}
+}

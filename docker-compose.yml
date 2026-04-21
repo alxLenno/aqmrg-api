@@ -1,0 +1,280 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: aqmrg-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${DATABASE_USER:-aqmrg}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-aqmrg_password}
+      POSTGRES_DB: ${DATABASE_NAME:-aqmrg}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./databases/postgres/schemas/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./databases/postgres/seeds:/databases/postgres/seeds
+    networks:
+      - aqmrg-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U aqmrg" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  influxdb:
+    image: influxdb:2.7-alpine
+    container_name: aqmrg-influxdb
+    ports:
+      - "8086:8086"
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=${INFLUXDB_USER:-admin}
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUXDB_PASSWORD:-admin_password}
+      - DOCKER_INFLUXDB_INIT_ORG=${INFLUXDB_ORG:-aqmrg}
+      - DOCKER_INFLUXDB_INIT_BUCKET=${INFLUXDB_BUCKET:-sensor_data}
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_TOKEN:-admin_token}
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+    networks:
+      - aqmrg-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: aqmrg-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - aqmrg-network
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: aqmrg-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - aqmrg-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: aqmrg-kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - aqmrg-network
+    depends_on:
+      - zookeeper
+
+  mongodb:
+    image: mongo:6.0
+    container_name: aqmrg-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - aqmrg-network
+
+  api-gateway:
+    build: ./services/api-gateway
+    container_name: aqmrg-api-gateway
+    ports:
+      - "8000:8000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://${DATABASE_USER:-aqmrg}:${DATABASE_PASSWORD:-aqmrg_password}@postgres:5432/${DATABASE_NAME:-aqmrg}
+      - REDIS_URL=redis://redis:6379
+      - INFLUXDB_URL=http://influxdb:8086
+      - AUTH_SERVICE_URL=http://auth-service:8001
+      - MONGODB_URI=mongodb://mongodb:27017/aqmrg
+    volumes:
+      - ./services/api-gateway:/app
+      - /app/node_modules
+    networks:
+      - aqmrg-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      influxdb:
+        condition: service_started
+      auth-service:
+        condition: service_started
+      mongodb:
+        condition: service_started
+
+  auth-service:
+    build: ./services/auth-service
+    container_name: aqmrg-auth-service
+    ports:
+      - "8001:8001"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://${DATABASE_USER:-aqmrg}:${DATABASE_PASSWORD:-aqmrg_password}@postgres:5432/${DATABASE_NAME:-aqmrg}
+      - MONGODB_URI=mongodb://mongodb:27017/aqmrg_auth
+    volumes:
+      - ./services/auth-service:/app
+      - /app/node_modules
+    networks:
+      - aqmrg-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_started
+
+  data-ingestion-service:
+    build: ./services/data-ingestion-service
+    container_name: aqmrg-data-ingestion
+    ports:
+      - "8002:8002"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://${DATABASE_USER:-aqmrg}:${DATABASE_PASSWORD:-aqmrg_password}@postgres:5432/${DATABASE_NAME:-aqmrg}
+      - KAFKA_BROKERS=kafka:9092
+      - MONGODB_URI=mongodb://mongodb:27017/aqmrg
+    volumes:
+      - ./services/data-ingestion-service:/app
+      - /app/node_modules
+    networks:
+      - aqmrg-network
+    depends_on:
+      - kafka
+      - postgres
+      - mongodb
+
+  model-serving-service:
+    build: ./services/model-serving-service
+    container_name: aqmrg-model-serving
+    ports:
+      - "8003:8003"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./services/model-serving-service:/app
+    networks:
+      - aqmrg-network
+
+  analytics-service:
+    build: ./services/analytics-service
+    container_name: aqmrg-analytics
+    ports:
+      - "8004:8004"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://${DATABASE_USER:-aqmrg}:${DATABASE_PASSWORD:-aqmrg_password}@postgres:5432/${DATABASE_NAME:-aqmrg}
+      - KAFKA_BROKERS=kafka:9092
+      - INFLUXDB_URL=http://influxdb:8086
+      - INFLUXDB_TOKEN=${INFLUXDB_TOKEN:-admin_token}
+      - INFLUXDB_ORG=${INFLUXDB_ORG:-aqmrg}
+      - INFLUXDB_BUCKET=${INFLUXDB_BUCKET:-sensor_data}
+      - MONGODB_URI=mongodb://mongodb:27017/aqmrg_analytics
+    volumes:
+      - ./services/analytics-service:/app
+      - /app/node_modules
+    networks:
+      - aqmrg-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      mongodb:
+        condition: service_started
+
+  notification-service:
+    build: ./services/notification-service
+    container_name: aqmrg-notification
+    ports:
+      - "8005:8005"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./services/notification-service:/app
+      - /app/node_modules
+    networks:
+      - aqmrg-network
+
+  sensor-adapter-service:
+    build: ./services/sensor-adapter-service
+    container_name: aqmrg-sensor-adapter
+    ports:
+      - "8006:8006"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./services/sensor-adapter-service:/app
+      - /app/node_modules
+    networks:
+      - aqmrg-network
+
+  export-service:
+    build: ./services/export-service
+    container_name: aqmrg-export
+    ports:
+      - "8007:8007"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://${DATABASE_USER:-aqmrg}:${DATABASE_PASSWORD:-aqmrg_password}@postgres:5432/${DATABASE_NAME:-aqmrg}
+    volumes:
+      - ./services/export-service:/app
+      - /app/node_modules
+    networks:
+      - aqmrg-network
+
+  frontend:
+    build: ./frontend
+    container_name: aqmrg-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_PROXY_TARGET=http://api-gateway:8000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - aqmrg-network
+    depends_on:
+      - api-gateway
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: aqmrg-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infrastructure/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - aqmrg-network
+
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: aqmrg-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=len#11.Len@11
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./infrastructure/monitoring/grafana/provisioning:/etc/grafana/provisioning
+    networks:
+      - aqmrg-network
+    depends_on:
+      - prometheus
+
+networks:
+  aqmrg-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  influxdb_data:
+  mongodb_data:
+  grafana_data:

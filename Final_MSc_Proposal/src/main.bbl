@@ -1,0 +1,314 @@
+\begin{thebibliography}{10}
+
+\bibitem{bhaskar2025}
+H.~N.~V. Bhaskar and V.~Valli Mayil.
+\newblock Forecasting traffic air pollution increases from urban transportation
+  using machine learning in metropolitan cities -- {A} review.
+\newblock In {\em Proc. 4th Int. Conf. on Sentiment Analysis and Deep Learning
+  (ICSADL)}, pages 1280--1285, 2025.
+
+\bibitem{assaf2023}
+G.~Assaf, X.~Hu, and R.~H. Assaad.
+\newblock Predicting urban heat island severity on the census-tract level using
+  {Bayesian} networks.
+\newblock {\em Sustainable Cities and Society}, 97:104756, 2023.
+
+\bibitem{gaur2026}
+A.~Gaur and C.~Deb.
+\newblock Machine learning methods and approaches for urban heat island ({UHI})
+  assessment: {A} comprehensive review.
+\newblock {\em Renewable and Sustainable Energy Reviews}, 234:116903, 2026.
+
+\bibitem{mehryar2024}
+S.~Mehryar, V.~Yazdanpanah, and J.~Tong.
+\newblock {AI} and climate resilience governance.
+\newblock {\em iScience}, 27:109812, 2024.
+
+\bibitem{eze2025}
+F.~N. Eze, A.~N. Sanusi, I.~J. Iheoma, C.~C. Ekechi, M.~A. Olatunbosun, F.~C.
+  Ukasoanya, and M.~A. Eleshin.
+\newblock Artificial intelligence in climate change mitigation and adaptation:
+  {A} review of emerging technologies and real-world applications.
+\newblock {\em Global Journal of Engineering and Technology Advances},
+  24:235--250, 2025.
+
+\bibitem{bainomugisha2024}
+E.~Bainomugisha, P.~A. Warigo, F.~B. Daka, A.~Nshimye, M.~Birungi, and
+  D.~Okure.
+\newblock {AI}-driven environmental sensor networks and digital platforms for
+  urban air pollution monitoring and modelling.
+\newblock {\em Societal Impacts}, 3:100044, 2024.
+
+\bibitem{ikegwu2026}
+A.~C. Ikegwu, G.~I. Emereonye, D.~U. Ebem, and V.~C. Uzuegbu.
+\newblock A review of artificial intelligence expert systems for environmental
+  surveillance and disaster management.
+\newblock {\em Discover Internet of Things}, 6:26, 2026.
+
+\bibitem{essamlali2024}
+I.~Essamlali, H.~Nhailla, and M.~El Khaili.
+\newblock Supervised machine learning approaches for predicting key pollutants
+  and for the sustainable enhancement of urban air quality: {A} systematic
+  review.
+\newblock {\em Sustainability}, 16:976, 2024.
+
+\bibitem{ariff2023}
+N.~M. Ariff, M.~A.~A. Bakar, and H.~Y. Lim.
+\newblock Prediction of {PM10} concentration in {Malaysia} using {K}-means
+  clustering and {LSTM} hybrid model.
+\newblock {\em Atmosphere}, 14:853, 2023.
+
+\bibitem{garcia2025}
+A.~Garcia, Y.~Saez, I.~Harris, X.~Huang, and E.~Collado.
+\newblock Advancements in air quality monitoring: {A} systematic review of
+  {IoT}-based air quality monitoring and {AI} technologies.
+\newblock {\em Artificial Intelligence Review}, 58:275, 2025.
+
+\bibitem{bekkar2021}
+A.~Bekkar, B.~Hssina, S.~Douzi, and K.~Douzi.
+\newblock Air-pollution prediction in smart city: Deep learning approach.
+\newblock {\em Journal of Big Data}, 8:161, 2021.
+
+\bibitem{dey2022}
+S.~Dey, V.~Arora, and S.~N. Tripathi.
+\newblock Leveraging unsupervised data and domain adaptation for deep
+  regression in low-cost sensor calibration, 2022.
+
+\bibitem{kalisa2024}
+Egide Kalisa and Andrew Sudmant.
+\newblock Heatwaves amplify air pollution risks in sub-saharan {Africa}.
+\newblock 2025.
+\newblock Preprint.
+
+\bibitem{awokola2022}
+Babatunde Awokola, Gabriel Okello, D.~O. Johnson, Ruaraidh Dobson,
+  Abdoul~Risgou Ouedraogo, Bakary Dibba, B.~H.~Mbatchou Ngahane, C.~I. Ndukwu,
+  Chuka~C. Agunwa, Diana Marangu, Herve Lawin, I.~J. Ogugua, Joy~Uchenna Eze,
+  Nnamdi Nwosu, Ogochukwu~C. Ofiaeli, Peter Ubuane, R.~K. Osman, Endurance
+  Awokola, Annette Erhart, Kevin Mortimer, Chris~P. Jewell, and Sean Semple.
+\newblock Longitudinal ambient {PM}$_{2.5}$ measurement at fifteen locations in
+  eight sub-saharan african countries using low-cost sensors.
+\newblock {\em Atmosphere}, 13(10):1593, 2022.
+
+\bibitem{Mackline_Ninsiima_2023}
+Mackline Ninsiima, Alex Ndyabakira, Sarah Zalwango, Richard Migisha, Daniel
+  Kadobera, Claire Biribawa, Lilian Bulage, Alex~Riolexus Ario, Julie~R.
+  Harris, and Daniel~Okello Ayen.
+\newblock Spatio--temporal trends of air quality, {Kampala} city, {Uganda},
+  2020--2022, 2023.
+
+\bibitem{Sawanya_Saetae_2024}
+Sawanya Saetae, Francis~Olawale Abulude, M.~M. Ndamitso, Akınyınka
+  Akinnusotu, Samuel~Dare Oluwagbayide, Yutaka Matsumi, Kenta Kanegae, Kazuaki
+  Kawamoto, and Tomoki Nakayama.
+\newblock Multi-year continuous observations of ambient {PM}$_{2.5}$ at six
+  sites in {Akure}, southwestern {Nigeria}.
+\newblock {\em Atmosphere}, 15(7):867, 2024.
+
+\bibitem{Eric_Kofi_Doe_2025}
+Eric~Kofi Doe, Djanna~Koubodana Houteta, Millicent Afi~Sitsofe Amekugbe, Lilian
+  Namuma~S. Kong'ani, Mudarshiru Bbuye, Sylvester Egyir, Phillipina Naa~Oserwa
+  Schandorf, Doreen~Larkailey Lartey, Sampson Domwakuuro Diyuoh~Puoyang Dordaa,
+  Ebenezer Boahen, Benedicta~Y. Fosu-Mensah, Christopher Jack, and Christopher
+  Gordon.
+\newblock Predicting the geospatial distribution of urban population health
+  risks based on air pollutants, climate, and health facilities in {African}
+  cities.
+\newblock 2025.
+
+\bibitem{JC_Odirichukwu_2024}
+J.~C. Odirichukwu, Simon Peter~Chimaobi Odirichukwu, Stanley~Adiele Okolie,
+  O.~Njoku, Chigozie Dimoji, Chinwe Ndigwe, Godwin~Oko Ekuma, Genevive Onuoha,
+  Favour~Adaeze Igwe, Precious~Kelechukwu Chika-Ugada, and Toochi~Chima
+  Ewunonu.
+\newblock Leveraging {AI}-driven {IoT} systems for enhanced air quality
+  management in {Nigeria}.
+\newblock 2024.
+
+\bibitem{Methembe_Thomas_Tshuma_2024}
+Methembe~Thomas Tshuma, Ryan~Peter Mckenzie, Thuso Mathaha, Lotta Mayana,
+  Antonio Cervello, Vongani Chabalala, Isaiah Chiraira, Nkosiphendule Njara,
+  Iqra Atif, Ling Cheng, Jude~Dzevela Kong, Ahsan Mahboob, Bevan~I. Smith, and
+  B.~Mellado.
+\newblock {AI}$_r$: Transforming air quality monitoring through cost-effective
+  {AI} solutions.
+\newblock In {\em 2024 Int. Conf. on Artificial Intelligence, Data Science, and
+  Applications (IDAP)}, pages 1--8, 2024.
+
+\bibitem{band2022}
+S.~S. Band, S.~Ardabili, M.~Sookhak, A.~T. Chronopoulos, S.~Elnaffar,
+  M.~Moslehpour, M.~Csaba, B.~Torok, H.-T. Pai, and A.~Mosavi.
+\newblock When smart cities get smarter via machine learning: An in-depth
+  literature review.
+\newblock {\em IEEE Access}, 10:60985--61015, 2022.
+
+\bibitem{kaied2025}
+Y.~O. Kaied, K.~M. Alhosani, A.~Salam, and K.~Darwish.
+\newblock Breathing new life into cities: {AI}-driven innovations in urban air
+  quality monitoring and management.
+\newblock Technical report, 2025.
+\newblock Technical Report.
+
+\bibitem{sarker2025}
+S.~Sarker and F.~Jahan.
+\newblock {AI}-driven {MIS} applications in environmental risk monitoring: {A}
+  systematic review of predictive geographic information systems.
+\newblock {\em ASRC Procedia: Global Perspectives in Science and Scholarship},
+  01:81--97, 2025.
+
+\bibitem{miller2025}
+T.~Miller, I.~Durlik, E.~Kostecka, P.~Kozlovska, A.~Lobodzi{\'n}ska,
+  S.~Soko{\l}owska, and A.~Nowy.
+\newblock Integrating artificial intelligence agents with the internet of
+  things for enhanced environmental monitoring.
+\newblock {\em Electronics}, 14:696, 2025.
+
+\bibitem{liu2021}
+X.~Liu, W.~Yu, F.~Liang, D.~Griffith, and N.~Golmie.
+\newblock Toward deep transfer learning in industrial internet of things.
+\newblock {\em IEEE Internet of Things Journal}, 8:12163--12175, 2021.
+
+\bibitem{tetali2025}
+S.~Tetali.
+\newblock Assessing the role of {AI} in heat mitigation and adaptation.
+\newblock Technical report, 2025.
+\newblock Technical Report.
+
+\bibitem{hashir2026}
+P.~K. Hashir, S.~Veerasingam, R.~M. Haris, F.~Sadooni, and S.~Ghani.
+\newblock A systematic review of artificial intelligence applications for
+  indoor air quality monitoring in educational settings.
+\newblock {\em Engineering Applications of Artificial Intelligence},
+  165:113383, 2026.
+
+\bibitem{OS_Afolabi_2025}
+O.~S. Afolabi, O.~A. Adeoye, DIKE~GOODLUCK EBERECHI, and CONFIDENCE~ADIMCHI
+  CHINONYEREM.
+\newblock Leveraging remote sensing, {GIS}, and {AI}-based urban climate
+  modelling to mitigate urban heat island effects.
+\newblock {\em International Journal of Nature and Science Advance Research},
+  2025.
+
+\bibitem{Olalekan_Afolabi_2025}
+Olalekan Afolabi, DIKE~GOODLUCK EBERECHI, and CONFIDENCE~ADIMCHI CHINONYEREM.
+\newblock Leveraging remote sensing, {GIS}, and {AI}-based urban climate
+  modelling to mitigate urban heat island effects.
+\newblock 2025.
+
+\bibitem{ramsay2024}
+Emma~E. Ramsay, Perrine Hamel, Steven~L. Chown, and Grant~A. Duffy.
+\newblock Humid heat stress overlooked for one billion people in urban informal
+  settlements.
+\newblock {\em One Earth}, 2024.
+
+\bibitem{vandewalle2021}
+Jonas~Van de~Walle, Oscar Brousse, Lien Arnalsteen, Chloe Brimicombe, Disan
+  Byarugaba, Matthias Demuzere, Eddie Jjemba, Shuaib Lwasa, Herbert~O. Misiani,
+  Gloria Nsangi, F.~Soetewey, Hakimu Sseviiri, Wim Thiery, R.~Vanhaeren,
+  Benjamin~F. Zaitchik, and Nicole~Van Lipzig.
+\newblock Lack of vegetation exacerbates exposure to dangerous heat in dense
+  settlements in a tropical african city.
+\newblock {\em Environmental Research Letters}, 17(2):024004, 2021.
+
+\bibitem{Sally_Ama_Sampson_2025}
+Sally~Ama Sampson, Ángela Abascal, Jiong Wang, Sabine Vanhuysse, Ignacio
+  Rodríguez, Ignacio Elpidio~Domínguez Ruiz, and Monika Kuffer.
+\newblock Using low-cost sensors and citizen science: Assessing thermal
+  inequality in {African} slums.
+\newblock {\em Int. Arch. Photogramm. Remote Sens. Spatial Inf. Sci.},
+  XLVIII-M-7-2025:229--236, 2025.
+
+\bibitem{Bello_Hafisat_Omodasola_2025}
+Bello~Hafisat Omodasola.
+\newblock {GeoAI} for monitoring and predicting urban climate shocks: A
+  systematic review and framework for {African} resilient cities.
+\newblock {\em Multidisciplinary Journal of Advanced Educational Innovation},
+  2(3):438--476, 2025.
+
+\bibitem{Christopher_Jack_2024}
+Christopher Jack, Craig Parker, Yao~Etienne Kouakou, Bonnie~R. Joubert,
+  Kimberly~A. McAllister, Maliha Ilias, Gloria Maimela, Matthew Chersich,
+  Sibusisiwe Makhanya, Stanley Luchters, Prestige~Tatenda Makanga, Etienne Vos,
+  Kristie~L. Ebi, Brama Koné, Akbar~K. Waljee, and Guéladio Cissé.
+\newblock Leveraging data science and machine learning for urban climate
+  adaptation in two major {African} cities: A {HE}$^2${AT} center study
+  protocol.
+\newblock {\em BMJ Open}, 14(6):e077529, 2024.
+
+\bibitem{ramadan2024}
+M.~N. Ramadan, M.~A. Ali, S.~Y. Khoo, M.~Alkhedher, and M.~Alherbawi.
+\newblock Real-time {IoT}-powered {AI} system for monitoring and forecasting of
+  air pollution in industrial environment.
+\newblock {\em Ecotoxicology and Environmental Safety}, 283:116856, 2024.
+
+\bibitem{garcia2022smart}
+L.~Garc{\'i}a, A.-J. Garcia-Sanchez, R.~Asorey-Cacheda, J.~Garcia-Haro, and
+  C.-L. Z{\'u}{\~n}iga-Ca{\~n}{\'o}n.
+\newblock Smart air quality monitoring {IoT}-based infrastructure for
+  industrial environments.
+\newblock {\em Sensors}, 22:9221, 2022.
+
+\bibitem{yasin2022}
+A.~Yasin, J.~Delaney, C.-T. Cheng, and T.~Y. Pang.
+\newblock The design and implementation of an {IoT} sensor-based indoor air
+  quality monitoring system using off-the-shelf devices.
+\newblock {\em Applied Sciences}, 12:9450, 2022.
+
+\bibitem{he2024}
+M.~He, Y.~Huang, X.~Wang, P.~Wei, and X.~Wang.
+\newblock A lightweight and efficient {IoT} intrusion detection method based on
+  feature grouping.
+\newblock {\em IEEE Internet of Things Journal}, 11:2935--2949, 2024.
+
+\bibitem{Ahmed_Gueye_2023}
+Ahmed Gueye, Bassirou Ngom, Sally Pusede, Mamadou~Simina Drame, Demba~Ndao
+  Niang, Moussa Diallo, and Aissatou Faye.
+\newblock {PM2.5} hotspot identification in {Dakar} area: An innovative {IoT}
+  and mapping-based approach.
+\newblock In {\em 2023 4th Int. Conf. on Smart Cities, IoT and Analytics
+  (ICSIMA)}, pages 302--307, 2023.
+
+\bibitem{Kumar_Sunil_2025}
+Sunil Kumar and Soni Bharti.
+\newblock Fine-scale air-pollution exposure mapping with low-cost sensor
+  networks in metropolitan, 2025.
+
+\bibitem{Johnson_Olatunji_2022}
+Johnson Olatunji, Dobson Ruaraidh, Ouedraogo~Abdoul Risgou, Ngahane Mbatchou,
+  Agunwa Chuka, Marangu Diana, Lawin Herve, Eze Joy, Erhart Annette, Mortimer
+  Kevin, Christopher Jewell, and Semple Sean.
+\newblock Longitudinal ambient {PM}$_{2.5}$ measurement at fifteen locations in
+  eight sub-saharan african countries using low-cost sensors, 2022.
+
+\bibitem{toure2024}
+Mory Touré, Wassila~M. Thiaw, Ibrahima Sy, E.~Bekele, Oumou~Kalsom Gueye,
+  Md~Abul~Ehsan Bhuiyan, Ibrahima Diouf, Papa~Ngor Ndiaye, Marie-Jeanne Sambou,
+  A.~Niang, Daouda Badiane, Adama Faye, Ousmane Ndiaye, and Amadou Gaye.
+\newblock Machine learning‐based prediction of heatwave‐related
+  hospitalizations: A case study in {Matam}, {Senegal}.
+\newblock 2025.
+\newblock Preprint.
+
+\bibitem{adewumi2025}
+Idowu~Olugbenga Adewumi and Wumi Ajayi.
+\newblock Climate-informed machine learning for predicting heat-related health
+  risks: Towards resilient and personalized early warning systems.
+\newblock 2025.
+\newblock Preprint.
+
+\bibitem{Valérien_Baharane_2024}
+Valérien Baharane and A.~B. Shatalov.
+\newblock Assessment of the health impacts of air pollution exposure in {East
+  African} countries.
+\newblock {\em Environmental Monitoring and Assessment}, 196(5):413, 2024.
+
+\bibitem{Solomon_Bililign_2024}
+Solomon Bililign, Steven~S. Brown, Daniel~M. Westervelt, M.~Rajesh Kumar, Wenfu
+  Tang, F.~Flocke, William Vizuete, Kassahun Ture, Francis~D. Pope, Belay
+  Demoz, Akua Asa-Awuku, P.~F. Levelt, Egide Kalisa, Garima Raheja, Alex
+  Ndyabakira, and Michael Gatari.
+\newblock East {African} megacity air quality: Rationale and framework for a
+  measurement and modeling program.
+\newblock {\em Bulletin of the American Meteorological Society}, 2024.
+
+\end{thebibliography}

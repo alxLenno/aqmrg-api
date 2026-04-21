@@ -1,0 +1,126 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{7}{section.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.1}Problem Statement}{7}{subsection.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.2}Research Gap}{7}{subsection.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.3}Research Objectives}{7}{subsection.1.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.4}Significance}{8}{subsection.1.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.5}Scope and Delimitations}{8}{subsection.1.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}System Architecture Overview}{8}{section.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Complete AQMRG platform architecture showing the multi-tier data flow. Tiers are logically grouped by role, spanning from edge sensing to cloud-hosted analytics and event streaming via Apache Kafka.}}{9}{figure.1}\protected@file@percent }
+\newlabel{fig:arch}{{1}{9}{Complete AQMRG platform architecture showing the multi-tier data flow. Tiers are logically grouped by role, spanning from edge sensing to cloud-hosted analytics and event streaming via Apache Kafka}{figure.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces End-to-end data lifecycle in a compact snaking layout. Timing annotations indicate typical systemic latency from physical sensing to global dashboard availability.}}{10}{figure.2}\protected@file@percent }
+\newlabel{fig:lifecycle}{{2}{10}{End-to-end data lifecycle in a compact snaking layout. Timing annotations indicate typical systemic latency from physical sensing to global dashboard availability}{figure.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Physical deployment topology showing the four hosting environments: a field-deployed Arduino node, PythonAnywhere's managed Python hosting, Vercel's edge CDN, and a Docker Compose cluster for microservices.}}{10}{figure.3}\protected@file@percent }
+\newlabel{fig:deploy}{{3}{10}{Physical deployment topology showing the four hosting environments: a field-deployed Arduino node, PythonAnywhere's managed Python hosting, Vercel's edge CDN, and a Docker Compose cluster for microservices}{figure.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Edge Hardware Tier: Arduino Due Sensor Node}{10}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Microcontroller Selection}{10}{subsection.3.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Arduino Due microcontroller specifications.}}{11}{table.1}\protected@file@percent }
+\newlabel{tab:mcu}{{1}{11}{Arduino Due microcontroller specifications}{table.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Sensor Array Composition}{11}{subsection.3.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Hardware sensor array configuration per AQMRG edge node.}}{11}{table.2}\protected@file@percent }
+\newlabel{tab:sensors}{{2}{11}{Hardware sensor array configuration per AQMRG edge node}{table.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Hardware wiring topology. Sensor modules connect to the Arduino Due via diverse interfaces (UART, I2C, Analog, Digital), with the SIM800L module providing cellular connectivity.}}{11}{figure.4}\protected@file@percent }
+\newlabel{fig:wiring}{{4}{11}{Hardware wiring topology. Sensor modules connect to the Arduino Due via diverse interfaces (UART, I2C, Analog, Digital), with the SIM800L module providing cellular connectivity}{figure.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Payload Construction and Transmission}{12}{subsection.3.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Structure of the JSON telemetry payload transmitted from the Arduino Due to the Flask backend. Annotations indicate which downstream subsystem consumes each section.}}{12}{figure.5}\protected@file@percent }
+\newlabel{fig:payload}{{5}{12}{Structure of the JSON telemetry payload transmitted from the Arduino Due to the Flask backend. Annotations indicate which downstream subsystem consumes each section}{figure.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Firmware state machine governing the operational lifecycle of the edge node, including polling cycles and fault recovery logic.}}{13}{figure.6}\protected@file@percent }
+\newlabel{fig:firmware_fsm}{{6}{13}{Firmware state machine governing the operational lifecycle of the edge node, including polling cycles and fault recovery logic}{figure.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Primary Backend Tier: Flask API on PythonAnywhere}{13}{section.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Application Framework}{13}{subsection.4.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Flask application factory initialization flow. The system utilizes a singleton pattern for ML model loading during the WSGI server startup phase.}}{14}{figure.7}\protected@file@percent }
+\newlabel{fig:app_factory}{{7}{14}{Flask application factory initialization flow. The system utilizes a singleton pattern for ML model loading during the WSGI server startup phase}{figure.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Relational Data Schema}{14}{subsection.4.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Entity-Relationship diagram for the SQLite database. Each \texttt  {SensorReading} stores raw sensor data plus all four prediction columns. \texttt  {DeviceHealth} provides per-submission hardware diagnostics, and \texttt  {DeviceMetadata} maintains persistent geographic identity per device.}}{15}{figure.8}\protected@file@percent }
+\newlabel{fig:erd}{{8}{15}{Entity-Relationship diagram for the SQLite database. Each \texttt {SensorReading} stores raw sensor data plus all four prediction columns. \texttt {DeviceHealth} provides per-submission hardware diagnostics, and \texttt {DeviceMetadata} maintains persistent geographic identity per device}{figure.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Ingestion Pipeline and Real-Time ML Inference}{15}{subsection.4.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Ingestion pipeline logic flow. Each request is validated, passed through the ML ensemble, and asynchronously relayed to the live dashboard within the HTTP cycle.}}{16}{figure.9}\protected@file@percent }
+\newlabel{fig:ingest}{{9}{16}{Ingestion pipeline logic flow. Each request is validated, passed through the ML ensemble, and asynchronously relayed to the live dashboard within the HTTP cycle}{figure.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}API Endpoint Inventory}{17}{subsection.4.4}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Complete REST API endpoints exposed by the Flask backend.}}{17}{table.3}\protected@file@percent }
+\newlabel{tab:endpoints}{{3}{17}{Complete REST API endpoints exposed by the Flask backend}{table.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Machine Learning Methodology}{17}{section.5}\protected@file@percent }
+\newlabel{sec:ml}{{5}{17}{Machine Learning Methodology}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Problem Formulation}{17}{subsection.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Training Data}{17}{subsection.5.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces ML training pipeline: raw CSV data undergoes cleaning and feature selection before being split into training/test sets. Three distinct algorithms are trained, cross-validated, and serialized for production deployment.}}{18}{figure.10}\protected@file@percent }
+\newlabel{fig:training_pipeline}{{10}{18}{ML training pipeline: raw CSV data undergoes cleaning and feature selection before being split into training/test sets. Three distinct algorithms are trained, cross-validated, and serialized for production deployment}{figure.10}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Model Architectures}{18}{subsection.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.3.1}Model 1: Linear Regression / Base Regressor}{18}{subsubsection.5.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.3.2}Model 2: Gradient Boosting Regressor}{18}{subsubsection.5.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {5.3.3}Model 3: OLS with Quantile Transformation}{18}{subsubsection.5.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Ensemble Aggregation Strategy}{19}{subsection.5.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces ML ensemble inference pipeline. Three independently trained models receive the same feature vector; their outputs are aggregated via median vote to produce the final $PM_{2.5}$ prediction.}}{19}{figure.11}\protected@file@percent }
+\newlabel{fig:mlpipeline}{{11}{19}{ML ensemble inference pipeline. Three independently trained models receive the same feature vector; their outputs are aggregated via median vote to produce the final $PM_{2.5}$ prediction}{figure.11}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Ensemble aggregation decision logic. Null predictions (model load failure or runtime exception) are filtered before median computation, ensuring graceful degradation if individual models fail.}}{20}{figure.12}\protected@file@percent }
+\newlabel{fig:ensemble_logic}{{12}{20}{Ensemble aggregation decision logic. Null predictions (model load failure or runtime exception) are filtered before median computation, ensuring graceful degradation if individual models fail}{figure.12}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Client Presentation Tier: React Dashboard on Vercel}{20}{section.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Deployment Architecture}{20}{subsection.6.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Modular React.js component hierarchy. The architecture separates structural layout components from specialized visualization and diagnostic panels.}}{20}{figure.13}\protected@file@percent }
+\newlabel{fig:component_tree}{{13}{20}{Modular React.js component hierarchy. The architecture separates structural layout components from specialized visualization and diagnostic panels}{figure.13}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Real-Time Data Polling Strategy}{21}{subsection.6.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Frontend polling intervals for different data categories.}}{21}{table.4}\protected@file@percent }
+\newlabel{tab:polling}{{4}{21}{Frontend polling intervals for different data categories}{table.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Dashboard connection state machine. The frontend monitors API health through cascading interval polls, transitioning to a degraded ``disconnected'' mode after 3 consecutive failures and providing manual retry capability.}}{21}{figure.14}\protected@file@percent }
+\newlabel{fig:poll_fsm}{{14}{21}{Dashboard connection state machine. The frontend monitors API health through cascading interval polls, transitioning to a degraded ``disconnected'' mode after 3 consecutive failures and providing manual retry capability}{figure.14}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Dashboard Components}{21}{subsection.6.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.3.1}Dashboard Tab (Main View)}{21}{subsubsection.6.3.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Intelligence Monitor logic flow for real-time anomaly detection and visual state synchronisation.}}{22}{figure.15}\protected@file@percent }
+\newlabel{fig:intelligence_monitor}{{15}{22}{Intelligence Monitor logic flow for real-time anomaly detection and visual state synchronisation}{figure.15}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.3.2}Raw Analysis Tab}{22}{subsubsection.6.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.3.3}Your Data Tab (Guided EDA Workflow)}{22}{subsubsection.6.3.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces The 9-step guided EDA workflow. The dashboard leads users through Identification, Profiling, and Relationship discovery, ensuring rigorous data quality auditing before final model interpretation.}}{23}{figure.16}\protected@file@percent }
+\newlabel{fig:eda_flow}{{16}{23}{The 9-step guided EDA workflow. The dashboard leads users through Identification, Profiling, and Relationship discovery, ensuring rigorous data quality auditing before final model interpretation}{figure.16}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {6.3.4}Health Tab}{23}{subsubsection.6.3.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces Mitigation Engine decision tree. The system performs cascading string pattern matching on hardware diagnostic telemetry to generate actionable troubleshooting advice.}}{24}{figure.17}\protected@file@percent }
+\newlabel{fig:mitigation}{{17}{24}{Mitigation Engine decision tree. The system performs cascading string pattern matching on hardware diagnostic telemetry to generate actionable troubleshooting advice}{figure.17}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.4}Resilience Mechanisms}{24}{subsection.6.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Containerized Microservices Tier}{24}{section.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Docker Compose Infrastructure}{24}{subsection.7.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces Containerized microservices topology. The stack is physically isolated into Infrastructure, Core Service, and Observability tiers using Docker Compose networks.}}{25}{figure.18}\protected@file@percent }
+\newlabel{fig:docker_topology}{{18}{25}{Containerized microservices topology. The stack is physically isolated into Infrastructure, Core Service, and Observability tiers using Docker Compose networks}{figure.18}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Docker Compose service inventory with port assignments.}}{25}{table.5}\protected@file@percent }
+\newlabel{tab:docker}{{5}{25}{Docker Compose service inventory with port assignments}{table.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Kafka-to-InfluxDB Analytics Bridge}{25}{subsection.7.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {19}{\ignorespaces The Kafka-to-InfluxDB bridge flow for high-resolution time-series storage.}}{26}{figure.19}\protected@file@percent }
+\newlabel{fig:kafka_bridge}{{19}{26}{The Kafka-to-InfluxDB bridge flow for high-resolution time-series storage}{figure.19}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}Air Quality Classification}{26}{subsection.7.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Air quality status classification thresholds (Kenya AQR 2024).}}{26}{table.6}\protected@file@percent }
+\newlabel{tab:aqi}{{6}{26}{Air quality status classification thresholds (Kenya AQR 2024)}{table.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.4}Polyglot Persistence Architecture}{27}{subsection.7.4}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Polyglot persistence: database technology selection rationale.}}{27}{table.7}\protected@file@percent }
+\newlabel{tab:polyglot}{{7}{27}{Polyglot persistence: database technology selection rationale}{table.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Request-Response Sequences}{27}{section.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.1}Dashboard Forecast Comparison Sequence}{27}{subsection.8.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {20}{\ignorespaces Request-response sequence for ML forecast comparison.}}{27}{figure.20}\protected@file@percent }
+\newlabel{fig:sequence}{{20}{27}{Request-response sequence for ML forecast comparison}{figure.20}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.2}Arduino Data Ingestion Sequence}{28}{subsection.8.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {21}{\ignorespaces Arduino ingestion sequence diagram. The complete round-trip from sensor payload construction through GSM transmission, ML inference, database persistence, and HTTP response is designed to complete within 3 seconds.}}{28}{figure.21}\protected@file@percent }
+\newlabel{fig:seq_ingest}{{21}{28}{Arduino ingestion sequence diagram. The complete round-trip from sensor payload construction through GSM transmission, ML inference, database persistence, and HTTP response is designed to complete within 3 seconds}{figure.21}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {9}Observability and Monitoring}{28}{section.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.1}Prometheus Metrics Collection}{28}{subsection.9.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.2}Grafana Dashboards}{28}{subsection.9.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {22}{\ignorespaces The Observability stack for real-time monitoring and historical analysis.}}{29}{figure.22}\protected@file@percent }
+\newlabel{fig:monitoring}{{22}{29}{The Observability stack for real-time monitoring and historical analysis}{figure.22}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {10}Results and Expected Outcomes}{29}{section.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.1}Machine Learning Model Performance}{29}{subsection.10.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Comparative evaluation metrics for $PM_{2.5}$ prediction models on the AQMRG relay dataset.}}{29}{table.8}\protected@file@percent }
+\newlabel{tab:results}{{8}{29}{Comparative evaluation metrics for $PM_{2.5}$ prediction models on the AQMRG relay dataset}{table.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {23}{\ignorespaces Comparative $R^2$ scores across the four model approaches. Gradient Boosting achieves the highest individual score (0.9715), while the median ensemble provides variance-reduced production stability.}}{29}{figure.23}\protected@file@percent }
+\newlabel{fig:r2_comparison}{{23}{29}{Comparative $R^2$ scores across the four model approaches. Gradient Boosting achieves the highest individual score (0.9715), while the median ensemble provides variance-reduced production stability}{figure.23}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {24}{\ignorespaces RMSE comparison across models. The progression from Linear Regression (42.38) to Gradient Boosting (12.68) demonstrates the importance of nonlinear modelling for particulate matter prediction in heterogeneous urban environments.}}{30}{figure.24}\protected@file@percent }
+\newlabel{fig:rmse_comparison}{{24}{30}{RMSE comparison across models. The progression from Linear Regression (42.38) to Gradient Boosting (12.68) demonstrates the importance of nonlinear modelling for particulate matter prediction in heterogeneous urban environments}{figure.24}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.2}System Architecture Performance Targets}{30}{subsection.10.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Expected system performance metrics.}}{30}{table.9}\protected@file@percent }
+\newlabel{tab:sysperf}{{9}{30}{Expected system performance metrics}{table.9}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {11}Technology Stack Summary}{31}{section.11}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Complete technology stack across all platform tiers.}}{31}{table.10}\protected@file@percent }
+\newlabel{tab:tech_stack}{{10}{31}{Complete technology stack across all platform tiers}{table.10}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {12}Repository Structure}{32}{section.12}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {25}{\ignorespaces Simplified repository structure showing the key directories and files across all four platform tiers.}}{32}{figure.25}\protected@file@percent }
+\newlabel{fig:repo}{{25}{32}{Simplified repository structure showing the key directories and files across all four platform tiers}{figure.25}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {13}Conclusion}{32}{section.13}\protected@file@percent }
+\gdef \@abspage@last{33}

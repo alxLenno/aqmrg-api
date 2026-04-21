@@ -1,0 +1,40 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'api-gateway'
+    static_configs:
+      - targets: ['api-gateway:8000']
+
+  - job_name: 'auth-service'
+    static_configs:
+      - targets: ['auth-service:8001']
+
+  - job_name: 'data-ingestion-service'
+    static_configs:
+      - targets: ['data-ingestion-service:8002']
+
+  - job_name: 'analytics-service'
+    static_configs:
+      - targets: ['analytics-service:8004']
+
+  - job_name: 'notification-service'
+    static_configs:
+      - targets: ['notification-service:8005']
+
+  - job_name: 'model-serving-service'
+    static_configs:
+      - targets: ['model-serving-service:8003']
+
+  - job_name: 'sensor-adapter-service'
+    static_configs:
+      - targets: ['sensor-adapter-service:8006']
+
+  - job_name: 'export-service'
+    static_configs:
+      - targets: ['export-service:8007']

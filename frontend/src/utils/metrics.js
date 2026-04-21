@@ -21,9 +21,10 @@ export const METRIC_CONFIG = {
  * Example: 's_hydrogen_level' -> 'Hydrogen Level'
  */
 export function formatMetricLabel(key) {
+  if (!key) return 'Unknown';
   if (METRIC_CONFIG[key]) return METRIC_CONFIG[key].label;
   
-  let label = key;
+  let label = String(key);
   // Remove 's_' prefix if present (from the Option A backend implementation)
   if (label.startsWith('s_')) label = label.slice(2);
   
@@ -45,9 +46,12 @@ export function getMetricUnit(key) {
  * Returns them sorted by priority (known first, then unknown alphabetical).
  */
 export function discoverMetrics(sensors) {
+  if (!Array.isArray(sensors)) return [];
+  
   const keys = new Set();
   sensors.forEach(sensor => {
-    const metrics = sensor.readings || sensor.metrics || {};
+    if (!sensor) return;
+    const metrics = sensor.readings || sensor.metrics || sensor.last_readings || {};
     Object.keys(metrics).forEach(k => {
       // Ignore internal/non-metric keys
       if (!['status', 'id', 'device_id', 'timestamp', 'latitude', 'longitude'].includes(k)) {
@@ -62,3 +66,4 @@ export function discoverMetrics(sensors) {
   
   return [...known, ...unknown];
 }
+

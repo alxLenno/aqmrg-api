@@ -36,8 +36,7 @@ export default function ForecastPanel({ forecast, comparison, loading, error }) 
                         <line x1="15" y1="9" x2="9" y2="15" />
                         <line x1="9" y1="9" x2="15" y2="15" />
                     </svg>
-                    <p>Could not load forecast data.</p>
-                    <span className="error-hint">Make sure the model-serving service is running on port 8003.</span>
+                    <span className="error-hint">{typeof error === 'string' ? error : "Ensure the backend is running and models are loaded."}</span>
                 </div>
             </div>
         );

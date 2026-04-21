@@ -1,0 +1,98 @@
+\contentsline {chapter}{APPROVALS}{i}{chapter*.1}%
+\contentsline {chapter}{DECLARATION OF ORIGINALITY}{ii}{chapter*.2}%
+\contentsline {chapter}{ACKNOWLEDGEMENT}{iii}{chapter*.3}%
+\contentsline {chapter}{ABBREVIATIONS AND ACRONYMS}{v}{chapter*.4}%
+\contentsline {chapter}{ABSTRACT}{1}{chapter*.5}%
+\contentsline {chapter}{\numberline {1}INTRODUCTION}{7}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Background of Study}{7}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Problem Statement}{7}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Objectives}{8}{section.1.3}%
+\contentsline {subsection}{\numberline {1.3.1}Overall Objective}{8}{subsection.1.3.1}%
+\contentsline {subsection}{\numberline {1.3.2}Specific Objectives}{8}{subsection.1.3.2}%
+\contentsline {section}{\numberline {1.4}Research Questions}{8}{section.1.4}%
+\contentsline {section}{\numberline {1.5}Justification and Significance of the Research}{9}{section.1.5}%
+\contentsline {section}{\numberline {1.6}Scope of the Work}{9}{section.1.6}%
+\contentsline {section}{\numberline {1.7}Organization of the Proposal}{9}{section.1.7}%
+\contentsline {chapter}{\numberline {2}LITERATURE REVIEW}{11}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Overview of the Chapter}{11}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Machine Learning in Air Quality Forecasting}{11}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Smart Cities and AI Trade-offs}{13}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Urban Heat Island Prediction}{13}{section.2.4}%
+\contentsline {section}{\numberline {2.5}IoT-Based Monitoring Platforms}{14}{section.2.5}%
+\contentsline {section}{\numberline {2.6}Health Impact and Predictive Modeling}{15}{section.2.6}%
+\contentsline {section}{\numberline {2.7}Summary of Literature and Research Gap}{15}{section.2.7}%
+\contentsline {chapter}{\numberline {3}METHODOLOGY}{22}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Overview of the Chapter}{22}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Research Design}{22}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Study Area / Population}{22}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Geographical Context}{22}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Target Population}{22}{subsection.3.3.2}%
+\contentsline {section}{\numberline {3.4}Sampling Strategy}{23}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Sensor Site Selection}{23}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Health Data Sampling}{23}{subsection.3.4.2}%
+\contentsline {section}{\numberline {3.5}Data Collection Methods / Instrumentation}{23}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}IoT Sensor Network}{23}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}Cloud Platform Architecture}{24}{subsection.3.5.2}%
+\contentsline {subsection}{\numberline {3.5.3}AI / Machine Learning Framework}{24}{subsection.3.5.3}%
+\contentsline {subsection}{\numberline {3.5.4}Health and Socio-Economic Data Integration}{25}{subsection.3.5.4}%
+\contentsline {section}{\numberline {3.6}Data Analysis Plan}{25}{section.3.6}%
+\contentsline {section}{\numberline {3.7}Validity and Reliability}{25}{section.3.7}%
+\contentsline {section}{\numberline {3.8}Ethical Considerations}{25}{section.3.8}%
+\contentsline {section}{\numberline {3.9}System Architecture Overview}{26}{section.3.9}%
+\contentsline {section}{\numberline {3.10}Edge Hardware Tier: Arduino Due Sensor Node}{28}{section.3.10}%
+\contentsline {subsection}{\numberline {3.10.1}Microcontroller Selection}{28}{subsection.3.10.1}%
+\contentsline {subsection}{\numberline {3.10.2}Sensor Array Composition}{29}{subsection.3.10.2}%
+\contentsline {subsection}{\numberline {3.10.3}Payload Construction and Transmission}{30}{subsection.3.10.3}%
+\contentsline {section}{\numberline {3.11}Primary Backend Tier: Flask API on PythonAnywhere}{31}{section.3.11}%
+\contentsline {subsection}{\numberline {3.11.1}Application Framework}{31}{subsection.3.11.1}%
+\contentsline {subsection}{\numberline {3.11.2}Relational Data Schema}{32}{subsection.3.11.2}%
+\contentsline {subsection}{\numberline {3.11.3}Ingestion Pipeline and Real-Time ML Inference}{33}{subsection.3.11.3}%
+\contentsline {subsection}{\numberline {3.11.4}API Endpoint Inventory}{35}{subsection.3.11.4}%
+\contentsline {section}{\numberline {3.12}Machine Learning Methodology}{35}{section.3.12}%
+\contentsline {subsection}{\numberline {3.12.1}Problem Formulation}{35}{subsection.3.12.1}%
+\contentsline {subsection}{\numberline {3.12.2}Training Data}{35}{subsection.3.12.2}%
+\contentsline {subsection}{\numberline {3.12.3}Model Architectures}{36}{subsection.3.12.3}%
+\contentsline {subsubsection}{Model 1: Linear Regression / Base Regressor}{36}{subsubsection*.20}%
+\contentsline {subsubsection}{Model 2: Gradient Boosting Regressor}{36}{subsubsection*.21}%
+\contentsline {subsubsection}{Model 3: OLS with Quantile Transformation}{37}{subsubsection*.22}%
+\contentsline {subsection}{\numberline {3.12.4}Ensemble Aggregation Strategy}{37}{subsection.3.12.4}%
+\contentsline {section}{\numberline {3.13}Client Presentation Tier: React Dashboard on Vercel}{38}{section.3.13}%
+\contentsline {subsection}{\numberline {3.13.1}Deployment Architecture}{38}{subsection.3.13.1}%
+\contentsline {subsection}{\numberline {3.13.2}Real-Time Data Polling Strategy}{39}{subsection.3.13.2}%
+\contentsline {subsection}{\numberline {3.13.3}Dashboard Components}{39}{subsection.3.13.3}%
+\contentsline {subsubsection}{Dashboard Tab (Main View)}{39}{subsubsection*.28}%
+\contentsline {subsubsection}{Raw Analysis Tab}{40}{subsubsection*.30}%
+\contentsline {subsubsection}{Your Data Tab (Guided EDA Workflow)}{40}{subsubsection*.31}%
+\contentsline {subsubsection}{Health Tab}{42}{subsubsection*.33}%
+\contentsline {subsection}{\numberline {3.13.4}Resilience Mechanisms}{42}{subsection.3.13.4}%
+\contentsline {section}{\numberline {3.14}Containerized Microservices Tier}{43}{section.3.14}%
+\contentsline {subsection}{\numberline {3.14.1}Docker Compose Infrastructure}{43}{subsection.3.14.1}%
+\contentsline {subsection}{\numberline {3.14.2}Kafka-to-InfluxDB Analytics Bridge}{44}{subsection.3.14.2}%
+\contentsline {subsection}{\numberline {3.14.3}Air Quality Classification}{45}{subsection.3.14.3}%
+\contentsline {subsection}{\numberline {3.14.4}Polyglot Persistence Architecture}{46}{subsection.3.14.4}%
+\contentsline {section}{\numberline {3.15}Request-Response Sequences}{47}{section.3.15}%
+\contentsline {subsection}{\numberline {3.15.1}Dashboard Forecast Comparison Sequence}{47}{subsection.3.15.1}%
+\contentsline {subsection}{\numberline {3.15.2}Arduino Data Ingestion Sequence}{47}{subsection.3.15.2}%
+\contentsline {section}{\numberline {3.16}Observability and Monitoring}{48}{section.3.16}%
+\contentsline {subsection}{\numberline {3.16.1}Prometheus Metrics Collection}{48}{subsection.3.16.1}%
+\contentsline {subsection}{\numberline {3.16.2}Grafana Dashboards}{48}{subsection.3.16.2}%
+\contentsline {chapter}{\numberline {4}EXPECTED OUTCOMES}{49}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Real-Time High-Frequency Monitoring}{49}{section.4.1}%
+\contentsline {section}{\numberline {4.2}AI-Driven Alert System}{49}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Vulnerability and Exposure Maps}{49}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Policy Briefs and Heat Action Plans}{49}{section.4.4}%
+\contentsline {section}{\numberline {4.5}Local Capacity Building}{50}{section.4.5}%
+\contentsline {section}{\numberline {4.6}System Performance Validation}{50}{section.4.6}%
+\contentsline {subsection}{\numberline {4.6.1}Machine Learning Model Performance}{50}{subsection.4.6.1}%
+\contentsline {subsection}{\numberline {4.6.2}System Architecture Performance Targets}{51}{subsection.4.6.2}%
+\contentsline {section}{\numberline {4.7}Technology Stack Summary}{52}{section.4.7}%
+\contentsline {section}{\numberline {4.8}Repository Structure}{53}{section.4.8}%
+\contentsline {chapter}{\numberline {5}WORK PLAN AND BUDGET}{54}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Overview}{54}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Work Plan}{54}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Budget}{54}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Final Conclusion Summary}{54}{section.5.4}%
+\contentsline {chapter}{Appendices}{63}{section*.51}%
+\contentsline {chapter}{\numberline {A}CONSENT FORM}{64}{appendix.1.A}%
+\contentsline {chapter}{\numberline {B}SURVEY QUESTIONNAIRE}{65}{appendix.1.B}%
+\contentsline {chapter}{\numberline {C}LETTERS OF PERMISSION}{66}{appendix.1.C}%
