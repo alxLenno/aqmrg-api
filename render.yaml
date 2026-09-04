@@ -1,0 +1,47 @@
+services:
+  # InfluxDB Time-Series Database
+  - type: web
+    name: aqmrg-influxdb
+    env: docker
+    dockerfilePath: infrastructure/monitoring/influxdb/Dockerfile
+    dockerContext: infrastructure/monitoring/influxdb
+    plan: free
+    region: oregon
+    envVars:
+      - key: DOCKER_INFLUXDB_INIT_MODE
+        value: setup
+      - key: DOCKER_INFLUXDB_INIT_USERNAME
+        value: aqmrg
+      - key: DOCKER_INFLUXDB_INIT_PASSWORD
+        value: aqmrg_password_change_me
+      - key: DOCKER_INFLUXDB_INIT_ORG
+        value: aqmrg
+      - key: DOCKER_INFLUXDB_INIT_BUCKET
+        value: sensor_data
+      - key: DOCKER_INFLUXDB_INIT_ADMIN_TOKEN
+        value: your_influxdb_token_change_me
+      - key: INFLUXD_REPORTING_DISABLED
+        value: "true"
+
+  # Grafana Real-Time Dashboard (HTTPS + Anonymous Embedding)
+  - type: web
+    name: aqmrg-grafana
+    env: docker
+    dockerfilePath: infrastructure/monitoring/grafana/Dockerfile
+    dockerContext: infrastructure/monitoring/grafana
+    plan: free
+    region: oregon
+    envVars:
+      - key: GF_SECURITY_ALLOW_EMBEDDING
+        value: "true"
+      - key: GF_AUTH_ANONYMOUS_ENABLED
+        value: "true"
+      - key: GF_AUTH_ANONYMOUS_ORG_ROLE
+        value: "Editor"
+      - key: INFLUXDB_TOKEN
+        value: your_influxdb_token_change_me
+      - key: INFLUXDB_URL
+        fromService:
+          type: web
+          name: aqmrg-influxdb
+          property: host

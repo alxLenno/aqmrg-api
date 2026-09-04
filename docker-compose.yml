@@ -236,6 +236,7 @@ services:
       - "5173:5173"
     environment:
       - VITE_PROXY_TARGET=http://api-gateway:8000
+      - VITE_GRAFANA_DASHBOARD_URL=${VITE_GRAFANA_DASHBOARD_URL:-http://localhost:3000/d/air_quality_dash/air-quality-real-time-monitor?orgId=1&kiosk}
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -255,12 +256,21 @@ services:
       - aqmrg-network
 
   grafana:
-    image: grafana/grafana-oss:latest
+    image: grafana/grafana-oss:10.4.3
     container_name: aqmrg-grafana
+    restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=len#11.Len@11
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin_change_me}
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+      # Anonymous access enabled so the iframe doesn't require login
+      - GF_AUTH_ANONYMOUS_ENABLED=${GRAFANA_ANONYMOUS_ENABLED:-true}
+      # Editor role allows viewing all provisioned dashboards without extra permissions
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Editor
+      # Pass InfluxDB token so datasource provisioning can substitute ${INFLUXDB_TOKEN}
+      - INFLUXDB_TOKEN=${INFLUXDB_TOKEN:-your_influxdb_token_change_me}
     volumes:
       - grafana_data:/var/lib/grafana
       - ./infrastructure/monitoring/grafana/provisioning:/etc/grafana/provisioning

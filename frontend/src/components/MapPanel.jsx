@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { useTheme } from '../context/ThemeContext';
@@ -18,8 +18,6 @@ let DefaultIcon = L.icon({
 });
 
 L.Marker.prototype.options.icon = DefaultIcon;
-
-import { discoverMetrics, formatMetricLabel, getMetricUnit } from '../utils/metrics';
 
 /**
  * Component to auto-fit the map to contain all sensor markers
@@ -168,4 +166,3 @@ export default function MapPanel({ sensors, loading }) {
         </div>
     );
 }
-

@@ -1,152 +1,212 @@
 {
-  "annotations": { "list": [] },
-  "editable": true,
-  "fiscalYearStartMonth": 0,
-  "graphTooltip": 0,
   "id": null,
-  "links": [],
-  "liveNow": false,
   "panels": [
     {
-      "title": "Current PM2.5 Level",
-      "type": "stat",
-      "gridPos": { "h": 5, "w": 8, "x": 0, "y": 0 },
-      "targets": [
-        {
-          "query": "from(bucket: \"sensor_data\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn: (r) => r[\"_measurement\"] == \"air_quality\") |> filter(fn: (r) => r[\"_field\"] == \"pm25\") |> last()",
-          "refId": "A"
-        }
-      ],
       "fieldConfig": {
         "defaults": {
-          "unit": "µg/m³",
-          "mappings": [],
+          "color": {
+            "mode": "thresholds"
+          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 35.5 },
-              { "color": "orange", "value": 55.5 },
-              { "color": "red", "value": 150.5 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 35
+              },
+              {
+                "color": "red",
+                "value": 55
+              }
             ]
-          }
+          },
+          "unit": "\u00b5g/m\u00b3"
         }
       },
-      "options": {
-        "colorMode": "background",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto"
-      }
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "a43c7d70-ea91-4200-8a10-0e79c6c25094"
+          },
+          "query": "from(bucket:\"sensor_data\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"air_quality\")\n  |> filter(fn: (r) => r._field == \"pm25\")\n  |> last()"
+        }
+      ],
+      "title": "Current PM2.5",
+      "type": "stat"
     },
     {
+      "fieldConfig": {
+        "defaults": {
+          "unit": "celsius"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "a43c7d70-ea91-4200-8a10-0e79c6c25094"
+          },
+          "query": "from(bucket:\"sensor_data\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"air_quality\")\n  |> filter(fn: (r) => r._field == \"temperature\")\n  |> last()"
+        }
+      ],
       "title": "Temperature",
-      "type": "stat",
-      "gridPos": { "h": 5, "w": 8, "x": 8, "y": 0 },
-      "targets": [
-        {
-          "query": "from(bucket: \"sensor_data\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn: (r) => r[\"_measurement\"] == \"air_quality\") |> filter(fn: (r) => r[\"_field\"] == \"temperature\") |> last()",
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "celsius",
-          "color": { "mode": "palette-classic" }
-        }
-      },
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto"
-      }
+      "type": "stat"
     },
     {
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "a43c7d70-ea91-4200-8a10-0e79c6c25094"
+          },
+          "query": "from(bucket:\"sensor_data\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"air_quality\")\n  |> filter(fn: (r) => r._field == \"humidity\")\n  |> last()"
+        }
+      ],
       "title": "Humidity",
-      "type": "stat",
-      "gridPos": { "h": 5, "w": 8, "x": 16, "y": 0 },
-      "targets": [
-        {
-          "query": "from(bucket: \"sensor_data\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn: (r) => r[\"_measurement\"] == \"air_quality\") |> filter(fn: (r) => r[\"_field\"] == \"humidity\") |> last()",
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "color": { "mode": "palette-classic" }
-        }
-      },
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "auto"
-      }
+      "type": "stat"
     },
     {
-      "title": "PM Concentration Trends",
-      "type": "timeseries",
-      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 5 },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
       "targets": [
         {
-          "query": "from(bucket: \"sensor_data\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn: (r) => r[\"_measurement\"] == \"air_quality\") |> filter(fn: (r) => r[\"_field\"] == \"pm25\" or r[\"_field\"] == \"pm10\" or r[\"_field\"] == \"pm1\") |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false) |> yield(name: \"mean\")",
-          "refId": "A"
+          "datasource": {
+            "type": "influxdb",
+            "uid": "a43c7d70-ea91-4200-8a10-0e79c6c25094"
+          },
+          "query": "from(bucket:\"sensor_data\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"air_quality\")\n  |> filter(fn: (r) => r._field == \"voc_index\")\n  |> last()"
         }
       ],
+      "title": "VOC Index",
+      "type": "stat"
+    },
+    {
       "fieldConfig": {
         "defaults": {
-          "unit": "µg/m³",
           "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "smooth",
-            "lineWidth": 2,
-            "fillOpacity": 15,
-            "showPoints": "auto"
+            "fillOpacity": 10,
+            "lineWidth": 2
           }
         }
       },
-      "options": {
-        "legend": { "displayMode": "list", "placement": "bottom", "calcs": ["mean", "max"] }
-      }
-    },
-    {
-      "title": "Gas Concentration (CO & CO2)",
-      "type": "timeseries",
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 14 },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 4
+      },
       "targets": [
         {
-          "query": "from(bucket: \"sensor_data\") |> range(start: v.timeRangeStart, stop: v.timeRangeStop) |> filter(fn: (r) => r[\"_measurement\"] == \"air_quality\") |> filter(fn: (r) => r[\"_field\"] == \"co\" or r[\"_field\"] == \"co2\") |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)",
-          "refId": "A"
+          "datasource": {
+            "type": "influxdb",
+            "uid": "a43c7d70-ea91-4200-8a10-0e79c6c25094"
+          },
+          "query": "from(bucket:\"sensor_data\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"air_quality\")\n  |> filter(fn: (r) => r._field == \"pm25\" or r._field == \"pm10\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")"
         }
       ],
+      "title": "Particulate Matter Trends (PM2.5 & PM10)",
+      "type": "timeseries"
+    },
+    {
       "fieldConfig": {
         "defaults": {
-          "unit": "short",
           "custom": {
-            "drawStyle": "line",
-            "fillOpacity": 10
+            "fillOpacity": 10,
+            "lineWidth": 2
           }
         }
-      }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 12
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "a43c7d70-ea91-4200-8a10-0e79c6c25094"
+          },
+          "query": "from(bucket:\"sensor_data\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"air_quality\")\n  |> filter(fn: (r) => r._field == \"temperature\" or r._field == \"humidity\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")"
+        }
+      ],
+      "title": "Temperature & Humidity Map",
+      "type": "timeseries"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 10,
+            "lineWidth": 2
+          }
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 12
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "a43c7d70-ea91-4200-8a10-0e79c6c25094"
+          },
+          "query": "from(bucket:\"sensor_data\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"air_quality\")\n  |> filter(fn: (r) => r._field == \"co\" or r._field == \"co2\")\n  |> aggregateWindow(every: v.windowPeriod, fn: mean, createEmpty: false)\n  |> yield(name: \"mean\")"
+        }
+      ],
+      "title": "Gas Data (CO & CO2)",
+      "type": "timeseries"
     }
   ],
-  "refresh": "5s",
-  "schemaVersion": 38,
-  "style": "dark",
-  "tags": ["AQMRG", "Real-Time"],
-  "templating": { "list": [] },
-  "time": { "from": "now-6h", "to": "now" },
-  "timepicker": {},
+  "refresh": "10s",
+  "schemaVersion": 16,
+  "tags": [
+    "arduino",
+    "air-quality",
+    "sensor"
+  ],
+  "time": {
+    "from": "now-7d",
+    "to": "now"
+  },
   "timezone": "browser",
-  "title": "AQMRG Real-Time Insights",
-  "uid": "aqmrg_live_01",
-  "version": 1
+  "title": "Air Quality Real-Time Monitor",
+  "uid": "air_quality_dash",
+  "version": 2
 }

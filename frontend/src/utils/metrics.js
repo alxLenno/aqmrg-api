@@ -16,6 +16,32 @@ export const METRIC_CONFIG = {
   nox_index: { label: 'NOx', unit: 'Idx', color: '#06b6d4', icon: '🚗' },
 };
 
+const NON_METRIC_KEYS = new Set([
+  '_id', '__v', 'id', 'sensor_id', 'device_id', 'sensor_name', 'name',
+  'status', 'timestamp', 'recorded_at', 'createdAt', 'updatedAt',
+  'latitude', 'longitude', 'location', 'raw_payload', 'extra_data',
+  'controller_id', 'hardware_details', 'is_online', 'last_seen'
+]);
+
+/**
+ * Return numeric measurements from either supported API shape:
+ * nested (`metrics`, `readings`, `last_readings`) or flattened history rows.
+ */
+export function extractMetrics(record) {
+  if (!record || typeof record !== 'object') return {};
+
+  const nested = [record.readings, record.metrics, record.last_readings]
+    .find(value => value && typeof value === 'object' && !Array.isArray(value));
+  const source = nested || record;
+
+  return Object.fromEntries(
+    Object.entries(source).filter(([key, value]) => {
+      if (NON_METRIC_KEYS.has(key) || value === null || value === '') return false;
+      return Number.isFinite(Number(value));
+    })
+  );
+}
+
 /**
  * Normalizes a metric key for display.
  * Example: 's_hydrogen_level' -> 'Hydrogen Level'
@@ -51,12 +77,9 @@ export function discoverMetrics(sensors) {
   const keys = new Set();
   sensors.forEach(sensor => {
     if (!sensor) return;
-    const metrics = sensor.readings || sensor.metrics || sensor.last_readings || {};
+    const metrics = extractMetrics(sensor);
     Object.keys(metrics).forEach(k => {
-      // Ignore internal/non-metric keys
-      if (!['status', 'id', 'device_id', 'timestamp', 'latitude', 'longitude'].includes(k)) {
-        keys.add(k);
-      }
+      keys.add(k);
     });
   });
 
@@ -66,4 +89,3 @@ export function discoverMetrics(sensors) {
   
   return [...known, ...unknown];
 }
-

@@ -518,10 +518,15 @@ def get_latest():
 @api_bp.route('/api/v1/history/all', methods=['GET'])
 def get_all_history():
     device_id = request.args.get('device_id')
+    try:
+        limit = int(request.args.get('limit', 5000))
+    except ValueError:
+        limit = 5000
+
     query = SensorReading.query
     if device_id:
         query = query.filter_by(device_id=device_id)
-    readings = query.order_by(SensorReading.timestamp.desc()).all()
+    readings = query.order_by(SensorReading.timestamp.desc()).limit(limit).all()
     return jsonify({"readings": [r.to_dict() for r in readings]})
 
 @api_bp.route('/api/v1/health/latest', methods=['GET'])

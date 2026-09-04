@@ -1,5 +1,17 @@
 # React + Vite
 
+## AQMRG development
+
+Run the frontend with `npm run dev`. Raw Analysis uses the historical readings API for its built-in charts and supports both nested PythonAnywhere rows and flattened Vercel/MongoDB rows.
+
+An optional Grafana view is available automatically during local development at `http://localhost:3000`. For a deployed frontend, configure an absolute dashboard URL at build time:
+
+```env
+VITE_GRAFANA_DASHBOARD_URL=https://grafana.example.com/d/aqmrg_live_01/aqmrg-real-time-insights?orgId=1&kiosk
+```
+
+The Docker Compose stack provisions that dashboard against InfluxDB. Grafana embedding is enabled, but anonymous access remains disabled by default; users can sign in to Grafana in the embedded view or open it full screen. Only set `GRAFANA_ANONYMOUS_ENABLED=true` when read-only public sensor visibility is intentional.
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:

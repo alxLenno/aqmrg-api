@@ -103,7 +103,7 @@ export default function App() {
       
       // Fetch both forecast and comparison in parallel
       const [forecastData, comparisonData] = await Promise.all([
-        fetchForecast('Nairobi', 4),
+        fetchForecast(),
         fetchForecastComparison()
       ]);
       

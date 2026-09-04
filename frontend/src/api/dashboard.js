@@ -95,7 +95,7 @@ export async function fetchDashboardData(deviceId = '') {
  *
  * Returns: { location, forecast[], model }
  */
-export async function fetchForecast(location = 'Nairobi', hours = 4) {
+export async function fetchForecast() {
     const response = await fetch(`${API_BASE}/v1/forecast/realtime`);
     if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
@@ -127,7 +127,8 @@ export async function fetchAllHistory(limit = 5000, deviceId = '') {
         throw new Error(`History API error: ${response.status}`);
     }
     const data = await response.json();
-    return data.readings || [];
+    if (Array.isArray(data)) return data;
+    return Array.isArray(data.readings) ? data.readings : [];
 }
 
 /**
