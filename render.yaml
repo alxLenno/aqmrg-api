@@ -41,7 +41,4 @@ services:
       - key: INFLUXDB_TOKEN
         value: your_influxdb_token_change_me
       - key: INFLUXDB_URL
-        fromService:
-          type: web
-          name: aqmrg-influxdb
-          property: host
+        value: "https://aqmrg-influxdb.onrender.com"
