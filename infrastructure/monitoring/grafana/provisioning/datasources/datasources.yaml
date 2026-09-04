@@ -7,7 +7,7 @@ datasources:
     isDefault: true
     # Don't crash Grafana startup if InfluxDB token/bucket isn't ready yet
     ignoreNotFound: true
-    url: ${INFLUXDB_URL:-http://influxdb:8086}
+    url: ${INFLUXDB_URL}
     jsonData:
       version: Flux
       organization: aqmrg
