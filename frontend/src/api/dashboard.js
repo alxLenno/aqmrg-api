@@ -8,8 +8,7 @@ const API_BASE = '/api';
  * Returns: { timestamp, sensorsCount, sensors[] }
  */
 export async function fetchDashboardData(deviceId = '') {
-    const params = deviceId ? `?device_id=${deviceId}` : '';
-    const response = await fetch(`${API_BASE}/v1/data/latest${params}`);
+    const response = await fetch(`${API_BASE}/v1/data/latest?per_node=true${deviceId ? '&device_id=' + encodeURIComponent(deviceId) : ''}`);
     if (!response.ok) {
         throw new Error(`Dashboard API error: ${response.status}`);
     }
@@ -23,7 +22,7 @@ export async function fetchDashboardData(deviceId = '') {
     const sensors = rawData.map(reading => {
         const dId = reading.device_id || 'UNKNOWN';
         const metrics = reading.metrics || reading.readings || reading.last_readings || {};
-        const lastSeen = reading.timestamp || reading.last_seen || reading.recorded_at || new Date().toISOString();
+        const lastSeen = reading.timestamp || reading.last_seen || reading.recorded_at || null;
 
         return {
             id: reading.id || dId,
@@ -31,7 +30,8 @@ export async function fetchDashboardData(deviceId = '') {
             controller_id: `CTRL-${dId.slice(-4)}`,
             name: reading.name || reading.sensor_name || `Station ${dId.slice(-4) || '??'}`,
             manufacturer: reading.manufacturer || 'Custom',
-            is_online: reading.is_online !== undefined ? reading.is_online : true,
+            is_online: reading.status === 'online' ? true : reading.status === 'offline' ? false : reading.is_online,
+            last_seen_seconds: reading.last_seen_seconds,
             last_seen: lastSeen,
             location_name: reading.location_name || (reading.location ? 'Nairobi' : 'Unknown'),
             latitude: reading.latitude !== undefined ? reading.latitude : (reading.location ? reading.location.latitude : 0),
@@ -59,13 +59,13 @@ export async function fetchDashboardData(deviceId = '') {
 
     const uniqueSensors = Array.from(uniqueSensorsMap.values()).map(sensor => {
         // Robust online check: ensure we have a string before replacing
-        const rawDate = sensor.last_seen || new Date().toISOString();
-        const dateStr = typeof rawDate === 'string' ? rawDate.replace(' ', 'T') : rawDate;
+        const rawDate = sensor.last_seen || "invalid";
+        const dateStr = typeof rawDate === 'string' ? (/Z$|[+-]\d{2}:\d{2}$/.test(rawDate) ? rawDate : rawDate.replace(' ', 'T') + '+03:00') : rawDate;
         const lastSeenDate = new Date(dateStr);
 
         // 10 minute threshold for online
         const diffMs = new Date() - lastSeenDate;
-        const isOnline = diffMs > 0 && diffMs < 10 * 60 * 1000;
+        const isOnline = diffMs >= 0 && diffMs <= 5 * 60 * 1000;
 
         // Use API status if available, fallback to calculated
         return {
@@ -95,8 +95,8 @@ export async function fetchDashboardData(deviceId = '') {
  *
  * Returns: { location, forecast[], model }
  */
-export async function fetchForecast() {
-    const response = await fetch(`${API_BASE}/v1/forecast/realtime`);
+export async function fetchForecast(deviceId = '') {
+    const response = await fetch(`${API_BASE}/v1/forecast/realtime${deviceId ? '?device_id=' + encodeURIComponent(deviceId) : ''}`);
     if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
         throw new Error(errData.message || `Forecast API error: ${response.status}`);
@@ -108,8 +108,8 @@ export async function fetchForecast() {
  * Fetch forecast comparison data from the PythonAnywhere backend.
  * Endpoint: GET /api/v1/forecast/comparison
  */
-export async function fetchForecastComparison() {
-    const response = await fetch(`${API_BASE}/v1/forecast/comparison`);
+export async function fetchForecastComparison(deviceId = '') {
+    const response = await fetch(`${API_BASE}/v1/forecast/comparison${deviceId ? '?device_id=' + encodeURIComponent(deviceId) : ''}`);
     if (!response.ok) {
         throw new Error(`Comparison API error: ${response.status}`);
     }
@@ -184,7 +184,7 @@ export async function fetchDevices() {
  * Endpoint: GET /api/v1/health/latest
  */
 export async function fetchHealthData(deviceId = '') {
-    const params = deviceId ? `?device_id=${deviceId}` : '';
+    const params = deviceId ? `?device_id=${encodeURIComponent(deviceId)}` : '';
     const response = await fetch(`${API_BASE}/v1/health/latest${params}`);
     if (!response.ok) {
         throw new Error(`Health API error: ${response.status}`);
@@ -196,7 +196,7 @@ export async function fetchHealthData(deviceId = '') {
  * Build the CSV export URL for health data.
  */
 export function getHealthExportUrl(deviceId = '') {
-    const params = deviceId ? `?device_id=${deviceId}` : '';
+    const params = deviceId ? `?device_id=${encodeURIComponent(deviceId)}` : '';
     return `${API_BASE}/v1/health/export/csv${params}`;
 }
 
@@ -204,6 +204,6 @@ export function getHealthExportUrl(deviceId = '') {
  * Build the CSV export URL for sensor data.
  */
 export function getDataExportUrl(deviceId = '') {
-    const params = deviceId ? `?device_id=${deviceId}` : '';
+    const params = deviceId ? `?device_id=${encodeURIComponent(deviceId)}` : '';
     return `${API_BASE}/v1/data/export/csv${params}`;
 }

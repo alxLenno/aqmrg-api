@@ -17,19 +17,21 @@ export default async function handler(
     let mongoSensors: any[] = [];
     try {
       await dbConnect();
-      mongoSensors = await Sensor.find().lean();
+      mongoSensors = await Sensor.find(typeof request.query.device_id === 'string' && request.query.device_id ? {device_id: request.query.device_id} : {}).lean();
     } catch (dbError) {
       console.warn('MongoDB unavailable');
     }
 
     // 2. Fetch from PythonAnywhere (Primary Production Hardware Source)
     let paSensors: any[] = [];
+    let sourceAvailable = false;
     try {
       const deviceId = typeof request.query.device_id === 'string' ? request.query.device_id : '';
-      const paUrl = deviceId ? `${PA_BASE}?device_id=${deviceId}` : PA_BASE;
+      const paUrl = deviceId ? `${PA_BASE}?per_node=true&device_id=${encodeURIComponent(deviceId)}` : `${PA_BASE}?per_node=true`;
       const resp = await fetch(paUrl, { signal: AbortSignal.timeout(5000) });
       if (resp.ok) {
         const data = await resp.json();
+        sourceAvailable = true;
         paSensors = Array.isArray(data) ? data : (data.sensors || []);
       }
     } catch (e) {
@@ -41,7 +43,7 @@ export default async function handler(
 
     // Add MongoDB first
     mongoSensors.forEach((s: any) => {
-      mergedMap.set(s.device_id, { ...s, id: s._id });
+      mergedMap.set(s.device_id, { ...s, id: s._id, is_online: false, status: 'offline' });
     });
 
     // Overlay PA (fresher than MongoDB)
@@ -53,12 +55,13 @@ export default async function handler(
         mergedMap.set(deviceId, { 
           ...s, 
           sensor_name: s.sensor_name || 'Data Entry Controller',
-          status: 'ControllerData' 
+          status: s.status
         });
       }
     });
 
-    const allSensors = Array.from(mergedMap.values());
+    if (!sourceAvailable) return response.status(503).json({error: 'Sensor backend unavailable', sourceAvailable: false});
+    const allSensors = Array.from(mergedMap.values()).filter(s => seenInPa.has(s.device_id));
 
     return response.status(200).json({
       timestamp: paSensors[0]?.timestamp || null,

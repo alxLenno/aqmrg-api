@@ -31,16 +31,6 @@ export default function App() {
     return () => window.removeEventListener('error', handleError);
   }, []);
 
-  if (renderError) {
-    return (
-      <div style={{ padding: '40px', color: 'white', background: '#0f172a', height: '100vh' }}>
-        <h1>Application Crushed</h1>
-        <p>Error: {renderError}</p>
-        <button onClick={() => window.location.reload()}>Reload</button>
-      </div>
-    );
-  }
-
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
@@ -49,7 +39,7 @@ export default function App() {
   const [sensorsCount, setSensorsCount] = useState(0);
   const [timestamp, setTimestamp] = useState(null);
   const [apiStatus, setApiStatus] = useState('connecting');
-  const [failCount, setFailCount] = useState(0);
+  const [, setFailCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [forecast, setForecast] = useState(null);
@@ -82,10 +72,11 @@ export default function App() {
       setFailCount(0);
       setError(null);
     } catch (err) {
+      setSensors(prev => prev.map(s => ({...s, is_online: false, status_unknown: true})));
       console.error('Dashboard Error:', err);
       setFailCount(prev => {
         const next = prev + 1;
-        if (next > 3) {
+        if (next >= 1) {
           setApiStatus('disconnected');
           setError(err.message);
         }
@@ -103,8 +94,8 @@ export default function App() {
       
       // Fetch both forecast and comparison in parallel
       const [forecastData, comparisonData] = await Promise.all([
-        fetchForecast(),
-        fetchForecastComparison()
+        fetchForecast(selectedDevice),
+        fetchForecastComparison(selectedDevice)
       ]);
       
       setForecast(forecastData);
@@ -117,20 +108,17 @@ export default function App() {
       setForecastLoading(false);
       setComparisonLoading(false);
     }
-  }, []);
+  }, [selectedDevice]);
 
   const checkApiHealth = useCallback(async () => {
     try {
       await checkHealth();
-      setApiStatus('connected');
-      setFailCount(0);
-      setError(null);
     } catch (err) {
       setFailCount(prev => {
         const next = prev + 1;
-        if (next > 3) {
+        if (next >= 1) {
           setApiStatus('disconnected');
-          setError('Backend services are temporarily unreachable.');
+          setError(err.message || 'Backend services are temporarily unreachable.');
         }
         return next;
       });
@@ -150,7 +138,7 @@ export default function App() {
           setDevices(devs);
           // Auto-select if only one real device exists and none selected
           if (devs.length === 1 && !selectedDevice) {
-            setSelectedDevice(devs[0].device_id);
+            setSelectedDevice(typeof devs[0] === 'string' ? devs[0] : devs[0].device_id);
           }
         })
         .catch(err => console.error('Devices load error:', err));
@@ -172,6 +160,16 @@ export default function App() {
     };
   }, [loadDashboardData, loadForecast, checkApiHealth, selectedDevice]);
   
+  if (renderError) {
+    return (
+      <div style={{ padding: '40px', color: 'white', background: '#0f172a', height: '100vh' }}>
+        <h1>Application error</h1>
+        <p>Error: {renderError}</p>
+        <button onClick={() => window.location.reload()}>Reload</button>
+      </div>
+    );
+  }
+
   return (
     <div className={`app ${isSidebarOpen ? 'sidebar-open' : ''}`}>
       <Sidebar 

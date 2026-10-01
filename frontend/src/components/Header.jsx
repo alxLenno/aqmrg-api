@@ -10,9 +10,9 @@ export default function Header({ apiStatus, sensorsCount, lastUpdate, devices = 
             setTime(now);
 
             if (lastUpdate) {
-                const lastDate = new Date(lastUpdate);
-                const nextExpected = new Date(lastDate.getTime() + 5 * 60 * 1000);
-                const diff = Math.floor((nextExpected - now) / 1000);
+                const lastDate = new Date(/Z$|[+-]\d{2}:\d{2}$/.test(lastUpdate) ? lastUpdate : lastUpdate.replace(' ', 'T') + '+03:00');
+                const nextExpected = now;
+                const diff = Math.floor((nextExpected - lastDate) / 1000);
 
                 if (diff > 0) {
                     const m = Math.floor(diff / 60);
@@ -69,12 +69,12 @@ export default function Header({ apiStatus, sensorsCount, lastUpdate, devices = 
                             <path d="M3 22v-6h6" />
                             <path d="M21 12a9 9 0 0 1-15 6.7L3 16" />
                         </svg>
-                        <span>Sync: {syncCountdown}</span>
+                        <span>Report age: {syncCountdown}</span>
                     </div>
                 )}
                 <div className={`live-indicator ${apiStatus === 'connected' ? '' : 'disconnected'}`}>
                     <span className="live-dot"></span>
-                    <span>{apiStatus === 'connected' ? 'Live' : 'Offline'}</span>
+                    <span>{apiStatus === 'connected' ? 'Backend reachable' : 'Connection lost'}</span>
                 </div>
                 {sensorsCount !== null && (
                     <div className="sensor-count-badge">

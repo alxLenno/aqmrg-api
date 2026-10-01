@@ -75,8 +75,8 @@ export default function SensorDetailTab({ sensors, loading }) {
                         </div>
 
                         <div className="tech-footer">
-                            <span>Last Pulse: {sensor.last_seen ? new Date(sensor.last_seen).toLocaleString() : 'Never'}</span>
-                            <span className="tech-status-label">{sensor.is_online ? 'CONNECTED' : 'STANDBY'}</span>
+                            <span>Last report: {sensor.last_seen ? new Date(sensor.last_seen).toLocaleString() : 'Never'}</span>
+                            <span className="tech-status-label">{sensor.is_online ? 'REPORTING' : 'NOT REPORTING'}</span>
                         </div>
                     </div>
                 ))}

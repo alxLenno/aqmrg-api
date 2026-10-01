@@ -21,7 +21,6 @@ export default function StatsGrid({ sensors, loading }) {
     const sensorsList = Array.isArray(sensors) ? sensors : [];
     const totalSensors = sensorsList.length;
     const onlineSensors = sensorsList.filter((s) => s?.is_online).length;
-    const manufacturers = [...new Set(sensorsList.map((s) => s?.manufacturer).filter(Boolean))];
     
     // Discovery of all metrics for summary
     const activeMetricKeys = discoverMetrics(sensorsList);
@@ -30,9 +29,9 @@ export default function StatsGrid({ sensors, loading }) {
 
     const getAverage = (key) => {
       if (totalSensors === 0) return '--';
-      const validReadings = sensorsList
+      const validReadings = sensorsList.filter(s => s.is_online)
         .map(s => (s?.readings || {})[key])
-        .filter(v => v !== undefined && v !== null);
+        .filter(v => typeof v === 'number' && Number.isFinite(v));
       
       if (validReadings.length === 0) return '--';
       const sum = validReadings.reduce((acc, v) => acc + Number(v), 0);
@@ -46,16 +45,16 @@ export default function StatsGrid({ sensors, loading }) {
             {/* Active Sensors */}
             <div className="stat-card stat-sensors">
                 <div className="stat-header">
-                    <span className="stat-label">Online Sensors</span>
+                    <span className="stat-label">Reporting Nodes</span>
                     <div className={`stat-trend ${onlineSensors === totalSensors ? 'trend-good' : 'trend-warning'}`}>
-                        <span>{onlineSensors === totalSensors ? 'All Online' : `${totalSensors - onlineSensors} Offline`}</span>
+                        <span>{onlineSensors === totalSensors ? (totalSensors ? 'All reporting' : 'No recent nodes') : `${totalSensors - onlineSensors} Not reporting`}</span>
                     </div>
                 </div>
                 <div className="stat-value">
                     {onlineSensors}<span className="stat-unit">/ {totalSensors}</span>
                 </div>
                 <div className={`stat-quality ${onlineSensors === totalSensors ? 'good' : 'warning'}`}>
-                    {onlineSensors === totalSensors ? 'Fully Operational' : 'Degraded'}
+                    {onlineSensors === totalSensors ? (totalSensors ? 'Readings fresh' : 'No data') : 'Degraded'}
                 </div>
                 <div className="stat-bar">
                     <div
@@ -70,7 +69,7 @@ export default function StatsGrid({ sensors, loading }) {
                 <div className="stat-header">
                     <span className="stat-label">Avg. PM2.5</span>
                     <div className="stat-trend trend-neutral">
-                        <span>City Average</span>
+                        <span>Reporting-node average</span>
                     </div>
                 </div>
                 <div className="stat-value">
@@ -78,7 +77,7 @@ export default function StatsGrid({ sensors, loading }) {
                     <span className="stat-unit">µg/m³</span>
                 </div>
                 <div className="aqi-indicator">
-                    Live from {sensors.length} stations
+                    From {onlineSensors} reporting stations
                 </div>
             </div>
 

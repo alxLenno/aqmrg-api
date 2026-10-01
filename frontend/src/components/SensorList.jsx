@@ -64,8 +64,8 @@ export default function SensorList({ sensors, loading, timestamp }) {
         <div className="card sensor-list-card">
             <div className="card-header">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <h3>Live Hardware Stations</h3>
-                    <span className="card-badge">{onlineSensors.length} Verified</span>
+                    <h3>Recent Stations</h3>
+                    <span className="card-badge">{onlineSensors.length} Reporting</span>
                 </div>
                 <button
                     className="btn-export"
@@ -78,7 +78,7 @@ export default function SensorList({ sensors, loading, timestamp }) {
 
             {timestamp && (
                 <div className="data-timestamp">
-                    System Heartbeat: {new Date(timestamp).toLocaleTimeString('en-GB', { timeZone: 'Africa/Nairobi' })}
+                    Last sensor report: {new Date(timestamp).toLocaleTimeString('en-GB', { timeZone: 'Africa/Nairobi' })}
                 </div>
             )}
 
@@ -87,8 +87,8 @@ export default function SensorList({ sensors, loading, timestamp }) {
                     {sensorsList.length === 0 ? (
                         <div className="empty-state">
                             <div className="forward-pulse" style={{ marginBottom: '20px' }}></div>
-                            <p>Waiting for Station Heartbeat...</p>
-                            <span>Ensure AQ-NODE-001 is powered and connected to GPRS.</span>
+                            <p>No recent station readings.</p>
+                            <span>Check that your nodes are sending readings.</span>
                         </div>
                     ) : (
                         sensorsList.map((sensor) => {
@@ -98,22 +98,22 @@ export default function SensorList({ sensors, loading, timestamp }) {
 
                             return (
                                 <div key={sensor.id} className="sensor-item" data-id={sensor.device_id}>
-                                    <div className="sensor-status online"></div>
+                                    <div className={`sensor-status ${sensor.is_online ? 'online' : 'offline'}`}></div>
                                     <div className="sensor-info">
                                         <div style={{ display: 'flex', alignItems: 'center' }}>
                                             <span className="sensor-name" style={{ color: 'var(--accent-3)' }}>
                                                 🛡️ {sensor.name}
                                             </span>
                                             <span className={`aqi-label ${status.badge}`}>
-                                                Verified Node
+                                                {sensor.status_unknown ? 'Unknown · stale data' : sensor.is_online ? 'Reporting' : 'Not reporting'}
                                             </span>
                                         </div>
                                         <span className="sensor-meta">{sensor.device_id} • Nairobi Metropolitan Area</span>
                                         {sensor.last_seen && (
                                             <span className="last-seen">
-                                                Live Update: {
+                                                Last report: {
                                                     (() => {
-                                                        const dateStr = sensor.last_seen.endsWith('Z') ? sensor.last_seen : sensor.last_seen.replace(' ', 'T');
+                                                        const dateStr = sensor.last_seen.endsWith('Z') ? sensor.last_seen : sensor.last_seen.replace(' ', 'T') + '+03:00';
                                                         const correctedDate = new Date(dateStr);
                                                         let seconds = Math.floor((now - correctedDate) / 1000);
                                                         seconds = Math.max(0, seconds);

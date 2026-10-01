@@ -8,7 +8,7 @@ export default function ForecastPanel({ forecast, comparison, loading, error }) 
         return (
             <div className="card forecast-card">
                 <div className="card-header">
-                    <h3>Air Quality Forecast</h3>
+                    <h3>PM2.5 estimate</h3>
                     <span className="card-badge model-badge">Loading...</span>
                 </div>
                 <div className="forecast-grid">
@@ -27,7 +27,7 @@ export default function ForecastPanel({ forecast, comparison, loading, error }) 
         return (
             <div className="card forecast-card">
                 <div className="card-header">
-                    <h3>Air Quality Forecast</h3>
+                    <h3>PM2.5 estimate</h3>
                     <span className="card-badge error-badge">Error</span>
                 </div>
                 <div className="forecast-error">
@@ -42,18 +42,24 @@ export default function ForecastPanel({ forecast, comparison, loading, error }) 
         );
     }
 
+    if (Array.isArray(forecast?.nodes)) {
+        return <div className="forecast-nodes">{forecast.nodes.length ? forecast.nodes.map(node => <div key={node.device_id}><h3>{node.device_id}</h3><ForecastPanel forecast={node} comparison={comparison?.nodes?.find(c => c.device_id === node.device_id)} loading={false} error={null} /></div>) : <p>No recent node predictions available.</p>}</div>;
+    }
+    if (!Number.isFinite(forecast?.prediction)) {
+        return <div className="card forecast-card"><h3>PM2.5 estimate</h3><p>No prediction available for this node.</p></div>;
+    }
     const data = forecast || {};
     const compData = comparison || {};
     const predictions = compData.predictions || {};
     
     // Original API values as fallbacks or baseline
-    const apiPredicted = data.prediction || 0;
-    const apiActual = data.actual_pm25 || 0;
+    const apiPredicted = data.prediction ?? 0;
+    const apiActual = data.actual_pm25 ?? 0;
     
     // Actual PM2.5 value to use for comparison
     const actual = compData.actual_pm25 || apiActual;
-    const compActual = compData.actual_pm25 || 0;
-    const ensembleMedian = compData.ensemble_median || 0;
+    const compActual = compData.actual_pm25 ?? 0;
+    const ensembleMedian = compData.ensemble_median ?? 0;
 
     // --- Dynamic Model Selection Logic ---
     // Create an array of all available models and their predictions
@@ -63,9 +69,9 @@ export default function ForecastPanel({ forecast, comparison, loading, error }) 
     if (comparison && actual > 0) {
        availableModels = [
            { name: 'Ensemble', prediction: ensembleMedian },
-           { name: 'GB Model', prediction: predictions.gb || 0 },
-           { name: 'OLS Model', prediction: predictions.ols || 0 },
-           { name: 'Existing', prediction: predictions.existing || 0 }
+           { name: 'GB Model', prediction: predictions.gb ?? 0 },
+           { name: 'OLS Model', prediction: predictions.ols ?? 0 },
+           { name: 'Existing', prediction: predictions.existing ?? 0 }
        ].filter(m => m.prediction > 0);
     }
     
@@ -73,7 +79,7 @@ export default function ForecastPanel({ forecast, comparison, loading, error }) 
     const defaultModel = { 
         name: 'API Forecast', 
         prediction: apiPredicted,
-        shift: data.shift || 0
+        shift: data.shift ?? 0
     };
     
     let bestModel = defaultModel;
