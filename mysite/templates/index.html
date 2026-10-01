@@ -497,76 +497,11 @@
             </div>
         </header>
 
-        <section class="metrics-section">
-            <div class="section-header">
-                <span class="section-title">Current Readings</span>
-                <span class="last-updated" id="last-updated">Last updated: --</span>
-            </div>
-            <div class="metrics-grid" id="latest-metrics">
-                <div class="metric-card">
-                    <div class="metric-header">
-                        <span class="metric-label">PM2.5 Concentration</span>
-                        <div class="metric-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="3"/>
-                                <path d="M12 1v6m0 6v6m4.22-10.22l4.24-4.24M6.34 6.34L2.1 2.1m17.8 17.8l-4.24-4.24M6.34 17.66l-4.24 4.24M23 12h-6m-6 0H1m20.24 4.24l-4.24-4.24M6.34 17.66l-4.24 4.24"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="metric-value-wrapper">
-                        <span class="metric-value" id="pm25-value">--</span>
-                        <span class="metric-unit">µg/m³</span>
-                    </div>
-                    <div class="metric-meta">
-                        <span class="metric-trend">Good</span>
-                        <span>Device: AQ-001</span>
-                    </div>
-                </div>
-
-                <div class="metric-card">
-                    <div class="metric-header">
-                        <span class="metric-label">CO₂ Levels</span>
-                        <div class="metric-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 2v20M2 12h20"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="metric-value-wrapper">
-                        <span class="metric-value" id="co2-value">--</span>
-                        <span class="metric-unit">ppm</span>
-                    </div>
-                    <div class="metric-meta">
-                        <span class="metric-trend">Optimal</span>
-                        <span>Indoor Air Quality</span>
-                    </div>
-                </div>
-
-                <div class="metric-card">
-                    <div class="metric-header">
-                        <span class="metric-label">Device Location</span>
-                        <div class="metric-icon">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                                <circle cx="12" cy="10" r="3"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="metric-value-wrapper">
-                        <span class="metric-value" id="location-value" style="font-size: 1.5rem;">--</span>
-                    </div>
-                    <div class="metric-meta">
-                        <span>GSM LBS Positioning</span>
-                        <span>Dynamic Update</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <section class="table-section">
             <div class="table-header">
                 <div class="table-title-wrapper">
-                    <h2 class="table-title">Latest Reading per Node</h2>
+                    <h2 class="table-title">Active Node Readings</h2>
+                    <span class="last-updated" id="last-updated">Last updated: --</span>
                     <span class="live-badge">
                         <span class="live-dot"></span>
                         Live
@@ -693,7 +628,7 @@
 
                 updateDashboard(data);
                 if (!data.length) {
-                    document.getElementById('readings-body').innerHTML = `<tr><td colspan="10"><div class="empty-state"><p>No active nodes reporting in the activity window.</p></div></td></tr>`;
+                    document.getElementById('readings-body').innerHTML = `<tr><td colspan="9"><div class="empty-state"><p>No active nodes reporting in the activity window.</p></div></td></tr>`;
                 }
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -701,93 +636,31 @@
         }
 
         function updateDashboard(readings) {
-            const grid = document.getElementById('latest-metrics');
             const tableBody = document.getElementById('readings-body');
-            const tableHead = document.querySelector('thead tr');
-            const lastUpdated = document.getElementById('last-updated');
-            const escapeHtml = value => String(value ?? "--").replace(/[&<>"']/g, c => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"}[c]));
-
-            lastUpdated.textContent = 'Last updated: ' + new Date().toLocaleTimeString();
-
-            // 1. Discover all metric keys available in the latest readings
-            const allKeys = new Set();
-            readings.forEach(r => {
-                const m = r.metrics || {};
-                Object.keys(m).forEach(k => {
-                    if (k !== 'status' && typeof m[k] === 'number') allKeys.add(k);
-                });
-            });
-            const activeKeys = Array.from(allKeys).sort((a,b) => {
-              const order = ['pm25', 'co2', 'temperature', 'humidity'];
-              const idxA = order.indexOf(a);
-              const idxB = order.indexOf(b);
-              if (idxA !== -1 && idxB !== -1) return idxA - idxB;
-              if (idxA !== -1) return -1;
-              if (idxB !== -1) return 1;
-              return a.localeCompare(b);
-            });
-
-            // 2. Update Metric Cards Grid
-            grid.innerHTML = readings.map(latest => `<div style="grid-column: 1 / -1; margin-top: 16px;"><h2>${escapeHtml(latest.device_id)}</h2><span>Last reading: ${escapeHtml(latest.timestamp)}</span></div>` + activeKeys.map(key => {
-                const val = latest.metrics?.[key] ?? '--';
-                return `
-                    <div class="metric-card">
-                        <div class="metric-header">
-                            <span class="metric-label">${escapeHtml(formatLabel(key))}</span>
-                            <div class="metric-icon">${getIcon(key)}</div>
-                        </div>
-                        <div class="metric-value-wrapper">
-                            <span class="metric-value">${escapeHtml(val)}</span>
-                            <span class="metric-unit">${getUnit(key)}</span>
-                        </div>
-                        <div class="metric-meta">
-                            <span>Forwarded</span>
-                            <span>Node: ${escapeHtml(latest.device_id)}</span>
-                        </div>
-                    </div>
-                `;
-            }).join('') + `
-                <div class="metric-card">
-                    <div class="metric-header">
-                        <span class="metric-label">Device Location</span>
-                        <div class="metric-icon">📍</div>
-                    </div>
-                    <div class="metric-value-wrapper">
-                        <span class="metric-value" style="font-size: 1.5rem;">
-                            ${latest.location ? `${escapeHtml(latest.location.latitude)}, ${escapeHtml(latest.location.longitude)}` : 'Searching...'}
-                        </span>
-                    </div>
-                    <div class="metric-meta">
-                        <span>GSM LBS Tracking</span>
-                    </div>
-                </div>
-            `).join('');
-
-            // 3. Update Table Headers dynamically
-            tableHead.innerHTML = `
-                <th>Time</th>
-                <th>Device</th>
-                ${activeKeys.map(k => `<th>${formatLabel(k).split(' ')[0]}</th>`).join('')}
-                <th>Status</th>
-            `;
-
-            // 4. Update Table Rows dynamically
+            const escapeHtml = value => String(value ?? '--').replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[c]));
+            const coreKeys = ['pm25', 'pm10', 'co2', 'temperature', 'humidity'];
+            const expandedNodes = new Set(Array.from(tableBody.querySelectorAll('details[open]')).map(el => el.dataset.node));
+            document.getElementById('last-updated').textContent = 'Refreshed: ' + new Date().toLocaleTimeString();
+            document.querySelector('thead tr').innerHTML = `
+                <th>Node</th><th>Last report (EAT)</th>
+                ${coreKeys.map(k => `<th>${escapeHtml(formatLabel(k))} (${escapeHtml(getUnit(k))})</th>`).join('')}
+                <th>Location</th><th>Details</th>`;
             tableBody.innerHTML = readings.map(r => {
-                const time = r.timestamp ? r.timestamp.split(' ')[1] || r.timestamp : '--';
                 const metrics = r.metrics || {};
-                return `
-                    <tr>
-                        <td style="color: var(--text-muted)">${time}</td>
-                        <td class="cell-device">${escapeHtml(r.device_id)}</td>
-                        ${activeKeys.map(k => `
-                            <td class="cell-value">
-                                ${escapeHtml(metrics[k])}
-                                <span class="cell-unit">${getUnit(k)}</span>
-                            </td>
-                        `).join('')}
-                        <td><span class="status-tag status-success">Live</span></td>
-                    </tr>
-                `;
+                const extraKeys = Object.keys(metrics).filter(k => !coreKeys.includes(k) && typeof metrics[k] === 'number' && Number.isFinite(metrics[k]));
+                const location = r.location;
+                const coordinates = location && location.latitude != null && location.longitude != null
+                    ? `${location.latitude}, ${location.longitude}` : '--';
+                const details = extraKeys.length ? `<details data-node="${escapeHtml(r.device_id)}" ${expandedNodes.has(r.device_id) ? 'open' : ''}>
+                    <summary style="cursor: pointer; color: var(--accent-cyan)">More readings</summary>
+                    <dl style="min-width: 180px; margin: 12px 0">${extraKeys.map(k => `<dt style="color: var(--text-secondary)">${escapeHtml(k === 'predicted_pm25' ? 'Predicted PM2.5' : formatLabel(k))}</dt><dd style="margin: 4px 0 12px">${escapeHtml(metrics[k])} ${escapeHtml(k === 'predicted_pm25' ? 'µg/m³' : getUnit(k))}</dd>`).join('')}</dl>
+                    </details>` : '--';
+                return `<tr>
+                    <td class="cell-device">${escapeHtml(r.device_id)}</td>
+                    <td>${escapeHtml(r.timestamp)}</td>
+                    ${coreKeys.map(k => `<td class="cell-value">${typeof metrics[k] === 'number' && Number.isFinite(metrics[k]) ? escapeHtml(metrics[k]) : '--'}</td>`).join('')}
+                    <td>${escapeHtml(coordinates)}</td><td>${details}</td>
+                </tr>`;
             }).join('');
         }
 
