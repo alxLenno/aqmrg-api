@@ -507,9 +507,9 @@
                 <select id="device-selector" style="background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 8px; font-family: inherit; font-size: 0.875rem; outline: none; cursor: pointer; backdrop-filter: blur(10px);">
                     <option value="">All Sensors</option>
                 </select>
-                <div class="status-indicator">
-                    <span class="status-dot"></span>
-                    <span>System Online</span>
+                <div class="status-indicator" id="backend-indicator">
+                    <span class="status-dot" id="backend-dot" style="background: var(--text-muted); animation: none"></span>
+                    <span id="backend-status">Checking connection…</span>
                 </div>
             </div>
         </header>
@@ -517,12 +517,9 @@
         <section class="table-section">
             <div class="table-header">
                 <div class="table-title-wrapper">
-                    <h2 class="table-title">Active Node Readings</h2>
-                    <span class="last-updated" id="last-updated">Last updated: --</span>
-                    <span class="live-badge">
-                        <span class="live-dot"></span>
-                        Live
-                    </span>
+                    <h2 class="table-title">Recent Node Readings</h2>
+                    <span class="last-updated" id="last-updated">Last successful update: --</span>
+                    <span class="last-updated" id="reporting-count" aria-live="polite">Reporting nodes: --</span>
                 </div>
                 <div style="display: flex; gap: 12px;">
                     <a href="/api/v1/health/export/csv" id="export-health-btn" class="btn btn-secondary">
@@ -640,14 +637,24 @@
         async function fetchLatestData() {
             try {
                 const url = '/api/v1/data/latest?per_node=true' + (currentDevice ? `&device_id=${encodeURIComponent(currentDevice)}` : '');
-                const response = await fetch(url);
+                const response = await fetch(url, {signal: AbortSignal.timeout(10000), cache: 'no-store'});
+                if (!response.ok) throw new Error(`Request failed: ${response.status}`);
                 const data = await response.json();
+                if (!Array.isArray(data)) throw new Error('Invalid readings response');
 
                 updateDashboard(data);
+                document.getElementById('backend-status').textContent = 'Backend reachable';
+                document.getElementById('backend-dot').style.background = 'var(--success)';
+                document.getElementById('backend-indicator').style.color = 'var(--success)';
                 if (!data.length) {
-                    document.getElementById('readings-body').innerHTML = `<tr><td colspan="10"><div class="empty-state"><p>No active nodes reporting in the activity window.</p></div></td></tr>`;
+                    document.getElementById('readings-body').innerHTML = `<tr><td colspan="10"><div class="empty-state"><p>No nodes have reported within the recent activity window.</p></div></td></tr>`;
                 }
             } catch (error) {
+                document.getElementById('backend-status').textContent = 'Connection lost';
+                document.getElementById('backend-dot').style.background = 'var(--danger)';
+                document.getElementById('backend-indicator').style.color = 'var(--danger)';
+                document.getElementById('reporting-count').textContent = 'Reporting nodes: unknown';
+                document.querySelectorAll('#readings-body .status-tag').forEach(el => { el.textContent = 'Unknown · stale data'; el.style.color = 'var(--text-muted)'; });
                 console.error('Error fetching data:', error);
             }
         }
@@ -658,7 +665,8 @@
             const coreKeys = ['pm25', 'pm10', 'co2', 'temperature', 'humidity'];
             const columnLabels = {pm25: 'PM2.5', pm10: 'PM10', co2: 'CO₂', temperature: 'Temp.', humidity: 'Humidity'};
             const expandedNodes = new Set(Array.from(tableBody.querySelectorAll('details[open]')).map(el => el.dataset.node));
-            document.getElementById('last-updated').textContent = 'Refreshed: ' + new Date().toLocaleTimeString();
+            document.getElementById('last-updated').textContent = 'Last successful update: ' + new Date().toLocaleTimeString();
+            document.getElementById('reporting-count').textContent = `${currentDevice ? 'Reporting nodes in selection' : 'Reporting nodes'}: ${readings.filter(r => r.status === 'online').length}`;
             document.querySelector('thead tr').innerHTML = `
                 <th>Node</th><th>Status</th><th>Last report (EAT)</th>
                 ${coreKeys.map(k => `<th>${columnLabels[k]}<span class="column-unit">${escapeHtml(getUnit(k))}</span></th>`).join('')}
@@ -675,7 +683,7 @@
                     </details>` : '--';
                 return `<tr>
                     <td class="cell-device">${escapeHtml(r.device_id)}</td>
-                    <td><span class="status-tag" style="color: ${r.status === 'online' ? 'var(--success)' : 'var(--text-muted)'}; background: ${r.status === 'online' ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.05)'}">● ${r.status === 'online' ? 'Online' : 'Offline'}</span></td>
+                    <td><span class="status-tag" style="color: ${r.status === 'online' ? 'var(--success)' : 'var(--text-muted)'}; background: ${r.status === 'online' ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.05)'}">● ${r.status === 'online' ? 'Reporting' : 'Not reporting'}</span></td>
                     <td>${escapeHtml(r.timestamp)}<div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 4px">${Number.isFinite(r.last_seen_seconds) ? (r.last_seen_seconds < 60 ? `${r.last_seen_seconds}s ago` : `${Math.floor(r.last_seen_seconds / 60)}m ago`) : '--'}</div></td>
                     ${coreKeys.map(k => `<td class="cell-value">${typeof metrics[k] === 'number' && Number.isFinite(metrics[k]) ? escapeHtml(metrics[k]) : '--'}</td>`).join('')}
                     <td>${escapeHtml(coordinates)}</td><td class="details-cell">${details}</td>
