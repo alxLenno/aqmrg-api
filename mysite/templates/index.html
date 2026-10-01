@@ -645,7 +645,7 @@
 
                 updateDashboard(data);
                 if (!data.length) {
-                    document.getElementById('readings-body').innerHTML = `<tr><td colspan="9"><div class="empty-state"><p>No active nodes reporting in the activity window.</p></div></td></tr>`;
+                    document.getElementById('readings-body').innerHTML = `<tr><td colspan="10"><div class="empty-state"><p>No active nodes reporting in the activity window.</p></div></td></tr>`;
                 }
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -660,7 +660,7 @@
             const expandedNodes = new Set(Array.from(tableBody.querySelectorAll('details[open]')).map(el => el.dataset.node));
             document.getElementById('last-updated').textContent = 'Refreshed: ' + new Date().toLocaleTimeString();
             document.querySelector('thead tr').innerHTML = `
-                <th>Node</th><th>Last report (EAT)</th>
+                <th>Node</th><th>Status</th><th>Last report (EAT)</th>
                 ${coreKeys.map(k => `<th>${columnLabels[k]}<span class="column-unit">${escapeHtml(getUnit(k))}</span></th>`).join('')}
                 <th>Location</th><th>Details</th>`;
             tableBody.innerHTML = readings.map(r => {
@@ -675,7 +675,8 @@
                     </details>` : '--';
                 return `<tr>
                     <td class="cell-device">${escapeHtml(r.device_id)}</td>
-                    <td>${escapeHtml(r.timestamp)}</td>
+                    <td><span class="status-tag" style="color: ${r.status === 'online' ? 'var(--success)' : 'var(--text-muted)'}; background: ${r.status === 'online' ? 'rgba(16,185,129,0.1)' : 'rgba(255,255,255,0.05)'}">● ${r.status === 'online' ? 'Online' : 'Offline'}</span></td>
+                    <td>${escapeHtml(r.timestamp)}<div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 4px">${Number.isFinite(r.last_seen_seconds) ? (r.last_seen_seconds < 60 ? `${r.last_seen_seconds}s ago` : `${Math.floor(r.last_seen_seconds / 60)}m ago`) : '--'}</div></td>
                     ${coreKeys.map(k => `<td class="cell-value">${typeof metrics[k] === 'number' && Number.isFinite(metrics[k]) ? escapeHtml(metrics[k]) : '--'}</td>`).join('')}
                     <td>${escapeHtml(coordinates)}</td><td class="details-cell">${details}</td>
                 </tr>`;

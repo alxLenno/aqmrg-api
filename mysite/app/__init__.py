@@ -10,6 +10,7 @@ def create_app():
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(BASE_DIR, 'sensor_data.db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['NODE_ONLINE_MINUTES'] = int(os.environ.get('NODE_ONLINE_MINUTES', '5'))
     app.config['ACTIVE_NODE_MINUTES'] = int(os.environ.get('ACTIVE_NODE_MINUTES', '15'))
     
     app.config['SWAGGER'] = {'title': 'AQMRG Intelligence Relay', 'uiversion': 3}

@@ -518,7 +518,16 @@ def get_latest():
         readings = latest_per_node(SensorReading)
     else:
         readings = query.order_by(SensorReading.timestamp.desc()).limit(100).all()
-    return jsonify([r.to_dict() for r in readings])
+    now = get_eat_time()
+    online_seconds = current_app.config.get('NODE_ONLINE_MINUTES', 5) * 60
+    results = []
+    for reading in readings:
+        item = reading.to_dict()
+        age = max(0, int((now - reading.timestamp).total_seconds()))
+        item['status'] = 'online' if age <= online_seconds else 'offline'
+        item['last_seen_seconds'] = age
+        results.append(item)
+    return jsonify(results)
 
 @api_bp.route('/api/v1/history/all', methods=['GET'])
 def get_all_history():
