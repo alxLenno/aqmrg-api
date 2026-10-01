@@ -341,10 +341,9 @@ def health():
 @api_bp.route('/api/v1/devices', methods=['GET'])
 def get_devices():
     """Get a list of all distinct device IDs actively reporting to the base."""
-    # Strict hardware lock: Only return 'AQ-NODE-001' if it has reported in the last 24h
+    # Include every node with stored readings.
     active_devices = [r[0] for r in db.session.query(SensorReading.device_id)
-                     .filter(SensorReading.device_id == 'AQ-NODE-001')
-                     .distinct().all()]
+                     .distinct().order_by(SensorReading.device_id).all()]
     return jsonify({"devices": active_devices})
 
 @api_bp.route('/api/v1/data/ingest', methods=['POST'])
@@ -352,6 +351,10 @@ def ingest():
     try:
         data = request.get_json()
         if not data: return jsonify({"status": "error"}), 400
+        device_id = data.get('sensorId') or data.get('device_id')
+        if not isinstance(device_id, str) or not device_id.strip():
+            return jsonify({'status': 'error', 'message': 'A non-empty sensorId or device_id is required'}), 400
+        device_id = device_id.strip()
         metrics = data.get('metrics', {}); loc = data.get('location', {})
 
         # 1. Map Core Metrics (Fixed Columns)
@@ -377,7 +380,7 @@ def ingest():
 
         # 4. Phase 1: Save Core Data via SQLAlchemy
         new_reading = SensorReading(
-            device_id=data.get('sensorId', 'unknown'),
+            device_id=device_id,
             pm1=pm1, pm25=pm25, pm10=pm10,
             co=co, co2=co2,
             temperature=temperature, humidity=humidity,
@@ -395,7 +398,7 @@ def ingest():
         health_data = data.get('health')
         if health_data:
             new_health = DeviceHealth(
-                device_id=data.get('sensorId', 'unknown'),
+                device_id=device_id,
                 uptime_minutes=health_data.get('uptime_minutes'),
                 signal_dbm=health_data.get('signal_dbm'),
                 gsm_reconnects=health_data.get('gsm_reconnects'),
@@ -429,77 +432,69 @@ def ingest():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+def latest_per_node(model):
+    """Return one latest record per node, with stable ordering for equal timestamps."""
+    ranked = db.session.query(
+        model.id.label('id'),
+        sqlalchemy.func.row_number().over(
+            partition_by=model.device_id,
+            order_by=(model.timestamp.desc(), model.id.desc())
+        ).label('rank')
+    ).subquery()
+    query = model.query.join(ranked, model.id == ranked.c.id).filter(ranked.c.rank == 1)
+    device_id = request.args.get('device_id')
+    if device_id:
+        query = query.filter(model.device_id == device_id)
+    return query.order_by(model.device_id).all()
+
+
 @api_bp.route('/api/v1/forecast/realtime', methods=['GET'])
 def get_prediction():
     status = get_model_status()
-    if not status["has_models"]:
-        return jsonify({
-            "status": "error", 
-            "message": "No models loaded on server",
-            "diagnostics": status if request.args.get('debug') == 'true' else None
-        }), 500
-
-    latest = SensorReading.query.order_by(SensorReading.timestamp.desc()).first()
-    if not latest:
-        return jsonify({"status": "error", "message": "No sensor data found"}), 404
-
-    try:
-        pred = ensemble_predict(
-            latest.pm10 or 0,
-            latest.co or 0,
-            latest.temperature or 0,
-            latest.humidity or 0
-        )
-        if pred is None:
-            return jsonify({"status": "error", "message": "All models failed"}), 500
-
-        return jsonify({
-            "prediction": pred,
-            "actual_pm25": latest.pm25,
-            "shift": round(latest.pm25 - pred, 2),
-            "timestamp": latest.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+    if not status['has_models']:
+        return jsonify({'status': 'error', 'message': 'No models loaded on server'}), 500
+    readings = latest_per_node(SensorReading)
+    if not readings:
+        return jsonify({'status': 'error', 'message': 'No sensor data found'}), 404
+    results = []
+    for latest in readings:
+        pred = ensemble_predict(latest.pm10 or 0, latest.co or 0,
+                                latest.temperature or 0, latest.humidity or 0)
+        results.append({
+            'device_id': latest.device_id,
+            'prediction': pred,
+            'actual_pm25': latest.pm25,
+            'shift': round(latest.pm25 - pred, 2) if latest.pm25 is not None and pred is not None else None,
+            'timestamp': latest.timestamp.strftime('%Y-%m-%d %H:%M:%S')
         })
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+    return jsonify(results[0] if request.args.get('device_id') else {'nodes': results})
+
 
 @api_bp.route('/api/v1/forecast/comparison', methods=['GET'])
 def get_model_comparison():
     status = get_model_status()
-    if not status["has_models"]:
-        return jsonify({
-            "status": "error", 
-            "message": "No models loaded on server",
-            "diagnostics": status if request.args.get('debug') == 'true' else None
-        }), 500
-
-    latest = SensorReading.query.order_by(SensorReading.timestamp.desc()).first()
-    if not latest:
-        return jsonify({"status": "error", "message": "No sensor data found"}), 404
-
-    if latest.predicted_pm25_gb is not None and latest.predicted_pm25_ols is not None:
-        preds = {
-            'existing': latest.predicted_pm25_existing,
-            'gb': latest.predicted_pm25_gb,
-            'ols': latest.predicted_pm25_ols
-        }
-    else:
-        preds = predict_all_models(
-            latest.pm10 or 0,
-            latest.co or 0,
-            latest.temperature or 0,
-            latest.humidity or 0
-        )
-
+    if not status['has_models']:
+        return jsonify({'status': 'error', 'message': 'No models loaded on server'}), 500
+    readings = latest_per_node(SensorReading)
+    if not readings:
+        return jsonify({'status': 'error', 'message': 'No sensor data found'}), 404
     import numpy as np
-    valid_preds = [v for v in preds.values() if v is not None]
-    ensemble_median = round(float(np.median(valid_preds)), 2) if valid_preds else None
-
-    return jsonify({
-        "timestamp": latest.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
-        "actual_pm25": latest.pm25,
-        "predictions": preds,
-        "ensemble_median": ensemble_median
-    })
+    results = []
+    for latest in readings:
+        if latest.predicted_pm25_gb is not None and latest.predicted_pm25_ols is not None:
+            preds = {'existing': latest.predicted_pm25_existing,
+                     'gb': latest.predicted_pm25_gb, 'ols': latest.predicted_pm25_ols}
+        else:
+            preds = predict_all_models(latest.pm10 or 0, latest.co or 0,
+                                       latest.temperature or 0, latest.humidity or 0)
+        valid = [v for v in preds.values() if v is not None]
+        results.append({
+            'device_id': latest.device_id,
+            'timestamp': latest.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+            'actual_pm25': latest.pm25, 'predictions': preds,
+            'ensemble_median': round(float(np.median(valid)), 2) if valid else None
+        })
+    return jsonify(results[0] if request.args.get('device_id') else {'nodes': results})
 
 @api_bp.route('/api/v1/forecast/debug', methods=['GET'])
 def debug_forecast():
@@ -512,7 +507,10 @@ def get_latest():
     query = SensorReading.query
     if device_id:
         query = query.filter_by(device_id=device_id)
-    readings = query.order_by(SensorReading.timestamp.desc()).limit(100).all()
+    if request.args.get('per_node') == 'true':
+        readings = latest_per_node(SensorReading)
+    else:
+        readings = query.order_by(SensorReading.timestamp.desc()).limit(100).all()
     return jsonify([r.to_dict() for r in readings])
 
 @api_bp.route('/api/v1/history/all', methods=['GET'])
@@ -535,11 +533,7 @@ def get_latest_health():
     query = DeviceHealth.query
     if device_id:
         query = query.filter_by(device_id=device_id)
-    else:
-        # Strict filter: Only show health for the real node
-        query = query.filter(DeviceHealth.device_id == 'AQ-NODE-001')
-
-    health_logs = query.order_by(DeviceHealth.timestamp.desc()).limit(100).all()
+    health_logs = latest_per_node(DeviceHealth)
     return jsonify([h.to_dict() for h in health_logs])
 
 @api_bp.route('/api/v1/data/export/csv', methods=['GET'])
