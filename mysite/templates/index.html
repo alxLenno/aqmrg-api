@@ -661,6 +661,11 @@
                     });
                 }
 
+                if (currentDevice && !data.devices?.includes(currentDevice)) {
+                    currentDevice = '';
+                    updateExportLinks();
+                    fetchLatestData();
+                }
                 selector.value = currentDevice;
                 selector.onchange = (e) => {
                     currentDevice = e.target.value;
@@ -688,7 +693,7 @@
 
                 updateDashboard(data);
                 if (!data.length) {
-                    document.getElementById('readings-body').innerHTML = `<tr><td colspan="10"><div class="empty-state"><p>No data recorded for this sensor yet.</p></div></td></tr>`;
+                    document.getElementById('readings-body').innerHTML = `<tr><td colspan="10"><div class="empty-state"><p>No active nodes reporting in the activity window.</p></div></td></tr>`;
                 }
             } catch (error) {
                 console.error('Error fetching data:', error);

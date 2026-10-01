@@ -1,5 +1,5 @@
-# from flask import Blueprint, request, jsonify, Response, render_template
-# from .models import db, SensorReading, DeviceHealth
+# from flask import Blueprint, request, jsonify, Response, render_template, current_app
+# from .models import db, SensorReading, DeviceHealth, get_eat_time
 # from .ml import predict_all_models, ensemble_predict, has_any_model
 # from datetime import datetime
 # import json
@@ -272,10 +272,10 @@
 
 
 
-from flask import Blueprint, request, jsonify, Response, render_template
-from .models import db, SensorReading, DeviceHealth
+from flask import Blueprint, request, jsonify, Response, render_template, current_app
+from .models import db, SensorReading, DeviceHealth, get_eat_time
 from .ml import predict_all_models, ensemble_predict, has_any_model, get_model_status
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 import csv
 import io
@@ -338,13 +338,18 @@ def home():
 def health():
     return jsonify({"status": "healthy", "service": "local-sensor-receiver"})
 
+def active_node_ids():
+    """Activity uses server receipt time, stored in EAT by SensorReading."""
+    cutoff = get_eat_time() - timedelta(minutes=current_app.config.get('ACTIVE_NODE_MINUTES', 15))
+    return db.session.query(SensorReading.device_id).filter(
+        SensorReading.timestamp >= cutoff,
+        SensorReading.device_id != 'unknown'
+    ).distinct()
+
+
 @api_bp.route('/api/v1/devices', methods=['GET'])
 def get_devices():
-    """Get a list of all distinct device IDs actively reporting to the base."""
-    # Include every node with stored readings.
-    active_devices = [r[0] for r in db.session.query(SensorReading.device_id)
-                     .distinct().order_by(SensorReading.device_id).all()]
-    return jsonify({"devices": active_devices})
+    return jsonify({'devices': [r[0] for r in active_node_ids().order_by(SensorReading.device_id).all()]})
 
 @api_bp.route('/api/v1/data/ingest', methods=['POST'])
 def ingest():
@@ -441,7 +446,9 @@ def latest_per_node(model):
             order_by=(model.timestamp.desc(), model.id.desc())
         ).label('rank')
     ).subquery()
-    query = model.query.join(ranked, model.id == ranked.c.id).filter(ranked.c.rank == 1)
+    query = model.query.join(ranked, model.id == ranked.c.id).filter(
+        ranked.c.rank == 1, model.device_id.in_(active_node_ids())
+    )
     device_id = request.args.get('device_id')
     if device_id:
         query = query.filter(model.device_id == device_id)
@@ -504,7 +511,7 @@ def debug_forecast():
 @api_bp.route('/api/v1/data/latest', methods=['GET'])
 def get_latest():
     device_id = request.args.get('device_id')
-    query = SensorReading.query
+    query = SensorReading.query.filter(SensorReading.device_id.in_(active_node_ids()))
     if device_id:
         query = query.filter_by(device_id=device_id)
     if request.args.get('per_node') == 'true':
