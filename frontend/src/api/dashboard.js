@@ -16,7 +16,7 @@ export async function fetchDashboardData(deviceId = '') {
 
     // Support both raw array (PythonAnywhere) and object with sensors (Analytics Service)
     const rawData = Array.isArray(data) ? data : (data.sensors || []);
-    const serverTimestamp = data.timestamp || (rawData.length > 0 ? rawData[0].timestamp : new Date().toISOString());
+    const serverTimestamp = rawData.map(r => r.timestamp || r.last_seen || r.recorded_at).filter(Boolean).sort().at(-1) || null;
 
     // Transform the list of readings into the format expected by the dashboard
     const sensors = rawData.map(reading => {

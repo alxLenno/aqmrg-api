@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import StatsGrid from './components/StatsGrid';
@@ -48,6 +48,9 @@ export default function App() {
   const [comparison, setComparison] = useState(null);
   const [comparisonLoading, setComparisonLoading] = useState(true);
   const [showSyncAlert, setShowSyncAlert] = useState(false);
+  const readingWatermarks = useRef(new Map());
+  const alertTimer = useRef(null);
+  useEffect(() => () => clearTimeout(alertTimer.current), []);
   const [devices, setDevices] = useState([]);
   const [selectedDevice, setSelectedDevice] = useState('');
 
@@ -58,14 +61,25 @@ export default function App() {
   const loadDashboardData = useCallback(async () => {
     try {
       const data = await fetchDashboardData(selectedDevice);
-      setTimestamp(prev => {
-        if (data.timestamp && prev && data.timestamp !== prev) {
-          setShowSyncAlert(true);
-          setTimeout(() => setShowSyncAlert(false), 5000);
-          return data.timestamp;
-        }
-        return data.timestamp || prev;
-      });
+      // Track each node independently. Polls, reordered rows, and filter changes
+      // cannot create an entry; only a later report from a known node can.
+      let hasNewReading = false;
+      for (const sensor of data.sensors || []) {
+        if (!sensor.last_seen) continue;
+        const date = /Z$|[+-]\d{2}:\d{2}$/.test(sensor.last_seen)
+          ? sensor.last_seen : sensor.last_seen.replace(' ', 'T') + '+03:00';
+        const reportTime = Date.parse(date);
+        if (!Number.isFinite(reportTime)) continue;
+        const previous = readingWatermarks.current.get(sensor.device_id);
+        if (previous !== undefined && reportTime > previous) hasNewReading = true;
+        readingWatermarks.current.set(sensor.device_id, Math.max(previous ?? reportTime, reportTime));
+      }
+      if (hasNewReading) {
+        setShowSyncAlert(true);
+        clearTimeout(alertTimer.current);
+        alertTimer.current = setTimeout(() => setShowSyncAlert(false), 5000);
+      }
+      setTimestamp(data.timestamp);
       setSensors(data.sensors || []);
       setSensorsCount(data.sensorsCount);
       setApiStatus('connected');
