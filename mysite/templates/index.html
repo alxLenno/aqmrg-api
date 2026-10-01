@@ -354,6 +354,23 @@
             border: 1px solid var(--border-color);
         }
 
+        .details-cell {
+            min-width: 100px;
+        }
+
+        .details-cell summary {
+            cursor: pointer;
+            color: var(--accent-cyan);
+            white-space: nowrap;
+        }
+
+        .column-unit {
+            display: block;
+            margin-top: 4px;
+            font-weight: normal;
+            text-transform: none;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -639,11 +656,12 @@
             const tableBody = document.getElementById('readings-body');
             const escapeHtml = value => String(value ?? '--').replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[c]));
             const coreKeys = ['pm25', 'pm10', 'co2', 'temperature', 'humidity'];
+            const columnLabels = {pm25: 'PM2.5', pm10: 'PM10', co2: 'CO₂', temperature: 'Temp.', humidity: 'Humidity'};
             const expandedNodes = new Set(Array.from(tableBody.querySelectorAll('details[open]')).map(el => el.dataset.node));
             document.getElementById('last-updated').textContent = 'Refreshed: ' + new Date().toLocaleTimeString();
             document.querySelector('thead tr').innerHTML = `
                 <th>Node</th><th>Last report (EAT)</th>
-                ${coreKeys.map(k => `<th>${escapeHtml(formatLabel(k))} (${escapeHtml(getUnit(k))})</th>`).join('')}
+                ${coreKeys.map(k => `<th>${columnLabels[k]}<span class="column-unit">${escapeHtml(getUnit(k))}</span></th>`).join('')}
                 <th>Location</th><th>Details</th>`;
             tableBody.innerHTML = readings.map(r => {
                 const metrics = r.metrics || {};
@@ -652,14 +670,14 @@
                 const coordinates = location && location.latitude != null && location.longitude != null
                     ? `${location.latitude}, ${location.longitude}` : '--';
                 const details = extraKeys.length ? `<details data-node="${escapeHtml(r.device_id)}" ${expandedNodes.has(r.device_id) ? 'open' : ''}>
-                    <summary style="cursor: pointer; color: var(--accent-cyan)">More readings</summary>
+                    <summary>Details</summary>
                     <dl style="min-width: 180px; margin: 12px 0">${extraKeys.map(k => `<dt style="color: var(--text-secondary)">${escapeHtml(k === 'predicted_pm25' ? 'Predicted PM2.5' : formatLabel(k))}</dt><dd style="margin: 4px 0 12px">${escapeHtml(metrics[k])} ${escapeHtml(k === 'predicted_pm25' ? 'µg/m³' : getUnit(k))}</dd>`).join('')}</dl>
                     </details>` : '--';
                 return `<tr>
                     <td class="cell-device">${escapeHtml(r.device_id)}</td>
                     <td>${escapeHtml(r.timestamp)}</td>
                     ${coreKeys.map(k => `<td class="cell-value">${typeof metrics[k] === 'number' && Number.isFinite(metrics[k]) ? escapeHtml(metrics[k]) : '--'}</td>`).join('')}
-                    <td>${escapeHtml(coordinates)}</td><td>${details}</td>
+                    <td>${escapeHtml(coordinates)}</td><td class="details-cell">${details}</td>
                 </tr>`;
             }).join('');
         }
