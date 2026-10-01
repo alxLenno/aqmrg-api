@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { useTheme } from '../context/ThemeContext';
 import { discoverMetrics, formatMetricLabel, getMetricUnit } from '../utils/metrics';
 import 'leaflet/dist/leaflet.css';
 
@@ -35,17 +34,14 @@ function ChangeView({ sensors }) {
 }
 
 export default function MapPanel({ sensors, loading }) {
-    const { theme } = useTheme();
-    const isDark = theme === 'dark';
     const sensorsList = Array.isArray(sensors) ? sensors : [];
     
     // Discover relevant metrics for popups
     const activeMetricKeys = discoverMetrics(sensorsList);
 
     // CartoDB Tile Layers
-    const lightTiles = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
-    const darkTiles = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-    const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
+    const tiles = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+    const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
     const getStatusColor = (pm25) => {
         if (!pm25 && pm25 !== 0) return '#64748b'; // Gray
@@ -103,7 +99,7 @@ export default function MapPanel({ sensors, loading }) {
                     </div>
                     <h3>Network Geographic Overlook</h3>
                 </div>
-                <span className="card-badge model-badge">{sensorsList.length} Active Nodes</span>
+                <span className="card-badge model-badge">{sensorsList.length} Recent Nodes</span>
             </div>
 
             <div className="map-container-wrapper">
@@ -114,7 +110,8 @@ export default function MapPanel({ sensors, loading }) {
                     scrollWheelZoom={false}
                 >
                     <TileLayer
-                        url={isDark ? darkTiles : lightTiles}
+                        url={tiles}
+                        maxZoom={19}
                         attribution={attribution}
                     />
                     
